@@ -1,122 +1,48 @@
-"use client";
-
-import { useState } from "react";
-
-import Navbar from "../components/Navbar";
-import Dashboard from "../components/Dashboard";
-import SettingsPanel from "../components/SettingsPanel";
-import NFTForm from "../components/NFTForm";
-import NFTPreview from "../components/NFTPreview";
-import MetadataOutput from "../components/MetadataOutput";
-import CollectionGenerator from "../components/CollectionGenerator";
-import Footer from "../components/Footer";
-
-import { Attribute } from "../components/types";
+import Link from "next/link";
 
 export default function Home() {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [image, setImage] = useState("");
-
-  const [traitType, setTraitType] = useState("");
-  const [traitValue, setTraitValue] = useState("");
-
-  const [attributes, setAttributes] = useState<Attribute[]>([]);
-
-  const [metadata, setMetadata] = useState("");
-
-  const [collectionSize, setCollectionSize] = useState(10);
-
-  function generateMetadata() {
-    const nft = {
-      name,
-      description,
-      image,
-      attributes,
-    };
-
-    setMetadata(JSON.stringify(nft, null, 2));
-  }
-
   return (
-    <main className="min-h-screen bg-blue-50">
+    <main className="min-h-screen bg-slate-950 text-white">
+      <section className="mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-6 text-center">
+        <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1 text-sm text-blue-300">
+          Built for the Shelby Ecosystem
+        </span>
 
-      <Navbar />
-      <section className="bg-gradient-to-r from-blue-700 to-blue-500 text-white">
+        <h1 className="mt-8 text-5xl font-extrabold tracking-tight md:text-7xl">
+          Shelby NFT
+          <br />
+          Metadata Manager
+        </h1>
 
-  <div className="max-w-7xl mx-auto px-8 py-14">
+        <p className="mt-6 max-w-2xl text-lg text-slate-300">
+          Create, preview, validate and store NFT metadata using Shelby
+          Storage. Built for NFT creators, developers and Web3 teams.
+        </p>
 
-    <h1 className="text-5xl font-bold">
-      Shelby NFT Metadata Manager
-    </h1>
+        <div className="mt-10 flex flex-wrap justify-center gap-4">
+          <Link
+            href="/app"
+            className="rounded-xl bg-blue-600 px-6 py-3 font-semibold transition hover:bg-blue-700"
+          >
+            Launch App →
+          </Link>
 
-    <p className="mt-4 text-blue-100 text-lg max-w-2xl">
-      Create, preview, validate and export NFT metadata through a modern
-      dashboard designed for creators and developers.
-    </p>
+          <Link
+            href="/docs"
+            className="rounded-xl border border-slate-700 px-6 py-3 font-semibold hover:bg-slate-900"
+          >
+            Documentation
+          </Link>
 
-  </div>
-
-</section>
-
-      <div className="max-w-7xl mx-auto px-8 pt-8">
-        <Dashboard
-          nfts={metadata ? 1 : 0}
-          attributes={attributes.length}
-          collection={collectionSize}
-        />
-      </div>
-
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8 p-8">
-
-        <div className="lg:col-span-2">
-
-          <NFTForm
-            name={name}
-            setName={setName}
-            description={description}
-            setDescription={setDescription}
-            image={image}
-            setImage={setImage}
-            traitType={traitType}
-            setTraitType={setTraitType}
-            traitValue={traitValue}
-            setTraitValue={setTraitValue}
-            attributes={attributes}
-            setAttributes={setAttributes}
-            generateMetadata={generateMetadata}
-          />
-
+          <Link
+            href="https://github.com/Daviddforth/shelby-nft-metadata-manager"
+            target="_blank"
+            className="rounded-xl border border-slate-700 px-6 py-3 font-semibold hover:bg-slate-900"
+          >
+            GitHub
+          </Link>
         </div>
-
-        <div className="space-y-6">
-
-          <CollectionGenerator
-            amount={collectionSize}
-            setAmount={setCollectionSize}
-          />
-
-          <SettingsPanel
-            collectionSize={collectionSize}
-            setCollectionSize={setCollectionSize}
-          />
-
-          <NFTPreview
-            image={image}
-            name={name}
-            description={description}
-          />
-
-          <MetadataOutput
-            metadata={metadata}
-          />
-
-        </div>
-
-      </div>
-
-      <Footer />
-
+      </section>
     </main>
   );
 }
