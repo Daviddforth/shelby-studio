@@ -2,29 +2,54 @@
 
 import { useState } from "react";
 
+type Attribute = {
+  trait_type: string;
+  value: string;
+};
+
 export default function Home() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState("");
+
+  const [traitType, setTraitType] = useState("");
+  const [traitValue, setTraitValue] = useState("");
+
+  const [attributes, setAttributes] = useState<Attribute[]>([]);
   const [metadata, setMetadata] = useState("");
 
-  const generateMetadata = () => {
+  function addAttribute() {
+    if (!traitType.trim() || !traitValue.trim()) return;
+
+    setAttributes([
+      ...attributes,
+      {
+        trait_type: traitType,
+        value: traitValue,
+      },
+    ]);
+
+    setTraitType("");
+    setTraitValue("");
+  }
+
+  function generateMetadata() {
     const nft = {
       name,
       description,
       image,
-      attributes: [],
+      attributes,
     };
 
     setMetadata(JSON.stringify(nft, null, 2));
-  };
+  }
 
-  const copyJSON = () => {
+  function copyMetadata() {
     navigator.clipboard.writeText(metadata);
     alert("Metadata copied!");
-  };
+  }
 
-  const downloadJSON = () => {
+  function downloadMetadata() {
     const blob = new Blob([metadata], {
       type: "application/json",
     });
@@ -32,138 +57,173 @@ export default function Home() {
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
-
     a.href = url;
-
     a.download = "metadata.json";
-
     a.click();
 
     URL.revokeObjectURL(url);
-  };
+  }
 
   return (
-    <main className="min-h-screen bg-[#070B18] text-white">
+    <main className="min-h-screen bg-blue-50">
+      <header className="bg-blue-700 text-white shadow-md">
+        <div className="max-w-7xl mx-auto px-8 py-6">
+          <h1 className="text-4xl font-bold">
+            Shelby NFT Metadata Manager
+          </h1>
+          <p className="text-blue-100 mt-2">
+            Create, preview and export NFT metadata.
+          </p>
+        </div>
+      </header>
 
-      <div className="max-w-7xl mx-auto p-10">
+      <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 p-8">
 
-        <h1 className="text-5xl font-bold">
-          Shelby NFT Metadata Manager
-        </h1>
+        <div className="bg-white rounded-xl shadow-lg p-8">
 
-        <p className="text-gray-400 mt-2">
-          Generate, preview and export NFT metadata.
-        </p>
+          <h2 className="text-2xl font-bold text-blue-700 mb-6">
+            NFT Details
+          </h2>
 
-        <div className="grid md:grid-cols-2 gap-8 mt-10">
+          <input
+            placeholder="NFT Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full border border-blue-200 bg-white text-gray-900 placeholder:text-gray-400 p-3 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
-          <div className="bg-[#171E30] rounded-xl p-8">
+          <textarea
+            placeholder="NFT Description"
+            rows={4}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full border border-blue-200 bg-white text-gray-900 placeholder:text-gray-400 p-3 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
-            <h2 className="text-2xl font-semibold mb-6">
-              NFT Details
-            </h2>
+          <input
+            placeholder="Image URL"
+            value={image}
+            onChange={(e) => setImage(e.target.value)}
+            className="w-full border border-blue-200 bg-white text-gray-900 placeholder:text-gray-400 p-3 rounded mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
-            <input
-              placeholder="NFT Name"
-              value={name}
-              onChange={(e)=>setName(e.target.value)}
-              className="w-full p-3 rounded bg-[#252E40] mb-5"
-            />
+          <h3 className="text-xl font-semibold text-blue-700 mb-3">
+            NFT Attributes
+          </h3>
 
-            <textarea
-              placeholder="Description"
-              rows={4}
-              value={description}
-              onChange={(e)=>setDescription(e.target.value)}
-              className="w-full p-3 rounded bg-[#252E40] mb-5"
-            />
+          <input
+            placeholder="Trait Type (Example: Background)"
+            value={traitType}
+            onChange={(e) => setTraitType(e.target.value)}
+            className="w-full border border-blue-200 bg-white text-gray-900 placeholder:text-gray-400 p-3 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
-            <input
-              placeholder="Image URL"
-              value={image}
-              onChange={(e)=>setImage(e.target.value)}
-              className="w-full p-3 rounded bg-[#252E40]"
-            />
+          <input
+            placeholder="Trait Value (Example: Blue)"
+            value={traitValue}
+            onChange={(e) => setTraitValue(e.target.value)}
+            className="w-full border border-blue-200 bg-white text-gray-900 placeholder:text-gray-400 p-3 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
-            <button
-              onClick={generateMetadata}
-              className="mt-6 bg-blue-600 px-6 py-3 rounded-lg hover:bg-blue-700"
-            >
-              Generate Metadata
-            </button>
+          <button
+            onClick={addAttribute}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
+          >
+            Add Attribute
+          </button>
 
-          </div>
+          {attributes.length > 0 && (
+            <div className="mt-6 space-y-2">
+              {attributes.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between border rounded-lg p-3"
+                >
+                  <span>{item.trait_type}</span>
+                  <strong>{item.value}</strong>
+                </div>
+              ))}
+            </div>
+          )}
 
-          <div className="bg-[#171E30] rounded-xl p-8">
+          <button
+            onClick={generateMetadata}
+            className="mt-8 w-full bg-blue-700 hover:bg-blue-800 text-white py-4 rounded-xl font-semibold"
+          >
+            Generate Metadata
+          </button>
 
-            <h2 className="text-2xl font-semibold mb-6">
+        </div>
+
+        <div className="space-y-8">
+
+          <div className="bg-white rounded-xl shadow-lg p-8">
+
+            <h2 className="text-2xl font-bold text-blue-700 mb-5">
               NFT Preview
             </h2>
 
             {image ? (
               <img
                 src={image}
-                className="rounded-xl h-72 w-full object-cover"
                 alt="NFT Preview"
+                className="w-full h-80 object-cover rounded-xl"
               />
             ) : (
-              <div className="rounded-xl h-72 bg-[#252E40] flex items-center justify-center text-gray-400">
-                No Image
+              <div className="w-full h-80 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500">
+                No Image Selected
               </div>
             )}
 
-            <h3 className="text-2xl mt-5 font-bold">
+            <h3 className="text-2xl font-bold mt-6 text-gray-900">
               {name || "NFT Name"}
             </h3>
 
-            <p className="text-gray-400 mt-2">
+            <p className="text-gray-600 mt-2">
               {description || "NFT description..."}
             </p>
 
           </div>
 
-        </div>
+          {metadata && (
+            <div className="bg-white rounded-xl shadow-lg p-8">
 
-        {metadata && (
+              <div className="flex justify-between items-center mb-4">
 
-          <div className="bg-[#171E30] rounded-xl mt-10 p-8">
+                <h2 className="text-2xl font-bold text-blue-700">
+                  Metadata JSON
+                </h2>
 
-            <div className="flex justify-between items-center">
+                <div className="space-x-2">
 
-              <h2 className="text-2xl font-bold">
-                Metadata JSON
-              </h2>
+                  <button
+                    onClick={copyMetadata}
+                    className="bg-green-600 text-white px-4 py-2 rounded"
+                  >
+                    Copy
+                  </button>
 
-              <div className="space-x-3">
+                  <button
+                    onClick={downloadMetadata}
+                    className="bg-blue-700 text-white px-4 py-2 rounded"
+                  >
+                    Download
+                  </button>
 
-                <button
-                  onClick={copyJSON}
-                  className="bg-green-600 px-5 py-2 rounded"
-                >
-                  Copy
-                </button>
-
-                <button
-                  onClick={downloadJSON}
-                  className="bg-purple-600 px-5 py-2 rounded"
-                >
-                  Download
-                </button>
+                </div>
 
               </div>
 
+              <pre className="bg-slate-900 text-green-400 p-5 rounded-lg overflow-auto text-sm">
+                {metadata}
+              </pre>
+
             </div>
+          )}
 
-            <pre className="bg-black mt-6 p-5 rounded overflow-auto text-green-400">
-              {metadata}
-            </pre>
-
-          </div>
-
-        )}
+        </div>
 
       </div>
-
     </main>
   );
 }
