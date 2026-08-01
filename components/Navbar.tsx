@@ -1,33 +1,54 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { FaMoon, FaSun } from "react-icons/fa";
+
 export default function Navbar() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+
+    if (savedTheme === "dark") {
+      document.documentElement.classList.add("dark");
+      setDarkMode(true);
+    }
+  }, []);
+
+  function toggleTheme() {
+    if (darkMode) {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    } else {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    }
+
+    setDarkMode(!darkMode);
+  }
+
   return (
-    <header className="bg-blue-700 shadow-lg">
-      <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
+    <header className="bg-blue-700 text-white shadow-md">
+      <div className="max-w-7xl mx-auto flex justify-between items-center px-8 py-6">
 
         <div>
-          <h1 className="text-3xl font-bold text-white">
+
+          <h1 className="text-3xl font-bold">
             Shelby NFT Metadata Manager
           </h1>
 
-          <p className="text-blue-100 text-sm mt-1">
-            Build, preview and export NFT metadata.
+          <p className="text-blue-100 mt-1">
+            Professional NFT Metadata Creation Toolkit
           </p>
+
         </div>
 
-        <nav className="flex gap-4">
-
-          <button className="bg-white text-blue-700 px-5 py-2 rounded-lg font-semibold hover:bg-blue-100 transition">
-            Dashboard
-          </button>
-
-          <button className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-500 transition">
-            Collections
-          </button>
-
-          <button className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-500 transition">
-            Settings
-          </button>
-
-        </nav>
+        <button
+          onClick={toggleTheme}
+          className="bg-white/20 hover:bg-white/30 p-3 rounded-full transition"
+        >
+          {darkMode ? <FaSun size={20}/> : <FaMoon size={20}/>}
+        </button>
 
       </div>
     </header>

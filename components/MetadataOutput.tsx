@@ -1,3 +1,5 @@
+"use client";
+
 interface Props {
   metadata: string;
 }
@@ -5,12 +7,12 @@ interface Props {
 export default function MetadataOutput({ metadata }: Props) {
   if (!metadata) return null;
 
-  function copy() {
+  function copyMetadata() {
     navigator.clipboard.writeText(metadata);
-    alert("Copied!");
+    alert("Metadata copied!");
   }
 
-  function download() {
+  function downloadMetadata() {
     const blob = new Blob([metadata], {
       type: "application/json",
     });
@@ -18,7 +20,6 @@ export default function MetadataOutput({ metadata }: Props) {
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
-
     a.href = url;
     a.download = "metadata.json";
     a.click();
@@ -27,26 +28,26 @@ export default function MetadataOutput({ metadata }: Props) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-8">
+    <div className="bg-white rounded-xl shadow-lg p-6">
 
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-5">
 
         <h2 className="text-2xl font-bold text-blue-700">
           Metadata JSON
         </h2>
 
-        <div className="space-x-3">
+        <div className="space-x-2">
 
           <button
-            onClick={copy}
-            className="bg-green-600 text-white px-4 py-2 rounded"
+            onClick={copyMetadata}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
           >
             Copy
           </button>
 
           <button
-            onClick={download}
-            className="bg-blue-700 text-white px-4 py-2 rounded"
+            onClick={downloadMetadata}
+            className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg"
           >
             Download
           </button>
@@ -55,7 +56,7 @@ export default function MetadataOutput({ metadata }: Props) {
 
       </div>
 
-      <pre className="bg-slate-900 text-green-400 mt-6 p-5 rounded-lg overflow-auto text-sm">
+      <pre className="bg-slate-900 text-green-400 p-5 rounded-xl overflow-auto text-sm">
         {metadata}
       </pre>
 

@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Shelby NFT Metadata Manager
+
+A modern NFT metadata creation tool built with **Next.js**, **React**, **TypeScript**, and **Tailwind CSS**.
+
+Designed as a lightweight metadata workflow for NFT creators and inspired by the Shelby Protocol ecosystem.
+
+---
+
+## Features
+
+- Dashboard
+- NFT Metadata Generator
+- Image Upload
+- Live NFT Preview
+- Custom Attributes
+- JSON Metadata Export
+- Copy Metadata
+- Dark Mode
+- Collection Size Settings
+- Responsive Design
+
+---
+
+## Tech Stack
+
+- Next.js 16
+- React
+- TypeScript
+- Tailwind CSS
+
+---
+
+## Roadmap
+
+- Batch Collection Generator
+- ZIP Export
+- Metadata Templates
+- Shelby Metadata Validation
+- Recent Projects
+- Analytics Dashboard
+
+---
 
 ## Getting Started
 
-First, run the development server:
+Clone the repository
+
+```bash
+git clone https://github.com/YOUR_USERNAME/shelby-nft-metadata-manager.git
+```
+
+Install packages
+
+```bash
+npm install
+```
+
+Run
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+http://localhost:3000
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Built By
 
-To learn more about Next.js, take a look at the following resources:
+David Ajoma
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built for Shelby Protocol.

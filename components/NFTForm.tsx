@@ -1,5 +1,6 @@
 "use client";
 
+import ImageUploader from "./ImageUploader";
 import { Attribute } from "./types";
 
 interface Props {
@@ -39,7 +40,6 @@ export default function NFTForm({
   setAttributes,
   generateMetadata,
 }: Props) {
-
   function addAttribute() {
     if (!traitType.trim() || !traitValue.trim()) return;
 
@@ -77,14 +77,15 @@ export default function NFTForm({
         className="w-full border border-blue-200 bg-white text-gray-900 p-3 rounded mb-4"
       />
 
-      <input
-        placeholder="Image URL"
-        value={image}
-        onChange={(e) => setImage(e.target.value)}
-        className="w-full border border-blue-200 bg-white text-gray-900 p-3 rounded mb-6"
-      />
+      <ImageUploader onImageUpload={setImage} />
 
-      <h3 className="text-xl font-bold text-blue-700 mb-4">
+      {image && (
+        <p className="mt-3 text-green-600 font-medium">
+          ✅ Image uploaded successfully
+        </p>
+      )}
+
+      <h3 className="text-xl font-bold text-blue-700 mt-8 mb-4">
         NFT Attributes
       </h3>
 
@@ -110,26 +111,17 @@ export default function NFTForm({
       </button>
 
       {attributes.length > 0 && (
-
         <div className="mt-6 space-y-2">
-
           {attributes.map((item, index) => (
-
             <div
               key={index}
               className="border rounded-lg p-3 flex justify-between"
             >
-
               <span>{item.trait_type}</span>
-
               <strong>{item.value}</strong>
-
             </div>
-
           ))}
-
         </div>
-
       )}
 
       <button

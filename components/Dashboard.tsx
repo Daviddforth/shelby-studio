@@ -1,12 +1,4 @@
-"use client";
-
 import DashboardCard from "./DashboardCard";
-
-import {
-  FaCubes,
-  FaTags,
-  FaLayerGroup,
-} from "react-icons/fa";
 
 interface Props {
   nfts: number;
@@ -25,19 +17,22 @@ export default function Dashboard({
       <DashboardCard
         title="NFTs Created"
         value={nfts}
-        icon={<FaCubes />}
+        subtitle="Status: Ready"
+        icon="📦"
       />
 
       <DashboardCard
         title="Attributes"
         value={attributes}
-        icon={<FaTags />}
+        subtitle="Traits Added"
+        icon="🏷️"
       />
 
       <DashboardCard
-        title="Collection Size"
+        title="Collection"
         value={collection}
-        icon={<FaLayerGroup />}
+        subtitle="Ready to Generate"
+        icon="🗂️"
       />
 
     </div>
