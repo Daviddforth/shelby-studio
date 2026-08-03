@@ -11,14 +11,24 @@ export default function AptosWalletProvider({
 }) {
   return (
     <AptosWalletAdapterProvider
-      autoConnect
       dappConfig={{
         network: Network.SHELBYNET,
         aptosApiKeys: {
           shelbynet: process.env.NEXT_PUBLIC_APTOS_API_KEY!,
         },
       }}
-      onError={(error) => console.error(error)}
+      onError={(error: Error) => {
+        const message = error?.message ?? "";
+
+        if (
+          message.includes("already connected") ||
+          message.includes("rejected")
+        ) {
+          return;
+        }
+
+        console.error(error);
+      }}
     >
       {children}
     </AptosWalletAdapterProvider>

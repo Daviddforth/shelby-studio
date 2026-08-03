@@ -16,10 +16,27 @@ export default function ConnectWallet() {
   const [open, setOpen] = useState(false);
 
   async function handleWalletSelect(walletName: string) {
+    // Already connected
+    if (connected) {
+      setOpen(false);
+      return;
+    }
+
     try {
       await connect(walletName);
       setOpen(false);
-    } catch (err) {
+    } catch (err: any) {
+      const message = err?.message ?? "";
+
+      // Ignore common wallet messages
+      if (
+        message.includes("already connected") ||
+        message.includes("rejected") ||
+        message.includes("User has rejected")
+      ) {
+        return;
+      }
+
       console.error(err);
     }
   }
@@ -29,20 +46,20 @@ export default function ConnectWallet() {
       {!connected ? (
         <button
           onClick={() => setOpen(true)}
-          className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
+          className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 transition"
         >
           Connect Wallet
         </button>
       ) : (
         <div className="flex items-center gap-3">
           <div className="rounded-xl border bg-white px-4 py-2">
-            {account?.address.toString().slice(0, 6)}...
-            {account?.address.toString().slice(-4)}
+            {account?.address?.toString().slice(0, 6)}...
+            {account?.address?.toString().slice(-4)}
           </div>
 
           <button
-            onClick={disconnect}
-            className="rounded-xl border px-4 py-2 hover:bg-red-50"
+            onClick={() => disconnect()}
+            className="rounded-xl border px-4 py-2 hover:bg-red-50 transition"
           >
             Disconnect
           </button>

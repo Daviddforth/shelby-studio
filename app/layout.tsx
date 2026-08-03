@@ -17,9 +17,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Shelby NFT Metadata Manager",
+  title: "Shelby Studio",
   description:
-    "Create, validate and prepare NFTs for the Shelby ecosystem.",
+    "The all-in-one workspace for managing Shelby NFTs, digital assets, storage, and metadata.",
 };
 
 export default function RootLayout({
@@ -32,12 +32,10 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-screen bg-gray-50 text-gray-900">
         <AptosWalletProvider>
           <WalletProvider>
-            <ShelbyProvider>
-              {children}
-            </ShelbyProvider>
+            <ShelbyProvider>{children}</ShelbyProvider>
           </WalletProvider>
         </AptosWalletProvider>
       </body>

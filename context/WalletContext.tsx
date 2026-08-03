@@ -3,31 +3,20 @@
 import {
   createContext,
   useContext,
-  useEffect,
-  useState,
   ReactNode,
+  useMemo,
 } from "react";
 
 import { useWallet as useAptosWallet } from "@aptos-labs/wallet-adapter-react";
 
-import { getOwnedNFTs } from "../lib/getOwnedNFTs";
-
 interface WalletContextType {
   walletAddress: string | null;
-
   walletConnected: boolean;
-
-  network: "Not Connected" | "Testnet" | "Mainnet";
-
-  isShelbyHolder: boolean;
-
-  storageConnected: boolean;
-
-  ownedNFTs: any[];
-
-  loadingNFTs: boolean;
-
-  refreshNFTs: () => Promise<void>;
+  network: string;
+  account: any;
+  signAndSubmitTransaction: any;
+  signMessage: any;
+  disconnectWallet: () => void;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(
@@ -42,68 +31,34 @@ export function WalletProvider({
   const {
     account,
     connected,
+    network,
+    disconnect,
+    signAndSubmitTransaction,
+    signMessage,
   } = useAptosWallet();
 
-  const [ownedNFTs, setOwnedNFTs] = useState<any[]>([]);
-
-  const [loadingNFTs, setLoadingNFTs] = useState(false);
-
-  const walletAddress = account?.address.toString() ?? null;
-
-  async function refreshNFTs() {
-    if (!walletAddress) {
-      setOwnedNFTs([]);
-      return;
-    }
-
-    try {
-      setLoadingNFTs(true);
-
-      const nfts = await getOwnedNFTs(walletAddress);
-
-      setOwnedNFTs(nfts);
-    } catch (err) {
-      console.error(err);
-      setOwnedNFTs([]);
-    } finally {
-      setLoadingNFTs(false);
-    }
-  }
-
-  useEffect(() => {
-    refreshNFTs();
-  }, [walletAddress]);
-
-  const isShelbyHolder = ownedNFTs.some((nft: any) => {
-    const collection =
-      nft.current_token_data?.current_collection?.collection_name ??
-      "";
-
-    return collection.toLowerCase().includes("shelby");
-  });
+  const value = useMemo(
+    () => ({
+      walletAddress: account?.address?.toString() ?? null,
+      walletConnected: connected,
+      network: network?.name ?? "Shelbynet",
+      account,
+      signAndSubmitTransaction,
+      signMessage,
+      disconnectWallet: disconnect,
+    }),
+    [
+      account,
+      connected,
+      network,
+      disconnect,
+      signAndSubmitTransaction,
+      signMessage,
+    ]
+  );
 
   return (
-    <WalletContext.Provider
-      value={{
-        walletAddress,
-
-        walletConnected: connected,
-
-        network: connected
-          ? "Testnet"
-          : "Not Connected",
-
-        isShelbyHolder,
-
-        storageConnected: false,
-
-        ownedNFTs,
-
-        loadingNFTs,
-
-        refreshNFTs,
-      }}
-    >
+    <WalletContext.Provider value={value}>
       {children}
     </WalletContext.Provider>
   );

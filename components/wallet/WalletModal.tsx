@@ -9,6 +9,15 @@ interface WalletModalProps {
   onSelectWallet: (walletName: string) => void | Promise<void>;
 }
 
+const HIDDEN_WALLETS = [
+  "Google",
+  "Apple",
+  "Continue with Google",
+  "Continue with Apple",
+  "Identity Connect",
+  "Email",
+];
+
 export default function WalletModal({
   open,
   onClose,
@@ -17,26 +26,47 @@ export default function WalletModal({
 }: WalletModalProps) {
   if (!open) return null;
 
+  const supportedWallets = wallets.filter(
+    (wallet) =>
+      !HIDDEN_WALLETS.some((hidden) =>
+        wallet.name.toLowerCase().includes(hidden.toLowerCase())
+      )
+  );
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <h2 className="text-2xl font-bold">Connect Wallet</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+        <h2 className="text-2xl font-bold">
+          Connect Wallet
+        </h2>
 
         <p className="mt-2 text-gray-500">
-          Choose a wallet to continue.
+          Select an Aptos wallet compatible with Shelby.
         </p>
 
         <div className="mt-6 space-y-3">
-          {wallets.map((wallet) => (
+          {supportedWallets.map((wallet) => (
             <button
               key={wallet.name}
               onClick={() => onSelectWallet(wallet.name)}
-              className="flex w-full items-center justify-between rounded-xl border p-4 transition hover:bg-blue-50"
+              className="flex w-full items-center justify-between rounded-xl border border-gray-200 bg-white p-4 transition hover:border-blue-500 hover:bg-blue-50"
             >
-              <span>{wallet.name}</span>
+              <div className="flex items-center gap-3">
+                {wallet.icon && (
+                  <img
+                    src={wallet.icon}
+                    alt={wallet.name}
+                    className="h-8 w-8 rounded-full"
+                  />
+                )}
+
+                <span className="font-medium">
+                  {wallet.name}
+                </span>
+              </div>
 
               <span className="font-semibold text-blue-600">
-                Connect →
+                Connect
               </span>
             </button>
           ))}
@@ -44,7 +74,7 @@ export default function WalletModal({
 
         <button
           onClick={onClose}
-          className="mt-6 w-full rounded-xl bg-gray-100 py-3 hover:bg-gray-200"
+          className="mt-6 w-full rounded-xl bg-gray-100 py-3 transition hover:bg-gray-200"
         >
           Cancel
         </button>
