@@ -1,6 +1,7 @@
 "use client";
 
 import { AdapterWallet } from "@aptos-labs/wallet-adapter-core";
+import { createPortal } from "react-dom";
 
 interface WalletModalProps {
   open: boolean;
@@ -33,39 +34,51 @@ export default function WalletModal({
       )
   );
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-        <h2 className="text-2xl font-bold">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/80 backdrop-blur-md"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-lg rounded-3xl border border-slate-800 bg-slate-950 p-8 shadow-[0_30px_100px_rgba(0,0,0,0.8)]"
+      >
+        <h2 className="text-2xl font-bold text-white">
           Connect Wallet
         </h2>
 
-        <p className="mt-2 text-gray-500">
-          Select an Aptos wallet compatible with Shelby.
+        <p className="mt-2 text-slate-400">
+          Choose an Aptos wallet to continue using Shelby Studio.
         </p>
 
-        <div className="mt-6 space-y-3">
+        <div className="mt-8 space-y-3 max-h-[420px] overflow-y-auto">
           {supportedWallets.map((wallet) => (
             <button
               key={wallet.name}
               onClick={() => onSelectWallet(wallet.name)}
-              className="flex w-full items-center justify-between rounded-xl border border-gray-200 bg-white p-4 transition hover:border-blue-500 hover:bg-blue-50"
+              className="flex w-full items-center justify-between rounded-2xl border border-slate-800 bg-slate-900 p-4 transition hover:border-blue-500 hover:bg-slate-800"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 {wallet.icon && (
                   <img
                     src={wallet.icon}
                     alt={wallet.name}
-                    className="h-8 w-8 rounded-full"
+                    className="h-10 w-10 rounded-full"
                   />
                 )}
 
-                <span className="font-medium">
-                  {wallet.name}
-                </span>
+                <div className="text-left">
+                  <p className="font-semibold text-white">
+                    {wallet.name}
+                  </p>
+
+                  <p className="text-sm text-slate-400">
+                    Aptos Wallet
+                  </p>
+                </div>
               </div>
 
-              <span className="font-semibold text-blue-600">
+              <span className="rounded-lg bg-blue-600 px-3 py-1 text-sm font-semibold text-white">
                 Connect
               </span>
             </button>
@@ -74,11 +87,12 @@ export default function WalletModal({
 
         <button
           onClick={onClose}
-          className="mt-6 w-full rounded-xl bg-gray-100 py-3 transition hover:bg-gray-200"
+          className="mt-8 w-full rounded-2xl border border-slate-700 bg-slate-900 py-3 font-medium text-slate-300 transition hover:bg-slate-800"
         >
           Cancel
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

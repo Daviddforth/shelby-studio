@@ -3,30 +3,39 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const links = [
+import {
+  LayoutDashboard,
+  Images,
+  Database,
+  FileJson,
+  FolderKanban,
+} from "lucide-react";
+
+const navigation = [
   {
     name: "Dashboard",
     href: "/dashboard",
+    icon: LayoutDashboard,
   },
   {
     name: "Portfolio",
     href: "/portfolio",
+    icon: Images,
   },
   {
     name: "Storage",
     href: "/storage",
+    icon: Database,
   },
   {
     name: "Metadata",
     href: "/metadata",
+    icon: FileJson,
   },
   {
     name: "Collections",
     href: "/collections",
-  },
-  {
-    name: "Profile",
-    href: "/profile",
+    icon: FolderKanban,
   },
 ];
 
@@ -34,40 +43,48 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r bg-white">
-      <div className="border-b p-6">
-        <h1 className="text-2xl font-bold">
+    <aside className="flex h-screen w-72 flex-col border-r border-slate-800 bg-slate-950">
+
+      <div className="border-b border-slate-800 px-8 py-8">
+
+        <h1 className="text-3xl font-bold text-white">
           Shelby Studio
         </h1>
 
-        <p className="text-sm text-gray-500">
-          Shelby Workspace
+        <p className="mt-2 text-sm text-slate-400">
+          Digital Asset Workspace
         </p>
+
       </div>
 
-      <nav className="flex-1 space-y-2 p-4">
-        {links.map((link) => {
-          const active = pathname === link.href;
+      <nav className="flex-1 space-y-2 p-5">
+
+        {navigation.map((item) => {
+          const Icon = item.icon;
+
+          const active =
+            pathname === item.href;
 
           return (
             <Link
-              key={link.href}
-              href={link.href}
-              className={`block rounded-xl px-4 py-3 transition ${
+              key={item.name}
+              href={item.href}
+              className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
                 active
-                  ? "bg-blue-600 text-white"
-                  : "hover:bg-gray-100"
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : "text-slate-300 hover:bg-slate-900 hover:text-white"
               }`}
             >
-              {link.name}
+              <Icon size={20} />
+
+              <span>{item.name}</span>
+
             </Link>
           );
         })}
+
       </nav>
 
-      <div className="border-t p-4 text-xs text-gray-400">
-        Shelby Studio v1.0
-      </div>
     </aside>
   );
 }

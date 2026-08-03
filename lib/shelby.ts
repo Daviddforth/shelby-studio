@@ -8,6 +8,13 @@ if (!apiKey) {
 }
 
 export const shelbyClient = new ShelbyClient({
+  // Shelby is currently on Testnet.
+  // When Shelby launches Mainnet, change this line only.
   network: Network.TESTNET,
   apiKey,
 });
+
+// Placeholder for upcoming Portfolio integration
+export async function getShelbyAssets() {
+  return [];
+}

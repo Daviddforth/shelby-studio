@@ -1,7 +1,7 @@
 import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
 
-export const aptos = new Aptos(
-  new AptosConfig({
-    network: Network.TESTNET,
-  })
-);
+const config = new AptosConfig({
+  network: Network.SHELBYNET,
+});
+
+export const aptos = new Aptos(config);
