@@ -2,12 +2,14 @@
 
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 import { useEffect, useState } from "react";
+import { getOwnedNFTs } from "@/services/walletService";
 
 export interface PortfolioNFT {
   id: string;
   name: string;
   image?: string;
   collection: string;
+  raw: any;
 }
 
 export function usePortfolio() {
@@ -26,25 +28,40 @@ export function usePortfolio() {
       setLoading(true);
 
       try {
-        // Temporary placeholder.
-        // Next we'll replace this with Shelby SDK.
-        setNFTs([
-          {
-            id: "1",
-            name: "Shelby Genesis",
-            collection: "Shelby",
-          },
-          {
-            id: "2",
-            name: "Studio Pass",
-            collection: "Shelby",
-          },
-          {
-            id: "3",
-            name: "Builder Badge",
-            collection: "Shelby",
-          },
-        ]);
+        const assets = await getOwnedNFTs(
+          account.address.toString()
+        );
+
+        const mapped = assets.map((asset: any) => ({
+          id:
+            asset.token_data_id ??
+            asset.token_data_id_hash ??
+            asset.asset_type ??
+            crypto.randomUUID(),
+
+          name:
+            asset.current_token_data?.token_name ??
+            asset.current_token_data?.name ??
+            asset.name ??
+            "Unnamed NFT",
+
+          collection:
+            asset.current_collection?.collection_name ??
+            asset.collection ??
+            "Unknown Collection",
+
+          image:
+            asset.current_token_data?.token_uri ??
+            asset.image_uri ??
+            asset.image,
+
+          raw: asset,
+        }));
+
+        setNFTs(mapped);
+      } catch (err) {
+        console.error(err);
+        setNFTs([]);
       } finally {
         setLoading(false);
       }
@@ -55,8 +72,8 @@ export function usePortfolio() {
 
   return {
     loading,
-    nfts,
     connected,
-    address: account?.address?.toString(),
+    nfts,
+    address: account?.address.toString(),
   };
 }
