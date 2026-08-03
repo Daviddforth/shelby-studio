@@ -3,6 +3,11 @@
 import ImageUploader from "./ImageUploader";
 import { Attribute } from "./types";
 
+interface ImageData {
+  preview: string;
+  file: File | null;
+}
+
 interface Props {
   name: string;
   setName: (value: string) => void;
@@ -10,8 +15,8 @@ interface Props {
   description: string;
   setDescription: (value: string) => void;
 
-  image: string;
-  setImage: (value: string) => void;
+  image: ImageData;
+  setImage: (value: ImageData) => void;
 
   traitType: string;
   setTraitType: (value: string) => void;
@@ -40,6 +45,7 @@ export default function NFTForm({
   setAttributes,
   generateMetadata,
 }: Props) {
+
   function addAttribute() {
     if (!traitType.trim() || !traitValue.trim()) return;
 
@@ -62,12 +68,14 @@ export default function NFTForm({
         NFT Details
       </h2>
 
+
       <input
         placeholder="NFT Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
         className="w-full border border-blue-200 bg-white text-gray-900 p-3 rounded mb-4"
       />
+
 
       <textarea
         rows={4}
@@ -77,17 +85,23 @@ export default function NFTForm({
         className="w-full border border-blue-200 bg-white text-gray-900 p-3 rounded mb-4"
       />
 
-      <ImageUploader onImageUpload={setImage} />
 
-      {image && (
+      <ImageUploader
+        onImageUpload={setImage}
+      />
+
+
+      {image.preview && (
         <p className="mt-3 text-green-600 font-medium">
           ✅ Image uploaded successfully
         </p>
       )}
 
+
       <h3 className="text-xl font-bold text-blue-700 mt-8 mb-4">
         NFT Attributes
       </h3>
+
 
       <input
         placeholder="Trait Type"
@@ -96,12 +110,14 @@ export default function NFTForm({
         className="w-full border border-blue-200 bg-white text-gray-900 p-3 rounded mb-3"
       />
 
+
       <input
         placeholder="Trait Value"
         value={traitValue}
         onChange={(e) => setTraitValue(e.target.value)}
         className="w-full border border-blue-200 bg-white text-gray-900 p-3 rounded"
       />
+
 
       <button
         onClick={addAttribute}
@@ -110,19 +126,27 @@ export default function NFTForm({
         Add Attribute
       </button>
 
+
       {attributes.length > 0 && (
         <div className="mt-6 space-y-2">
+
           {attributes.map((item, index) => (
             <div
               key={index}
               className="border rounded-lg p-3 flex justify-between"
             >
               <span>{item.trait_type}</span>
-              <strong>{item.value}</strong>
+
+              <strong>
+                {item.value}
+              </strong>
+
             </div>
           ))}
+
         </div>
       )}
+
 
       <button
         onClick={generateMetadata}
@@ -130,6 +154,7 @@ export default function NFTForm({
       >
         Generate Metadata
       </button>
+
 
     </div>
   );

@@ -4,19 +4,31 @@ import { useState } from "react";
 
 import Navbar from "../../components/Navbar";
 import Dashboard from "../../components/Dashboard";
+import AssetManager from "../../components/AssetManager";
+import ShelbyStatus from "../../components/ShelbyStatus";
+import NetworkSwitcher from "../../components/NetworkSwitcher";
 import SettingsPanel from "../../components/SettingsPanel";
+import NFTReadinessScore from "../../components/NFTReadinessScore";
 import NFTForm from "../../components/NFTForm";
 import NFTPreview from "../../components/NFTPreview";
 import MetadataOutput from "../../components/MetadataOutput";
 import CollectionGenerator from "../../components/CollectionGenerator";
 import Footer from "../../components/Footer";
+import WalletNFTGallery from "../../components/nft/WalletNFTGallery";
 
 import { Attribute } from "../../components/types";
 
 export default function Home() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState("");
+
+  const [image, setImage] = useState<{
+    preview: string;
+    file: File | null;
+  }>({
+    preview: "",
+    file: null,
+  });
 
   const [traitType, setTraitType] = useState("");
   const [traitValue, setTraitValue] = useState("");
@@ -31,7 +43,7 @@ export default function Home() {
     const nft = {
       name,
       description,
-      image,
+      image: image.preview,
       attributes,
     };
 
@@ -42,20 +54,22 @@ export default function Home() {
     <main className="min-h-screen bg-blue-50">
       <Navbar />
 
+      {/* Hero */}
       <section className="bg-gradient-to-r from-blue-700 to-blue-500 text-white">
-        <div className="max-w-7xl mx-auto px-8 py-14">
+        <div className="max-w-7xl mx-auto px-8 py-16">
           <h1 className="text-5xl font-bold">
             Shelby NFT Metadata Manager
           </h1>
 
-          <p className="mt-4 text-blue-100 text-lg max-w-2xl">
-            Create, preview, validate and export NFT metadata through a modern
-            dashboard designed for creators and developers.
+          <p className="mt-4 text-lg text-blue-100 max-w-2xl">
+            Create, preview, validate and manage Shelby NFTs from one
+            professional dashboard.
           </p>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-8 pt-8">
+      {/* Dashboard */}
+      <div className="max-w-7xl mx-auto px-8 py-10">
         <Dashboard
           nfts={metadata ? 1 : 0}
           attributes={attributes.length}
@@ -63,8 +77,32 @@ export default function Home() {
         />
       </div>
 
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8 p-8">
+      {/* Wallet Status */}
+      <div className="max-w-7xl mx-auto px-8 pb-10">
+        <div className="grid lg:grid-cols-3 gap-6">
+          <NetworkSwitcher />
+
+          <ShelbyStatus />
+
+          <NFTReadinessScore
+            name={name}
+            description={description}
+            image={image.preview}
+            attributes={attributes}
+          />
+        </div>
+      </div>
+
+      {/* Connected Wallet NFTs */}
+      <div className="max-w-7xl mx-auto px-8 pb-10">
+        <WalletNFTGallery />
+      </div>
+
+      {/* NFT Creator */}
+      <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8 px-8 pb-16">
+
         <div className="lg:col-span-2">
+
           <NFTForm
             name={name}
             setName={setName}
@@ -80,9 +118,11 @@ export default function Home() {
             setAttributes={setAttributes}
             generateMetadata={generateMetadata}
           />
+
         </div>
 
         <div className="space-y-6">
+
           <CollectionGenerator
             amount={collectionSize}
             setAmount={setCollectionSize}
@@ -94,7 +134,7 @@ export default function Home() {
           />
 
           <NFTPreview
-            image={image}
+            image={image.preview}
             name={name}
             description={description}
           />
@@ -102,7 +142,13 @@ export default function Home() {
           <MetadataOutput
             metadata={metadata}
           />
+
+          <AssetManager
+            image={image}
+          />
+
         </div>
+
       </div>
 
       <Footer />
