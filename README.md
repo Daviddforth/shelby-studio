@@ -1,4 +1,4 @@
-# Shelby NFT Metadata Manager
+# Shelby Studio
 
 A modern NFT metadata creation tool built with **Next.js**, **React**, **TypeScript**, and **Tailwind CSS**.
 
