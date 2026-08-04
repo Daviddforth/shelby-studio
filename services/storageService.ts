@@ -4,13 +4,12 @@ export interface UploadedAsset {
   size: number;
   uploadedAt: string;
   network: string;
-  status: "Uploading" | "Stored" | "Failed";
+  status: "Stored";
 }
 
 export async function uploadToShelby(
   file: File
 ): Promise<UploadedAsset> {
-  // Simulate Shelby upload
   await new Promise((resolve) => setTimeout(resolve, 1500));
 
   return {

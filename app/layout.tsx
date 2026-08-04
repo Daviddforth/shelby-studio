@@ -5,6 +5,7 @@ import "./globals.css";
 import AptosWalletProvider from "../components/wallet/AptosWalletProvider";
 import { WalletProvider } from "../context/WalletContext";
 import ShelbyProvider from "../context/ShelbyProvider";
+import { StorageProvider } from "../context/StorageContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +36,11 @@ export default function RootLayout({
       <body className="min-h-screen bg-gray-50 text-gray-900">
         <AptosWalletProvider>
           <WalletProvider>
-            <ShelbyProvider>{children}</ShelbyProvider>
+            <ShelbyProvider>
+              <StorageProvider>
+                {children}
+              </StorageProvider>
+            </ShelbyProvider>
           </WalletProvider>
         </AptosWalletProvider>
       </body>
