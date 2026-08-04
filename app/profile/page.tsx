@@ -1,20 +1,27 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import StorageHeader from "@/components/storage/StorageHeader";
-import StorageStats from "@/components/storage/StorageStats";
-import UploadPanel from "@/components/storage/UploadPanel";
-import RecentFiles from "@/components/storage/RecentFiles";
+import ProfileHeader from "@/components/profile/ProfileHeader";
+import ProfileStats from "@/components/profile/ProfileStats";
+import EditProfile from "@/components/profile/EditProfile";
+import AccountSettings from "@/components/profile/AccountSettings";
+import ProfileActivity from "@/components/profile/ProfileActivity";
 
-export default function StoragePage() {
+export default function ProfilePage() {
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        <StorageHeader />
+        <ProfileHeader />
 
-        <StorageStats />
+        <ProfileStats />
 
-        <UploadPanel />
+        <div className="grid gap-8 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <EditProfile />
+          </div>
 
-        <RecentFiles />
+          <AccountSettings />
+        </div>
+
+        <ProfileActivity />
       </div>
     </DashboardLayout>
   );

@@ -10,7 +10,7 @@ import {
 import { useWallet as useAptosWallet } from "@aptos-labs/wallet-adapter-react";
 
 interface WalletContextType {
-  walletAddress: string | null;
+  walletAddress: string |null;
   walletConnected: boolean;
   network: string;
   account: any;
@@ -18,14 +18,14 @@ interface WalletContextType {
   signMessage: any;
   disconnectWallet: () => void;
 
-  // Shelby status
+  // Shelby
   isShelbyHolder: boolean;
   storageConnected: boolean;
 }
 
-const WalletContext = createContext<WalletContextType | undefined>(
-  undefined
-);
+const WalletContext = createContext<
+  WalletContextType | undefined
+>(undefined);
 
 export function WalletProvider({
   children,
@@ -35,39 +35,38 @@ export function WalletProvider({
   const {
     account,
     connected,
-    network,
     disconnect,
     signAndSubmitTransaction,
     signMessage,
   } = useAptosWallet();
 
-  // Temporary values until real Shelby verification/storage check is added
-  const isShelbyHolder = false;
-  const storageConnected = false;
-
   const value = useMemo(
     () => ({
-      walletAddress: account?.address?.toString() ?? null,
+      walletAddress: connected
+        ? account?.address?.toString() ?? null
+        : null,
+
       walletConnected: connected,
-      network: network?.name ?? "Shelbynet",
+
+      // Shelby Studio always targets Shelbynet
+      network: "Shelbynet",
+
       account,
       signAndSubmitTransaction,
       signMessage,
+
       disconnectWallet: disconnect,
 
-      // Shelby status
-      isShelbyHolder,
-      storageConnected,
+      // These will become real once Shelby APIs are connected
+      isShelbyHolder: false,
+      storageConnected: false,
     }),
     [
       account,
       connected,
-      network,
       disconnect,
       signAndSubmitTransaction,
       signMessage,
-      isShelbyHolder,
-      storageConnected,
     ]
   );
 

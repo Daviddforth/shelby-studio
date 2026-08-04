@@ -79,7 +79,6 @@ export default function Sidebar() {
               }`}
             >
               <Icon size={20} />
-
               <span>{item.name}</span>
             </Link>
           );

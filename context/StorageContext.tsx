@@ -14,6 +14,11 @@ interface StorageContextType {
   setAssets: React.Dispatch<
     React.SetStateAction<UploadedAsset[]>
   >;
+
+  search: string;
+  setSearch: React.Dispatch<
+    React.SetStateAction<string>
+  >;
 }
 
 const StorageContext =
@@ -28,11 +33,16 @@ export function StorageProvider({
     UploadedAsset[]
   >([]);
 
+  const [search, setSearch] =
+    useState("");
+
   return (
     <StorageContext.Provider
       value={{
         assets,
         setAssets,
+        search,
+        setSearch,
       }}
     >
       {children}
@@ -41,7 +51,8 @@ export function StorageProvider({
 }
 
 export function useStorageContext() {
-  const context = useContext(StorageContext);
+  const context =
+    useContext(StorageContext);
 
   if (!context) {
     throw new Error(
