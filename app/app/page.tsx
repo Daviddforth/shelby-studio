@@ -58,23 +58,19 @@ export default function Home() {
       <section className="bg-gradient-to-r from-blue-700 to-blue-500 text-white">
         <div className="max-w-7xl mx-auto px-8 py-16">
           <h1 className="text-5xl font-bold">
-            Shelby NFT Metadata Manager
+            Shelby Studio
           </h1>
 
           <p className="mt-4 text-lg text-blue-100 max-w-2xl">
-            Create, preview, validate and manage Shelby NFTs from one
-            professional dashboard.
+            The all-in-one workspace for managing Shelby assets,
+            NFTs, storage, and metadata.
           </p>
         </div>
       </section>
 
       {/* Dashboard */}
       <div className="max-w-7xl mx-auto px-8 py-10">
-        <Dashboard
-          nfts={metadata ? 1 : 0}
-          attributes={attributes.length}
-          collection={collectionSize}
-        />
+        <Dashboard />
       </div>
 
       {/* Wallet Status */}

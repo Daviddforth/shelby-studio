@@ -17,6 +17,10 @@ interface WalletContextType {
   signAndSubmitTransaction: any;
   signMessage: any;
   disconnectWallet: () => void;
+
+  // Shelby status
+  isShelbyHolder: boolean;
+  storageConnected: boolean;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(
@@ -37,6 +41,10 @@ export function WalletProvider({
     signMessage,
   } = useAptosWallet();
 
+  // Temporary values until real Shelby verification/storage check is added
+  const isShelbyHolder = false;
+  const storageConnected = false;
+
   const value = useMemo(
     () => ({
       walletAddress: account?.address?.toString() ?? null,
@@ -46,6 +54,10 @@ export function WalletProvider({
       signAndSubmitTransaction,
       signMessage,
       disconnectWallet: disconnect,
+
+      // Shelby status
+      isShelbyHolder,
+      storageConnected,
     }),
     [
       account,
@@ -54,6 +66,8 @@ export function WalletProvider({
       disconnect,
       signAndSubmitTransaction,
       signMessage,
+      isShelbyHolder,
+      storageConnected,
     ]
   );
 
