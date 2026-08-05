@@ -2,8 +2,6 @@
 
 import {
   Download,
-  Trash2,
-  RefreshCw,
   HardDrive,
 } from "lucide-react";
 
@@ -16,13 +14,6 @@ interface Props {
 export default function AssetRow({
   asset,
 }: Props) {
-  /*
-   * Download the actual file from Shelby.
-   *
-   * The browser calls our server route,
-   * and the server retrieves the blob
-   * directly from Shelbynet.
-   */
   function handleDownload() {
     if (!asset.blobName) {
       console.error(
@@ -78,27 +69,9 @@ export default function AssetRow({
             Download
           </button>
 
-          <button
-            type="button"
-            className="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-          >
-            <RefreshCw
-              size={16}
-              className="mr-2 inline"
-            />
-            Replace
-          </button>
-
-          <button
-            type="button"
-            className="rounded-xl bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-          >
-            <Trash2
-              size={16}
-              className="mr-2 inline"
-            />
-            Delete
-          </button>
+          <div className="rounded-xl bg-slate-800 px-4 py-2 text-sm text-slate-400">
+            Stored
+          </div>
         </div>
       </div>
     </div>
