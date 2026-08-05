@@ -10,6 +10,7 @@ import {
   FileJson,
   FolderKanban,
   Search,
+  FolderOpen,
 } from "lucide-react";
 
 const navigation = [
@@ -17,6 +18,11 @@ const navigation = [
     name: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    name: "Projects",
+    href: "/projects",
+    icon: FolderOpen,
   },
   {
     name: "Portfolio",
@@ -50,6 +56,7 @@ export default function Sidebar() {
 
   return (
     <aside className="flex h-screen w-72 flex-col border-r border-slate-800 bg-slate-950">
+      {/* Brand */}
       <div className="border-b border-slate-800 px-8 py-8">
         <h1 className="text-3xl font-bold text-white">
           Shelby Studio
@@ -60,6 +67,7 @@ export default function Sidebar() {
         </p>
       </div>
 
+      {/* Navigation */}
       <nav className="flex-1 space-y-2 p-5">
         {navigation.map((item) => {
           const Icon = item.icon;
@@ -79,6 +87,7 @@ export default function Sidebar() {
               }`}
             >
               <Icon size={20} />
+
               <span>{item.name}</span>
             </Link>
           );

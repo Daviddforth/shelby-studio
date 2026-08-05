@@ -1,0 +1,127 @@
+"use client";
+
+import {
+  CheckCircle2,
+  XCircle,
+  Globe,
+  ShieldCheck,
+  Wallet,
+} from "lucide-react";
+
+import { useWallet } from "@/context/WalletContext";
+
+export default function NetworkStatus() {
+  const {
+    walletConnected,
+    walletAddress,
+    network,
+    storageConnected,
+    isShelbyHolder,
+  } = useWallet();
+
+  return (
+    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
+      <h2 className="text-2xl font-bold text-white">
+        Network Status
+      </h2>
+
+      <p className="mt-2 text-slate-400">
+        Shelby ecosystem connectivity
+      </p>
+
+      <div className="mt-8 space-y-5">
+
+        <Status
+          icon={<Wallet size={20} />}
+          title="Wallet"
+          value={
+            walletConnected
+              ? "Connected"
+              : "Not Connected"
+          }
+          ok={walletConnected}
+        />
+
+        <Status
+          icon={<Globe size={20} />}
+          title="Network"
+          value={network}
+          ok={true}
+        />
+
+        <Status
+          icon={<ShieldCheck size={20} />}
+          title="Shelby Storage"
+          value={
+            storageConnected
+              ? "Connected"
+              : "Disconnected"
+          }
+          ok={storageConnected}
+        />
+
+        <Status
+          icon={<ShieldCheck size={20} />}
+          title="Creator Verification"
+          value={
+            isShelbyHolder
+              ? "Verified"
+              : "Not Verified"
+          }
+          ok={isShelbyHolder}
+        />
+
+      </div>
+
+      {walletConnected && walletAddress && (
+        <div className="mt-8 rounded-2xl bg-slate-950 p-5">
+          <p className="text-sm text-slate-400">
+            Wallet Address
+          </p>
+
+          <p className="mt-2 break-all font-mono text-sm text-white">
+            {walletAddress}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Status({
+  icon,
+  title,
+  value,
+  ok,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  value: string;
+  ok: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between rounded-2xl bg-slate-950 p-4">
+      <div className="flex items-center gap-3">
+        <div className="text-blue-400">
+          {icon}
+        </div>
+
+        <div>
+          <p className="text-sm text-slate-400">
+            {title}
+          </p>
+
+          <p className="font-semibold text-white">
+            {value}
+          </p>
+        </div>
+      </div>
+
+      {ok ? (
+        <CheckCircle2 className="text-green-500" />
+      ) : (
+        <XCircle className="text-red-500" />
+      )}
+    </div>
+  );
+}

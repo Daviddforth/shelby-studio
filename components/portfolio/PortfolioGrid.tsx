@@ -1,68 +1,33 @@
 "use client";
 
-import Link from "next/link";
+import { useMetadata } from "@/context/MetadataContext";
+import PortfolioCard from "./PortfolioCard";
 
-import NFTCard from "./NFTCard";
-import { usePortfolio } from "@/hooks/usePortfolio";
+export default function PortfolioGrid() {
+  const { metadata } = useMetadata();
 
-export default function NFTGrid() {
-  const {
-    nfts,
-    loading,
-    connected,
-  } = usePortfolio();
-
-  if (!connected) {
+  if (!metadata.name) {
     return (
-      <div className="rounded-3xl border border-slate-800 bg-slate-900 p-10 text-center">
+      <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-900 p-16 text-center">
         <h2 className="text-2xl font-bold text-white">
-          Connect your wallet
+          No NFTs Yet
         </h2>
 
         <p className="mt-3 text-slate-400">
-          Connect an Aptos wallet to view your NFTs.
-        </p>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="py-20 text-center text-slate-400">
-        Loading portfolio...
-      </div>
-    );
-  }
-
-  if (nfts.length === 0) {
-    return (
-      <div className="rounded-3xl border border-slate-800 bg-slate-900 p-10 text-center">
-        <h2 className="text-2xl font-bold text-white">
-          No NFTs Found
-        </h2>
-
-        <p className="mt-3 text-slate-400">
-          No NFTs were found for this wallet.
+          Create metadata first and your NFTs will appear here.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-      {nfts.map((nft, index) => (
-        <Link
-          key={nft.id ?? index}
-          href={`/portfolio/${nft.id ?? index}`}
-          className="block transition hover:scale-[1.02]"
-        >
-          <NFTCard
-            name={nft.name}
-            collection={nft.collection}
-            image={nft.image}
-          />
-        </Link>
-      ))}
+    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+      <PortfolioCard
+        title={metadata.name}
+        description={metadata.description}
+        image={metadata.imagePreview}
+        collection={metadata.collection}
+      />
     </div>
   );
 }

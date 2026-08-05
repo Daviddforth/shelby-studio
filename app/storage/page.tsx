@@ -1,14 +1,28 @@
+"use client";
+
+import {
+  Database,
+  Wallet,
+} from "lucide-react";
+
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import StorageHeader from "@/components/storage/StorageHeader";
+
+import ActiveProjectBanner from "@/components/storage/ActiveProjectBanner";
 import StorageStats from "@/components/storage/StorageStats";
 import UploadPanel from "@/components/storage/UploadPanel";
 import RecentFiles from "@/components/storage/RecentFiles";
 
+import { useWallet } from "@/context/WalletContext";
+
 export default function StoragePage() {
+  const {
+    walletConnected,
+  } = useWallet();
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
-
+        {/* Page Header */}
         <div>
           <p className="uppercase tracking-widest text-blue-400">
             Shelby Studio
@@ -19,20 +33,61 @@ export default function StoragePage() {
           </h1>
 
           <p className="mt-3 max-w-3xl text-slate-400">
-            Manage files stored on <span className="font-semibold text-white">Shelbynet</span>,
-            upload new assets, monitor storage usage, and track every file linked
-            to your NFTs.
+            Manage project assets, upload new files,
+            monitor storage usage, and prepare your
+            digital assets for Shelby.
           </p>
         </div>
 
-        <StorageHeader />
+        {!walletConnected ? (
+          /*
+           * Disconnected state.
+           *
+           * Do not render project storage,
+           * previous files, statistics or
+           * upload controls.
+           */
+          <div className="flex min-h-[420px] items-center justify-center rounded-3xl border border-slate-800 bg-slate-900 p-8">
+            <div className="max-w-md text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-800 bg-slate-950">
+                <Wallet
+                  size={28}
+                  className="text-blue-400"
+                />
+              </div>
 
-        <StorageStats />
+              <h2 className="mt-6 text-2xl font-bold text-white">
+                Connect Your Wallet
+              </h2>
 
-        <UploadPanel />
+              <p className="mt-3 text-sm leading-6 text-slate-400">
+                Connect your wallet to access your
+                Shelby Studio storage workspace and
+                continue managing your project assets.
+              </p>
 
-        <RecentFiles />
+              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950 px-4 py-2 text-xs text-slate-500">
+                <Database size={15} />
 
+                Storage is wallet-specific
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Active Project */}
+            <ActiveProjectBanner />
+
+            {/* Storage Statistics */}
+            <StorageStats />
+
+            {/* Upload */}
+            <UploadPanel />
+
+            {/* Files */}
+            <RecentFiles />
+          </>
+        )}
       </div>
     </DashboardLayout>
   );

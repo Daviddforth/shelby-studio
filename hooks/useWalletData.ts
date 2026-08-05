@@ -1,75 +1,103 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
+
 import { getOwnedNFTs } from "@/services/walletService";
 
 export function useWalletData() {
-  const wallet = useWallet();
+  const {
+    connected,
+    account,
+  } = useWallet();
 
-  const { connected, account } = wallet;
+  const [loading, setLoading] =
+    useState(false);
 
-  const [loading, setLoading] = useState(false);
-  const [nfts, setNfts] = useState<any[]>([]);
-
-  // TEMPORARY DEBUGGING
-  useEffect(() => {
-    console.log("connected:", connected);
-    console.log("account:", account);
-    console.log("wallet name:", wallet.wallet?.name);
-
-    console.log(
-      "has signTransaction:",
-      typeof wallet.signTransaction
-    );
-
-    console.log(
-      "has signAndSubmitTransaction:",
-      typeof wallet.signAndSubmitTransaction
-    );
-
-    console.log(
-      "has signMessage:",
-      typeof wallet.signMessage
-    );
-
-    console.log(
-      "wallet keys:",
-      Object.keys(wallet)
-    );
-  }, [wallet, connected, account]);
+  const [nfts, setNfts] =
+    useState<any[]>([]);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadWalletData() {
-      if (!connected || !account?.address) {
+      /*
+       * A disconnected wallet must never
+       * retain NFT data from a previous
+       * wallet session.
+       */
+      if (
+        !connected ||
+        !account?.address
+      ) {
         setNfts([]);
+        setLoading(false);
         return;
       }
 
       try {
         setLoading(true);
 
-        const address = account.address.toString();
+        const address =
+          account.address.toString();
 
-        const assets = await getOwnedNFTs(address);
+        const assets =
+          await getOwnedNFTs(address);
 
-        setNfts(Array.isArray(assets) ? assets : []);
+        if (cancelled) {
+          return;
+        }
+
+        setNfts(
+          Array.isArray(assets)
+            ? assets
+            : []
+        );
       } catch (error) {
-        console.error("Failed to load wallet data:", error);
+        if (cancelled) {
+          return;
+        }
+
+        console.error(
+          "Failed to load wallet NFTs:",
+          error
+        );
+
         setNfts([]);
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
     loadWalletData();
-  }, [connected, account]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    connected,
+    account?.address,
+  ]);
 
   return {
     connected,
     loading,
     nfts,
-    nftCount: nfts.length,
-    walletAddress: account?.address?.toString() ?? "",
+
+    nftCount:
+      connected
+        ? nfts.length
+        : 0,
+
+    walletAddress:
+      connected
+        ? account?.address?.toString() ?? ""
+        : "",
   };
 }

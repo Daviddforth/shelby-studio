@@ -1,12 +1,43 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { CloudUpload, Plus, FileText } from "lucide-react";
+import {
+  useRef,
+  useState,
+} from "react";
+
+import {
+  CheckCircle2,
+  CloudUpload,
+  FileText,
+  Loader2,
+  Plus,
+} from "lucide-react";
+
+import { useStorage } from "@/hooks/useStorage";
+import { useProject } from "@/context/project/ProjectContext";
 
 export default function UploadPanel() {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef =
+    useRef<HTMLInputElement>(null);
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [
+    selectedFile,
+    setSelectedFile,
+  ] = useState<File | null>(null);
+
+  const [
+    uploadSuccess,
+    setUploadSuccess,
+  ] = useState(false);
+
+  const {
+    upload,
+    loading,
+  } = useStorage();
+
+  const {
+    activeProject,
+  } = useProject();
 
   function handleChooseFile() {
     inputRef.current?.click();
@@ -15,40 +46,105 @@ export default function UploadPanel() {
   function handleFileChange(
     event: React.ChangeEvent<HTMLInputElement>
   ) {
-    const file = event.target.files?.[0];
+    const file =
+      event.target.files?.[0];
 
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     setSelectedFile(file);
+    setUploadSuccess(false);
+  }
+
+  async function handleUpload() {
+    if (!selectedFile) {
+      return;
+    }
+
+    if (!activeProject) {
+      alert(
+        "Select a project before uploading an asset."
+      );
+
+      return;
+    }
+
+    try {
+      await upload(selectedFile);
+
+      setUploadSuccess(true);
+      setSelectedFile(null);
+
+      /*
+       * Reset the file input so the same
+       * file can be selected again later.
+       */
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
+
+      /*
+       * Hide success state after a moment.
+       */
+      window.setTimeout(() => {
+        setUploadSuccess(false);
+      }, 3000);
+    } catch (error) {
+      console.error(
+        "Failed to upload asset:",
+        error
+      );
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unknown Shelby upload error.";
+
+      alert(
+        `Shelby upload failed:\n\n${message}`
+      );
+    }
   }
 
   return (
     <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6">
-
-      <div className="flex items-center justify-between">
-
+      {/* Header */}
+      <div className="flex items-center justify-between gap-4">
         <div>
-
           <h2 className="text-2xl font-bold text-white">
             Shelby Storage
           </h2>
 
           <p className="mt-2 text-slate-400">
-            Upload files that will be linked to your connected wallet and
-            permanently stored on Shelby Storage.
+            Upload files that will be linked to
+            your active project and stored on
+            Shelby Storage.
           </p>
-
         </div>
 
         <CloudUpload
-          className="text-blue-500"
+          className="shrink-0 text-blue-500"
           size={34}
         />
-
       </div>
 
-      <div className="mt-8 rounded-2xl border-2 border-dashed border-slate-700 bg-slate-950 p-10 text-center transition hover:border-blue-500">
+      {/* No Project Warning */}
+      {!activeProject && (
+        <div className="mt-6 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4">
+          <p className="text-sm font-medium text-amber-300">
+            No active project selected
+          </p>
 
+          <p className="mt-1 text-sm text-amber-200/70">
+            Choose a project before uploading
+            project-specific assets.
+          </p>
+        </div>
+      )}
+
+      {/* Upload Area */}
+      <div className="mt-8 rounded-2xl border-2 border-dashed border-slate-700 bg-slate-950 p-10 text-center transition hover:border-blue-500">
         <Plus
           size={48}
           className="mx-auto text-blue-500"
@@ -59,8 +155,15 @@ export default function UploadPanel() {
         </h3>
 
         <p className="mt-3 text-slate-400">
-          Images, videos, metadata, documents and wallet assets.
+          Images, videos, metadata, documents
+          and wallet assets.
         </p>
+
+        {activeProject && (
+          <p className="mt-2 text-sm text-blue-400">
+            Working in: {activeProject.name}
+          </p>
+        )}
 
         <input
           ref={inputRef}
@@ -70,47 +173,104 @@ export default function UploadPanel() {
         />
 
         <button
+          type="button"
           onClick={handleChooseFile}
-          className="mt-8 rounded-2xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+          disabled={loading}
+          className="mt-8 rounded-2xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Choose File
         </button>
 
+        {/* Selected File */}
         {selectedFile && (
           <div className="mt-8 rounded-2xl border border-slate-700 bg-slate-900 p-5 text-left">
-
             <div className="flex items-center gap-4">
-
               <FileText
                 size={28}
-                className="text-blue-400"
+                className="shrink-0 text-blue-400"
               />
 
-              <div>
-
-                <p className="font-semibold text-white">
+              <div className="min-w-0">
+                <p className="truncate font-semibold text-white">
                   {selectedFile.name}
                 </p>
 
                 <p className="text-sm text-slate-400">
-                  {(selectedFile.size / 1024).toFixed(2)} KB
+                  {formatStorage(
+                    selectedFile.size
+                  )}
                 </p>
-
               </div>
-
             </div>
 
             <button
-              className="mt-6 w-full rounded-xl bg-emerald-600 py-3 font-semibold text-white transition hover:bg-emerald-700"
+              type="button"
+              onClick={handleUpload}
+              disabled={
+                loading ||
+                !activeProject
+              }
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Upload to Shelby
-            </button>
+              {loading ? (
+                <>
+                  <Loader2
+                    size={18}
+                    className="animate-spin"
+                  />
 
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <CloudUpload size={18} />
+
+                  Upload to Shelby
+                </>
+              )}
+            </button>
           </div>
         )}
 
-      </div>
+        {/* Upload Success */}
+        {uploadSuccess && (
+          <div className="mt-8 flex items-center justify-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-emerald-400">
+            <CheckCircle2 size={18} />
 
+            <span className="text-sm font-medium">
+              Asset stored successfully.
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
+}
+
+function formatStorage(bytes: number) {
+  if (!bytes) {
+    return "0 B";
+  }
+
+  const units = [
+    "B",
+    "KB",
+    "MB",
+    "GB",
+    "TB",
+  ];
+
+  const index = Math.min(
+    Math.floor(
+      Math.log(bytes) / Math.log(1024)
+    ),
+    units.length - 1
+  );
+
+  const value =
+    bytes / Math.pow(1024, index);
+
+  return `${value.toFixed(
+    value >= 10 || index === 0 ? 0 : 1
+  )} ${units[index]}`;
 }

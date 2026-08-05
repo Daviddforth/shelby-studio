@@ -3,9 +3,14 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import AptosWalletProvider from "../components/wallet/AptosWalletProvider";
+
+import { ProjectProvider } from "../context/project/ProjectContext";
 import { WalletProvider } from "../context/WalletContext";
-import ShelbyProvider from "../context/ShelbyProvider";
 import { StorageProvider } from "../context/StorageContext";
+import { MetadataProvider } from "../context/MetadataContext";
+import { CollectionProvider } from "../context/CollectionContext";
+import { ActivityProvider } from "../context/ActivityContext";
+import ShelbyProvider from "../context/ShelbyProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,13 +40,21 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-gray-50 text-gray-900">
         <AptosWalletProvider>
-          <WalletProvider>
-            <ShelbyProvider>
+          <ProjectProvider>
+            <WalletProvider>
               <StorageProvider>
-                {children}
+                <MetadataProvider>
+                  <CollectionProvider>
+                    <ActivityProvider>
+                      <ShelbyProvider>
+                        {children}
+                      </ShelbyProvider>
+                    </ActivityProvider>
+                  </CollectionProvider>
+                </MetadataProvider>
               </StorageProvider>
-            </ShelbyProvider>
-          </WalletProvider>
+            </WalletProvider>
+          </ProjectProvider>
         </AptosWalletProvider>
       </body>
     </html>

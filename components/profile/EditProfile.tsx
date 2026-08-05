@@ -1,52 +1,153 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
-const STORAGE_KEY = "shelby-profile";
+import { useWallet } from "@/context/WalletContext";
+
+interface ProfileData {
+  displayName: string;
+  username: string;
+  bio: string;
+  website: string;
+  github: string;
+  twitter: string;
+}
+
+const emptyProfile: ProfileData = {
+  displayName: "",
+  username: "",
+  bio: "",
+  website: "",
+  github: "",
+  twitter: "",
+};
 
 export default function EditProfile() {
-  const [profile, setProfile] = useState({
-    displayName: "",
-    username: "",
-    bio: "",
-    website: "",
-    github: "",
-    twitter: "",
-  });
+  const {
+    walletConnected,
+    walletAddress,
+  } = useWallet();
 
+  const [
+    profile,
+    setProfile,
+  ] = useState<ProfileData>(
+    emptyProfile
+  );
+
+  /*
+   * Every wallet receives its own
+   * local Shelby Studio profile.
+   */
+  function getStorageKey(
+    address: string
+  ) {
+    return `shelby-profile-${address.toLowerCase()}`;
+  }
+
+  /*
+   * Load only the profile belonging
+   * to the currently connected wallet.
+   */
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-
-    if (saved) {
-      setProfile(JSON.parse(saved));
+    if (
+      !walletConnected ||
+      !walletAddress
+    ) {
+      setProfile(emptyProfile);
+      return;
     }
-  }, []);
+
+    try {
+      const saved =
+        localStorage.getItem(
+          getStorageKey(walletAddress)
+        );
+
+      if (!saved) {
+        setProfile(emptyProfile);
+        return;
+      }
+
+      const parsed =
+        JSON.parse(saved);
+
+      setProfile({
+        ...emptyProfile,
+        ...parsed,
+      });
+    } catch (error) {
+      console.error(
+        "Failed to load profile:",
+        error
+      );
+
+      setProfile(emptyProfile);
+    }
+  }, [
+    walletConnected,
+    walletAddress,
+  ]);
 
   function update(
-    key: keyof typeof profile,
+    key: keyof ProfileData,
     value: string
   ) {
-    setProfile((prev) => ({
-      ...prev,
+    setProfile((previous) => ({
+      ...previous,
       [key]: value,
     }));
   }
 
   function saveProfile() {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(profile)
-    );
+    if (
+      !walletConnected ||
+      !walletAddress
+    ) {
+      return;
+    }
 
-    alert("Profile saved successfully.");
+    try {
+      localStorage.setItem(
+        getStorageKey(walletAddress),
+        JSON.stringify(profile)
+      );
+
+      alert(
+        "Profile saved successfully."
+      );
+    } catch (error) {
+      console.error(
+        "Failed to save profile:",
+        error
+      );
+    }
   }
 
   const fields = [
-    ["Display Name", "displayName"],
-    ["Username", "username"],
-    ["Website", "website"],
-    ["GitHub", "github"],
-    ["Twitter / X", "twitter"],
+    [
+      "Display Name",
+      "displayName",
+    ],
+    [
+      "Username",
+      "username",
+    ],
+    [
+      "Website",
+      "website",
+    ],
+    [
+      "GitHub",
+      "github",
+    ],
+    [
+      "Twitter / X",
+      "twitter",
+    ],
   ] as const;
 
   return (
@@ -55,22 +156,32 @@ export default function EditProfile() {
         Edit Profile
       </h2>
 
-      <div className="mt-8 space-y-6">
-        {fields.map(([label, key]) => (
-          <div key={key}>
-            <label className="mb-2 block text-sm text-slate-400">
-              {label}
-            </label>
+      <p className="mt-2 text-sm text-slate-400">
+        Manage the creator profile associated
+        with your connected wallet.
+      </p>
 
-            <input
-              value={profile[key]}
-              onChange={(e) =>
-                update(key, e.target.value)
-              }
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none focus:border-blue-500"
-            />
-          </div>
-        ))}
+      <div className="mt-8 space-y-6">
+        {fields.map(
+          ([label, key]) => (
+            <div key={key}>
+              <label className="mb-2 block text-sm text-slate-400">
+                {label}
+              </label>
+
+              <input
+                value={profile[key]}
+                onChange={(event) =>
+                  update(
+                    key,
+                    event.target.value
+                  )
+                }
+                className="w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none transition focus:border-blue-500"
+              />
+            </div>
+          )
+        )}
 
         <div>
           <label className="mb-2 block text-sm text-slate-400">
@@ -80,16 +191,20 @@ export default function EditProfile() {
           <textarea
             rows={5}
             value={profile.bio}
-            onChange={(e) =>
-              update("bio", e.target.value)
+            onChange={(event) =>
+              update(
+                "bio",
+                event.target.value
+              )
             }
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none focus:border-blue-500"
+            className="w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none transition focus:border-blue-500"
           />
         </div>
 
         <button
+          type="button"
           onClick={saveProfile}
-          className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+          className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-500"
         >
           Save Profile
         </button>
