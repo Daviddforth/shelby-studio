@@ -180,15 +180,14 @@ Shelby Studio is currently under active development.
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/Daviddforth/shelby-nft-metadata-manager.git
+git clone https://github.com/Daviddforth/shelby-studio.git
 ```
 
 Navigate into the project directory.
 
 ```bash
-cd shelby-nft-metadata-manager
+cd shelby-studio
 ```
-
 ---
 
 ### Install Dependencies
