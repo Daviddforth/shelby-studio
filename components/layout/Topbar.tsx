@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
 import {
+  useCallback,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -25,6 +28,7 @@ import {
 } from "lucide-react";
 
 import ConnectWallet from "../wallet/ConnectWallet";
+import { useWallet } from "@/context/WalletContext";
 
 const searchablePages = [
   {
@@ -142,11 +146,87 @@ const searchablePages = [
 export default function Topbar() {
   const router = useRouter();
 
+  const {
+    walletConnected,
+    walletAddress,
+  } = useWallet();
+
   const [query, setQuery] =
     useState("");
 
   const [searchOpen, setSearchOpen] =
     useState(false);
+
+  const [
+    profileAvatar,
+    setProfileAvatar,
+  ] = useState<string | null>(null);
+
+  /*
+   * Load the same wallet-specific avatar
+   * used by the Shelby Studio profile.
+   */
+  const loadProfileAvatar =
+    useCallback(() => {
+      if (
+        !walletConnected ||
+        !walletAddress
+      ) {
+        setProfileAvatar(null);
+        return;
+      }
+
+      try {
+        const avatarKey =
+          `shelby-profile-avatar-${walletAddress.toLowerCase()}`;
+
+        const savedAvatar =
+          localStorage.getItem(
+            avatarKey
+          );
+
+        setProfileAvatar(savedAvatar);
+      } catch (error) {
+        console.error(
+          "Failed to load Topbar profile avatar:",
+          error
+        );
+
+        setProfileAvatar(null);
+      }
+    }, [
+      walletConnected,
+      walletAddress,
+    ]);
+
+  /*
+   * Reload when wallet changes.
+   */
+  useEffect(() => {
+    loadProfileAvatar();
+  }, [loadProfileAvatar]);
+
+  /*
+   * Reload immediately when the
+   * Shelby Studio profile changes.
+   */
+  useEffect(() => {
+    function handleProfileUpdate() {
+      loadProfileAvatar();
+    }
+
+    window.addEventListener(
+      "shelby-profile-updated",
+      handleProfileUpdate
+    );
+
+    return () => {
+      window.removeEventListener(
+        "shelby-profile-updated",
+        handleProfileUpdate
+      );
+    };
+  }, [loadProfileAvatar]);
 
   const results = useMemo(() => {
     const normalizedQuery =
@@ -298,9 +378,8 @@ export default function Topbar() {
                     </p>
 
                     <p className="mt-1 text-sm text-slate-500">
-                      Try searching for
-                      storage, metadata,
-                      projects or collections.
+                      Try searching for storage,
+                      metadata, projects or collections.
                     </p>
                   </div>
                 )}
@@ -315,12 +394,20 @@ export default function Topbar() {
           <Link
             href="/profile"
             title="Profile"
-            className="rounded-xl border border-slate-800 bg-slate-900 p-2 transition-all hover:border-blue-500 hover:bg-slate-800"
+            className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-slate-800 bg-slate-900 transition-all hover:border-blue-500 hover:bg-slate-800"
           >
-            <UserCircle2
-              size={34}
-              className="text-slate-300"
-            />
+            {profileAvatar ? (
+              <img
+                src={profileAvatar}
+                alt="Profile avatar"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <UserCircle2
+                size={34}
+                className="text-slate-300"
+              />
+            )}
           </Link>
         </div>
       </div>
