@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 
 import {
-  Account,
-  Ed25519PrivateKey,
   Network,
 } from "@aptos-labs/ts-sdk";
 
@@ -14,18 +12,15 @@ export const runtime = "nodejs";
 
 export async function GET(request: Request) {
   try {
-    const privateKey =
-      process.env.SHELBY_SIGNER_PRIVATE_KEY;
-
     const apiKey =
       process.env.SHELBY_API_KEY;
 
-    if (!privateKey || !apiKey) {
+    if (!apiKey) {
       return NextResponse.json(
         {
           success: false,
           error:
-            "Shelby server credentials are missing.",
+            "Shelby API key is missing.",
         },
         { status: 500 }
       );
@@ -37,21 +32,19 @@ export async function GET(request: Request) {
     const blobName =
       searchParams.get("blobName");
 
-    if (!blobName) {
+    const owner =
+      searchParams.get("owner");
+
+    if (!blobName || !owner) {
       return NextResponse.json(
         {
           success: false,
-          error: "blobName is required.",
+          error:
+            "blobName and owner are required.",
         },
         { status: 400 }
       );
     }
-
-    const signer =
-      Account.fromPrivateKey({
-        privateKey:
-          new Ed25519PrivateKey(privateKey),
-      });
 
     const client =
       new ShelbyClient({
@@ -62,8 +55,7 @@ export async function GET(request: Request) {
 
     const blob =
       await client.download({
-        account:
-          signer.accountAddress,
+        account: owner,
         blobName,
       });
 
@@ -106,12 +98,16 @@ export async function GET(request: Request) {
 
     return new Response(bytes, {
       status: 200,
+
       headers: {
         "Content-Type":
           "application/octet-stream",
 
         "Content-Disposition":
-          `attachment; filename="${filename.replace(/"/g, "")}"`,
+          `attachment; filename="${filename.replace(
+            /"/g,
+            ""
+          )}"`,
 
         "Content-Length":
           bytes.length.toString(),
@@ -129,6 +125,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         success: false,
+
         error:
           error instanceof Error
             ? error.message

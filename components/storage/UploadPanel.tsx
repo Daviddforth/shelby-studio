@@ -63,14 +63,6 @@ export default function UploadPanel() {
       return;
     }
 
-    if (!activeProject) {
-      alert(
-        "Select a project before uploading an asset."
-      );
-
-      return;
-    }
-
     try {
       await upload(selectedFile);
 
@@ -292,10 +284,7 @@ export default function UploadPanel() {
             <button
               type="button"
               onClick={handleUpload}
-              disabled={
-                loading ||
-                !activeProject
-              }
+              disabled={loading}
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? (

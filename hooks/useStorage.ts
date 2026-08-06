@@ -46,6 +46,7 @@ export function useStorage() {
   const {
     walletAddress,
     walletConnected,
+    account,
     signAndSubmitTransaction,
     signMessage,
   } = useWallet();
@@ -102,6 +103,9 @@ export function useStorage() {
           file,
 
           walletAddress,
+
+          walletPublicKey:
+            account?.publicKey ?? null,
 
           signAndSubmitTransaction,
 

@@ -18,16 +18,10 @@ export default function AptosWalletProvider({
         },
       }}
       onError={(error: Error) => {
-        const message = error?.message ?? "";
-
-        if (
-          message.includes("already connected") ||
-          message.includes("rejected")
-        ) {
-          return;
-        }
-
-        console.error(error);
+        console.error(
+          "SHELBY WALLET ADAPTER ERROR:",
+          error
+        );
       }}
     >
       {children}

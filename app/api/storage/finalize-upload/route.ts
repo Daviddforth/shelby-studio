@@ -180,10 +180,22 @@ export async function POST(
           storageProviderAcks,
         });
 
-    return NextResponse.json({
-      success: true,
+    const jsonSafe = (value: any) =>
+      JSON.parse(
+        JSON.stringify(
+          value,
+          (_key, item) =>
+            typeof item === "bigint"
+              ? item.toString()
+              : item
+        )
+      );
 
-      commit: {
+    return NextResponse.json(
+      jsonSafe({
+        success: true,
+
+        commit: {
         uid:
           blobUid.toString(),
 
@@ -191,7 +203,8 @@ export async function POST(
 
         transactionPayload,
       },
-    });
+    })
+  );
   } catch (error) {
     console.error(
       "Shelby finalize preparation failed:",

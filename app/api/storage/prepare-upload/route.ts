@@ -255,12 +255,16 @@ export async function POST(
             0,
 
           /*
-           * Installed SDK documentation
-           * notes that Shelbynet predates
+           * The currently deployed Shelbynet
+           * register_blob entry function expects
            * the encryption argument.
+           *
+           * Do not omit it. The Shelby SDK will
+           * append the correct default encryption
+           * argument to the transaction payload.
            */
           omitEncryptionArg:
-            true,
+            false,
         });
 
     /*

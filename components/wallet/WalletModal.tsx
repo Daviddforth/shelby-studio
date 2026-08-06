@@ -17,6 +17,7 @@ const HIDDEN_WALLETS = [
   "Continue with Apple",
   "Identity Connect",
   "Email",
+  "OneKey",
 ];
 
 export default function WalletModal({

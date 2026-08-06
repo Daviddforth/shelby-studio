@@ -10,6 +10,8 @@ import {
   AccountAddress,
 } from "@aptos-labs/ts-sdk";
 
+import { aptos } from "@/lib/aptos";
+
 import type {
   LargeUploadProgress,
 } from "@/lib/services/shelbyLargeUpload";
@@ -78,6 +80,9 @@ interface DirectUploadOptions {
    * for Shelby on-chain transactions.
    */
   walletAddress: string;
+
+  walletPublicKey:
+    string | string[] | null;
 
   signAndSubmitTransaction: (
     transaction: any
@@ -438,6 +443,7 @@ function calculatePercentage(
 export async function uploadDirectlyToShelby({
   file,
   walletAddress,
+  walletPublicKey,
   signAndSubmitTransaction,
   signMessage,
   onProgress,
@@ -594,8 +600,77 @@ export async function uploadDirectlyToShelby({
     preparation.transactionPayload
   );
 
+  /*
+   * The Shelby SDK creates the blob Merkle root as a Uint8Array.
+   *
+   * prepare-upload crosses a JSON boundary, so Uint8Array is serialized
+   * into an object such as:
+   *
+   * { "0": 227, "1": 37, ... }
+   *
+   * Reconstruct the byte array before passing the transaction to the
+   * Aptos wallet adapter. Petra cannot serialize the plain object as a
+   * Move entry-function argument.
+   */
+  const rawFunctionArguments =
+    preparation.transactionPayload
+      .functionArguments ?? [];
+
+  const rawMerkleRoot =
+    rawFunctionArguments[4];
+
+  let walletMerkleRoot:
+    Uint8Array;
+
+  if (
+    rawMerkleRoot instanceof Uint8Array
+  ) {
+    walletMerkleRoot =
+      rawMerkleRoot;
+  } else if (
+    Array.isArray(rawMerkleRoot)
+  ) {
+    walletMerkleRoot =
+      Uint8Array.from(rawMerkleRoot);
+  } else if (
+    rawMerkleRoot &&
+    typeof rawMerkleRoot === "object"
+  ) {
+    walletMerkleRoot =
+      Uint8Array.from(
+        Object.keys(rawMerkleRoot)
+          .sort(
+            (a, b) =>
+              Number(a) - Number(b)
+          )
+          .map(
+            (key) =>
+              Number(
+                rawMerkleRoot[key]
+              )
+          )
+      );
+  } else {
+    throw new Error(
+      "Shelby returned an invalid blob Merkle root."
+    );
+  }
+
   const registrationPayload = {
     ...preparation.transactionPayload,
+
+    functionArguments: [
+      ...rawFunctionArguments.slice(
+        0,
+        4
+      ),
+
+      walletMerkleRoot,
+
+      ...rawFunctionArguments.slice(
+        5
+      ),
+    ],
 
     typeArguments:
       preparation.transactionPayload
@@ -603,8 +678,24 @@ export async function uploadDirectlyToShelby({
   };
 
   console.log(
-    "SHELBY NORMALIZED REGISTRATION PAYLOAD:",
+    "SHELBY WALLET REGISTRATION PAYLOAD:",
     registrationPayload
+  );
+
+  console.log(
+    "SHELBY WALLET MERKLE ROOT:",
+    {
+      constructor:
+        walletMerkleRoot
+          .constructor.name,
+
+      isUint8Array:
+        walletMerkleRoot instanceof
+        Uint8Array,
+
+      length:
+        walletMerkleRoot.length,
+    }
   );
 
   const registrationResult =
@@ -749,14 +840,22 @@ export async function uploadDirectlyToShelby({
    */
   const challengeResponse =
     await fetch(
-      `${SHELBY_RPC_BASE_URL}/v1/challenge/${encodeURIComponent(
-        walletAddress
-      )}`,
+      `${SHELBY_RPC_BASE_URL}/v1/auth/challenge`,
       {
+        method: "POST",
+
         headers: {
+          "Content-Type":
+            "application/json",
+
           Authorization:
             `Bearer ${process.env.NEXT_PUBLIC_SHELBY_BROWSER_API_KEY}`,
         },
+
+        body: JSON.stringify({
+          account:
+            walletAddress,
+        }),
       }
     );
 
@@ -799,12 +898,20 @@ export async function uploadDirectlyToShelby({
         "shelby-studio",
     });
 
+  console.log(
+    "SHELBY PETRA SIGN MESSAGE RESULT:",
+    signedMessage
+  );
+
+  console.log(
+    "SHELBY PETRA SIGN MESSAGE KEYS:",
+    signedMessage && typeof signedMessage === "object"
+      ? Object.keys(signedMessage)
+      : []
+  );
+
   const signature =
     signedMessage?.signature;
-
-  const publicKey =
-    signedMessage?.publicKey ??
-    signedMessage?.public_key;
 
   if (!signature) {
     throw new Error(
@@ -812,39 +919,77 @@ export async function uploadDirectlyToShelby({
     );
   }
 
-  if (!publicKey) {
+  if (!walletPublicKey) {
     throw new Error(
-      "The connected wallet did not return its public key for Shelby authentication."
+      "The connected wallet did not expose its public key for Shelby authentication."
     );
   }
+
+  const publicKey =
+    walletPublicKey;
 
   /*
    * Normalize wallet-adapter return
    * values into strings for HTTP headers.
    */
-  const signatureString =
-    typeof signature === "string"
+  const signatureBytes: Uint8Array | null =
+    signature instanceof Uint8Array
       ? signature
       : Array.isArray(signature)
-        ? btoa(
-            String.fromCharCode(
-              ...signature
-            )
-          )
-        : String(signature);
+        ? new Uint8Array(signature)
+        : typeof signature?.toUint8Array === "function"
+          ? signature.toUint8Array()
+          : signature?.data instanceof Uint8Array
+            ? signature.data
+            : Array.isArray(signature?.data)
+              ? new Uint8Array(signature.data)
+              : typeof signature?.data?.toUint8Array === "function"
+                ? signature.data.toUint8Array()
+                : null;
 
-  const publicKeyString =
+  const signatureString =
+    signatureBytes
+      ? btoa(
+          Array.from(signatureBytes)
+            .map((byte) =>
+              String.fromCharCode(byte)
+            )
+            .join("")
+        )
+      : typeof signature === "string"
+        ? signature
+        : null;
+
+  if (!signatureString) {
+    throw new Error(
+      "Could not normalize the connected wallet signature for Shelby authentication."
+    );
+  }
+
+  const rawPublicKey =
     typeof publicKey === "string"
       ? publicKey
       : Array.isArray(publicKey)
-        ? `0x${publicKey
-            .map((byte: number) =>
-              byte
-                .toString(16)
-                .padStart(2, "0")
-            )
-            .join("")}`
+        ? publicKey.length === 1
+          ? publicKey[0]
+          : publicKey.join("")
         : String(publicKey);
+
+  const publicKeyString =
+    rawPublicKey.startsWith("0x")
+      ? rawPublicKey
+      : `0x${rawPublicKey}`;
+
+  console.log(
+    "SHELBY AUTH READY:",
+    {
+      hasChallenge: Boolean(challenge),
+      hasSignature: Boolean(signatureString),
+      signatureEncoding: "base64",
+      hasPublicKey: Boolean(publicKeyString),
+      publicKeyEncoding: "hex",
+    }
+  );
 
   const walletAuth = {
     challenge,
@@ -1143,12 +1288,166 @@ export async function uploadDirectlyToShelby({
    * the sender and pays this transaction's
    * gas — NOT Shelby Studio's server key.
    */
+  console.log(
+    "SHELBY FINAL COMMIT PAYLOAD:",
+    finalizeResult.commit.transactionPayload
+  );
+
+  console.log(
+    "SHELBY FINAL COMMIT ARGUMENT TYPES:",
+    finalizeResult.commit.transactionPayload
+      ?.functionArguments
+      ?.map((arg: any, index: number) => ({
+        index,
+        value: arg,
+        typeof: typeof arg,
+        constructor: arg?.constructor?.name ?? null,
+        isArray: Array.isArray(arg),
+      }))
+  );
+
+  const commitArgs =
+    finalizeResult.commit.transactionPayload.functionArguments;
+
+  console.log(
+    "SHELBY COMMIT ARG 4 ACK BITS:",
+    commitArgs?.[4]
+  );
+
+  console.log(
+    "SHELBY COMMIT ARG 5 SIGNATURES:",
+    commitArgs?.[5]
+  );
+
+  console.log(
+    "SHELBY COMMIT SIGNATURE DETAILS:",
+    Array.isArray(commitArgs?.[5])
+      ? commitArgs[5].map((value: any, index: number) => ({
+          index,
+          constructor: value?.constructor?.name,
+          typeof: typeof value,
+          isArray: Array.isArray(value),
+          value,
+        }))
+      : commitArgs?.[5]
+  );
+
+  const commitPayload =
+    finalizeResult
+      .commit
+      .transactionPayload;
+
+  /*
+   * The finalize route is JSON-safe, so Aptos/Shelby
+   * numeric wrapper values can arrive in the browser
+   * as objects such as:
+   *
+   *   { value: 65535 }
+   *
+   * commit_object argument 4 is ackBits and
+   * build.simple() expects a primitive number/string.
+   */
+  const normalizedCommitArgs =
+    commitPayload.functionArguments;
+
+  if (
+    normalizedCommitArgs?.[4] &&
+    typeof normalizedCommitArgs[4] === "object" &&
+    "value" in normalizedCommitArgs[4]
+  ) {
+    normalizedCommitArgs[4] =
+      String(
+        normalizedCommitArgs[4].value
+      );
+  }
+
+  console.log(
+    "SHELBY NORMALIZED COMMIT ARG 4:",
+    normalizedCommitArgs?.[4],
+    typeof normalizedCommitArgs?.[4]
+  );
+
+  /*
+   * Argument 5 is vector<vector<u8>>.
+   *
+   * Uint8Array signatures passed through
+   * our JSON response become numeric-key
+   * objects such as:
+   *
+   *   { "0": 178, "1": 204, ... }
+   *
+   * Aptos transaction.build.simple()
+   * expects each inner vector to be an
+   * actual array of byte values.
+   */
+  if (Array.isArray(normalizedCommitArgs?.[5])) {
+    normalizedCommitArgs[5] =
+      normalizedCommitArgs[5].map(
+        (signature: any) => {
+          if (Array.isArray(signature)) {
+            return signature;
+          }
+
+          if (
+            signature &&
+            typeof signature === "object"
+          ) {
+            return Object.keys(signature)
+              .sort(
+                (a, b) =>
+                  Number(a) - Number(b)
+              )
+              .map(
+                (key) =>
+                  Number(signature[key])
+              );
+          }
+
+          return signature;
+        }
+      );
+  }
+
+  console.log(
+    "SHELBY NORMALIZED COMMIT ARG 5:",
+    normalizedCommitArgs?.[5]
+  );
+
+  /*
+   * Shelby's own SDK builds commit_object
+   * with Aptos transaction.build.simple()
+   * before signing.
+   *
+   * Build it against Shelbynet here first.
+   * The connected wallet still signs and
+   * submits it, so the user remains the
+   * sender and gas payer.
+   */
+  /*
+   * wallet-adapter-react signAndSubmitTransaction()
+   * expects InputTransactionData:
+   *
+   * {
+   *   sender?: AccountAddressInput,
+   *   data: InputGenerateTransactionPayloadData
+   * }
+   *
+   * Do NOT pass a pre-built transaction here.
+   * The wallet adapter builds, simulates, signs
+   * and submits the transaction.
+   */
+  console.log(
+    "SHELBY WALLET COMMIT DATA:",
+    commitPayload
+  );
+
   const commitResult =
     await signAndSubmitTransaction({
+      sender:
+        walletAddress,
+
       data:
-        finalizeResult
-          .commit
-          .transactionPayload,
+        commitPayload,
     });
 
   const commitTransaction =
