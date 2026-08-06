@@ -1,0 +1,353 @@
+===== STORAGE PAGE =====
+"use client";
+
+import {
+  Database,
+  Wallet,
+} from "lucide-react";
+
+import DashboardLayout from "@/components/layout/DashboardLayout";
+
+import ActiveProjectBanner from "@/components/storage/ActiveProjectBanner";
+import StorageStats from "@/components/storage/StorageStats";
+import UploadPanel from "@/components/storage/UploadPanel";
+import RecentFiles from "@/components/storage/RecentFiles";
+
+import { useWallet } from "@/context/WalletContext";
+
+export default function StoragePage() {
+  const {
+    walletConnected,
+  } = useWallet();
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-8">
+        {/* Page Header */}
+        <div>
+          <p className="uppercase tracking-widest text-blue-400">
+            Shelby Studio
+          </p>
+
+          <h1 className="mt-2 text-4xl font-bold text-white">
+            Storage Manager
+          </h1>
+
+          <p className="mt-3 max-w-3xl text-slate-400">
+            Manage project assets, upload new files,
+            monitor storage usage, and prepare your
+            digital assets for Shelby.
+          </p>
+        </div>
+
+        {!walletConnected ? (
+          /*
+           * Disconnected state.
+           *
+           * Do not render project storage,
+           * previous files, statistics or
+           * upload controls.
+           */
+          <div className="flex min-h-[420px] items-center justify-center rounded-3xl border border-slate-800 bg-slate-900 p-8">
+            <div className="max-w-md text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-800 bg-slate-950">
+                <Wallet
+                  size={28}
+                  className="text-blue-400"
+                />
+              </div>
+
+              <h2 className="mt-6 text-2xl font-bold text-white">
+                Connect Your Wallet
+              </h2>
+
+              <p className="mt-3 text-sm leading-6 text-slate-400">
+                Connect your wallet to access your
+                Shelby Studio storage workspace and
+                continue managing your project assets.
+              </p>
+
+              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950 px-4 py-2 text-xs text-slate-500">
+                <Database size={15} />
+
+                Storage is wallet-specific
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Active Project */}
+            <ActiveProjectBanner />
+
+            {/* Storage Statistics */}
+            <StorageStats />
+
+            {/* Upload */}
+            <UploadPanel />
+
+            {/* Files */}
+            <RecentFiles />
+          </>
+        )}
+      </div>
+    </DashboardLayout>
+  );
+}
+
+===== METADATA PAGE =====
+"use client";
+
+import { FileJson, Wallet } from "lucide-react";
+
+import DashboardLayout from "@/components/layout/DashboardLayout";
+
+import MetadataHeader from "@/components/metadata/MetadataHeader";
+import ActiveProjectBanner from "@/components/metadata/ActiveProjectBanner";
+import MetadataTemplates from "@/components/metadata/MetadataTemplates";
+import NFTInformation from "@/components/metadata/NFTInformation";
+import AttributeBuilder from "@/components/metadata/AttributeBuilder";
+import ImportMetadata from "@/components/metadata/ImportMetadata";
+import MetadataActions from "@/components/metadata/MetadataActions";
+import NFTPreview from "@/components/metadata/NFTPreview";
+import JsonPreview from "@/components/metadata/JsonPreview";
+import MetadataValidation from "@/components/metadata/MetadataValidation";
+
+import { useWallet } from "@/context/WalletContext";
+
+export default function MetadataPage() {
+  const {
+    walletConnected,
+    walletAddress,
+  } = useWallet();
+
+  /*
+   * Do not expose metadata workspace data
+   * until a real wallet is connected.
+   */
+  if (!walletConnected || !walletAddress) {
+    return (
+      <DashboardLayout>
+        <div className="space-y-8">
+          <MetadataHeader />
+
+          <div className="flex min-h-[430px] items-center justify-center rounded-3xl border border-slate-800 bg-slate-900 p-8">
+            <div className="max-w-lg text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400">
+                <Wallet size={30} />
+              </div>
+
+              <h2 className="mt-6 text-2xl font-bold text-white">
+                Connect Your Wallet
+              </h2>
+
+              <p className="mt-3 leading-7 text-slate-400">
+                Connect your wallet to access the
+                Metadata Builder and continue working
+                with your project metadata.
+              </p>
+
+              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950 px-4 py-2 text-sm text-slate-400">
+                <FileJson
+                  size={16}
+                  className="text-blue-400"
+                />
+
+                No metadata loaded
+              </div>
+
+              <p className="mt-4 text-xs text-slate-500">
+                Your saved workspace will only be loaded
+                after the associated wallet is connected.
+              </p>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-8">
+        {/* Header */}
+        <MetadataHeader />
+
+        {/* Active Project */}
+        <ActiveProjectBanner />
+
+        {/* Templates */}
+        <MetadataTemplates />
+
+        {/* Main Content */}
+        <div className="grid gap-8 xl:grid-cols-2">
+          {/* Left Column */}
+          <div className="space-y-8">
+            <NFTInformation />
+
+            <AttributeBuilder />
+
+            <ImportMetadata />
+
+            <MetadataActions />
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-8">
+            <NFTPreview />
+
+            <JsonPreview />
+
+            <MetadataValidation />
+          </div>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+}
+===== COLLECTIONS PAGE =====
+"use client";
+
+import {
+  FolderKanban,
+  Wallet,
+} from "lucide-react";
+
+import DashboardLayout from "@/components/layout/DashboardLayout";
+
+import CollectionHeader from "@/components/collections/CollectionHeader";
+import ActiveProjectBanner from "@/components/collections/ActiveProjectBanner";
+import CollectionInformation from "@/components/collections/CollectionInformation";
+import CollectionBranding from "@/components/collections/CollectionBranding";
+import CollectionMetadata from "@/components/collections/CollectionMetadata";
+import CollectionPreview from "@/components/collections/CollectionPreview";
+import CollectionActions from "@/components/collections/CollectionActions";
+
+import { useWallet } from "@/context/WalletContext";
+
+export default function CollectionsPage() {
+  const {
+    walletConnected,
+    walletAddress,
+  } = useWallet();
+
+  /*
+   * Keep the collection workspace private
+   * until a real wallet is connected.
+   */
+  if (
+    !walletConnected ||
+    !walletAddress
+  ) {
+    return (
+      <DashboardLayout>
+        <div className="space-y-8">
+          <CollectionHeader />
+
+          <div className="flex min-h-[430px] items-center justify-center rounded-3xl border border-slate-800 bg-slate-900 p-8">
+            <div className="max-w-lg text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-400">
+                <Wallet size={30} />
+              </div>
+
+              <h2 className="mt-6 text-2xl font-bold text-white">
+                Connect Your Wallet
+              </h2>
+
+              <p className="mt-3 leading-7 text-slate-400">
+                Connect your wallet to access the
+                Collection Builder and continue working
+                with your Shelby Studio projects.
+              </p>
+
+              <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950 px-4 py-2 text-sm text-slate-400">
+                <FolderKanban
+                  size={16}
+                  className="text-blue-400"
+                />
+
+                No collection loaded
+              </div>
+
+              <p className="mt-4 text-xs text-slate-500">
+                Your saved collection workspace will only
+                load after the associated wallet is
+                connected.
+              </p>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-8">
+        {/* Header */}
+        <CollectionHeader />
+
+        {/* Active Project */}
+        <ActiveProjectBanner />
+
+        {/* Collection Workspace */}
+        <div className="grid gap-8 xl:grid-cols-2">
+          {/* Left Column */}
+          <div className="space-y-8">
+            <CollectionInformation />
+
+            <CollectionBranding />
+
+            <CollectionMetadata />
+
+            <CollectionActions />
+          </div>
+
+          {/* Right Column */}
+          <CollectionPreview />
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+}
+
+===== PROJECT CONTEXT API =====
+18:interface ProjectContextType {
+20:  activeProject: Project | null;
+21:  activeProjectId: string | null;
+23:  createProject: (
+28:  selectProject: (id: string) => void;
+30:  updateProject: (
+50:    activeProject:
+74:    activeProjectId,
+110:          keys.activeProject
+202:      if (activeProjectId) {
+204:          keys.activeProject,
+205:          activeProjectId
+209:          keys.activeProject
+219:    activeProjectId,
+230:      !activeProjectId
+239:          activeProjectId
+247:    activeProjectId,
+251:  const createProject =
+301:  const selectProject =
+326:  const updateProject =
+333:          !activeProjectId
+342:              activeProjectId
+360:        activeProjectId,
+380:          activeProjectId === id
+386:        activeProjectId,
+391:  const activeProject =
+398:                activeProjectId
+403:        activeProjectId,
+416:        activeProject:
+418:            ? activeProject
+421:        activeProjectId:
+423:            ? activeProjectId
+426:        createProject,
+427:        selectProject,
+428:        updateProject,
+433:        activeProject,
+434:        activeProjectId,
+436:        createProject,
+437:        selectProject,
+438:        updateProject,
