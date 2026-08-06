@@ -4,9 +4,16 @@ export interface UploadedAsset {
   size: number;
   uploadedAt: string;
   network: string;
-  status: "Uploading" | "Stored" | "Failed";
+  status:
+    | "Uploading"
+    | "Stored"
+    | "Failed";
+
   blobName?: string;
   owner?: string;
+
+  registrationTransaction?: string;
+  commitTransaction?: string;
 }
 
 interface ShelbyUploadResponse {
@@ -18,25 +25,56 @@ interface ShelbyUploadResponse {
 export async function uploadToShelby(
   file: File
 ): Promise<UploadedAsset> {
-  const formData = new FormData();
+  const formData =
+    new FormData();
 
-  formData.append("file", file);
-
-  const response = await fetch(
-    "/api/storage/upload",
-    {
-      method: "POST",
-      body: formData,
-    }
+  formData.append(
+    "file",
+    file
   );
 
-  let result: ShelbyUploadResponse;
+  const response =
+    await fetch(
+      "/api/storage/upload",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+  /*
+   * Read the raw response first.
+   *
+   * This lets us see the REAL error if
+   * Next.js, Codespaces, or the route
+   * returns HTML/text instead of JSON.
+   */
+  const rawResponse =
+    await response.text();
+
+  let result:
+    ShelbyUploadResponse;
 
   try {
-    result = await response.json();
+    result =
+      JSON.parse(rawResponse);
   } catch {
+    console.error(
+      "Shelby upload server returned a non-JSON response:",
+      {
+        status:
+          response.status,
+
+        statusText:
+          response.statusText,
+
+        response:
+          rawResponse,
+      }
+    );
+
     throw new Error(
-      "Invalid response from Shelby Studio upload server."
+      `Shelby upload server returned ${response.status} ${response.statusText}. Check the terminal for the server response.`
     );
   }
 
@@ -47,7 +85,7 @@ export async function uploadToShelby(
   ) {
     throw new Error(
       result.error ||
-        "Shelby Storage upload failed."
+        `Shelby Storage upload failed with HTTP ${response.status}.`
     );
   }
 

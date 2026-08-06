@@ -8,7 +8,6 @@ import {
   FileJson,
   Search,
   BookOpen,
-  UserCircle2,
 } from "lucide-react";
 
 const actions = [
@@ -47,13 +46,6 @@ const actions = [
     icon: BookOpen,
     color: "bg-cyan-600",
   },
-  {
-    title: "My Profile",
-    description: "Manage your creator profile",
-    href: "/profile",
-    icon: UserCircle2,
-    color: "bg-pink-600",
-  },
 ];
 
 export default function QuickActions() {
@@ -77,7 +69,7 @@ export default function QuickActions() {
             <Link
               key={action.title}
               href={action.href}
-              className="group rounded-2xl border border-slate-800 bg-slate-950 p-6 transition hover:border-blue-500 hover:-translate-y-1"
+              className="group rounded-2xl border border-slate-800 bg-slate-950 p-6 transition hover:-translate-y-1 hover:border-blue-500"
             >
               <div
                 className={`inline-flex rounded-xl p-3 ${action.color}`}

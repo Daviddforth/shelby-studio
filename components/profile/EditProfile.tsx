@@ -49,8 +49,8 @@ export default function EditProfile() {
   }
 
   /*
-   * Load only the profile belonging
-   * to the currently connected wallet.
+   * Load the profile belonging to
+   * the currently connected wallet.
    */
   useEffect(() => {
     if (
@@ -64,7 +64,9 @@ export default function EditProfile() {
     try {
       const saved =
         localStorage.getItem(
-          getStorageKey(walletAddress)
+          getStorageKey(
+            walletAddress
+          )
         );
 
       if (!saved) {
@@ -102,6 +104,13 @@ export default function EditProfile() {
     }));
   }
 
+  /*
+   * Save profile to the connected
+   * wallet's local profile.
+   *
+   * The custom event tells other
+   * components that the profile changed.
+   */
   function saveProfile() {
     if (
       !walletConnected ||
@@ -112,8 +121,16 @@ export default function EditProfile() {
 
     try {
       localStorage.setItem(
-        getStorageKey(walletAddress),
+        getStorageKey(
+          walletAddress
+        ),
         JSON.stringify(profile)
+      );
+
+      window.dispatchEvent(
+        new Event(
+          "shelby-profile-updated"
+        )
       );
 
       alert(

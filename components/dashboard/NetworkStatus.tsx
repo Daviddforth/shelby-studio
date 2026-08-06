@@ -2,22 +2,26 @@
 
 import {
   CheckCircle2,
-  XCircle,
+  Circle,
   Globe,
-  ShieldCheck,
+  HardDrive,
   Wallet,
 } from "lucide-react";
 
 import { useWallet } from "@/context/WalletContext";
+import { useStorageContext } from "@/context/StorageContext";
 
 export default function NetworkStatus() {
   const {
     walletConnected,
     walletAddress,
     network,
-    storageConnected,
-    isShelbyHolder,
   } = useWallet();
+
+  const { assets } = useStorageContext();
+
+  const storageActive =
+    walletConnected && assets.length > 0;
 
   return (
     <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
@@ -30,7 +34,6 @@ export default function NetworkStatus() {
       </p>
 
       <div className="mt-8 space-y-5">
-
         <Status
           icon={<Wallet size={20} />}
           title="Wallet"
@@ -46,31 +49,23 @@ export default function NetworkStatus() {
           icon={<Globe size={20} />}
           title="Network"
           value={network}
-          ok={true}
+          ok={walletConnected}
         />
 
         <Status
-          icon={<ShieldCheck size={20} />}
+          icon={<HardDrive size={20} />}
           title="Shelby Storage"
           value={
-            storageConnected
-              ? "Connected"
-              : "Disconnected"
+            storageActive
+              ? "Active"
+              : "No Assets Yet"
           }
-          ok={storageConnected}
-        />
-
-        <Status
-          icon={<ShieldCheck size={20} />}
-          title="Creator Verification"
-          value={
-            isShelbyHolder
-              ? "Verified"
-              : "Not Verified"
+          ok={storageActive}
+          neutral={
+            walletConnected &&
+            !storageActive
           }
-          ok={isShelbyHolder}
         />
-
       </div>
 
       {walletConnected && walletAddress && (
@@ -93,11 +88,13 @@ function Status({
   title,
   value,
   ok,
+  neutral = false,
 }: {
   icon: React.ReactNode;
   title: string;
   value: string;
   ok: boolean;
+  neutral?: boolean;
 }) {
   return (
     <div className="flex items-center justify-between rounded-2xl bg-slate-950 p-4">
@@ -117,10 +114,16 @@ function Status({
         </div>
       </div>
 
-      {ok ? (
-        <CheckCircle2 className="text-green-500" />
+      {neutral ? (
+        <Circle className="text-slate-500" />
       ) : (
-        <XCircle className="text-red-500" />
+        <CheckCircle2
+          className={
+            ok
+              ? "text-green-500"
+              : "text-slate-600"
+          }
+        />
       )}
     </div>
   );

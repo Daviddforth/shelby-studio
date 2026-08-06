@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import {
   Search,
   Wallet,
@@ -19,6 +21,15 @@ export default function ExplorerPage() {
     walletConnected,
     walletAddress,
   } = useWallet();
+
+  /*
+   * Explorer filter state.
+   */
+  const [status, setStatus] =
+    useState("all");
+
+  const [sort, setSort] =
+    useState("newest");
 
   /*
    * Explorer must never expose stored
@@ -76,9 +87,17 @@ export default function ExplorerPage() {
 
         <SearchBar />
 
-        <ExplorerFilters />
+        <ExplorerFilters
+          status={status}
+          setStatus={setStatus}
+          sort={sort}
+          setSort={setSort}
+        />
 
-        <AssetTable />
+        <AssetTable
+          status={status}
+          sort={sort}
+        />
       </div>
     </DashboardLayout>
   );

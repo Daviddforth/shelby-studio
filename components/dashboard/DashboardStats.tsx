@@ -5,15 +5,18 @@ import {
   FolderKanban,
   FileJson,
   HardDrive,
-  Image,
 } from "lucide-react";
 
 import { useStorageContext } from "@/context/StorageContext";
 import { useWallet } from "@/context/WalletContext";
+import { useCollection } from "@/context/CollectionContext";
+import { useMetadata } from "@/context/MetadataContext";
 
 export default function DashboardStats() {
   const { assets } = useStorageContext();
   const { walletConnected } = useWallet();
+  const { hasCollection } = useCollection();
+  const { hasMetadata } = useMetadata();
 
   const totalFiles = assets.length;
 
@@ -22,8 +25,16 @@ export default function DashboardStats() {
     0
   );
 
+  const collectionCount =
+    hasCollection ? 1 : 0;
+
+  const metadataCount =
+    hasMetadata ? 1 : 0;
+
   function formatBytes(bytes: number) {
-    if (bytes === 0) return "0 MB";
+    if (bytes === 0) {
+      return "0 MB";
+    }
 
     const mb = bytes / 1024 / 1024;
 
@@ -43,21 +54,15 @@ export default function DashboardStats() {
     },
     {
       title: "Collections",
-      value: 0,
+      value: collectionCount,
       icon: FolderKanban,
       color: "text-purple-400",
     },
     {
       title: "Metadata",
-      value: 0,
+      value: metadataCount,
       icon: FileJson,
       color: "text-green-400",
-    },
-    {
-      title: "NFTs",
-      value: 0,
-      icon: Image,
-      color: "text-orange-400",
     },
     {
       title: "Storage Used",
@@ -68,7 +73,7 @@ export default function DashboardStats() {
   ];
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
+    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
       {stats.map((stat) => {
         const Icon = stat.icon;
 
@@ -84,7 +89,9 @@ export default function DashboardStats() {
               />
 
               <span className="text-3xl font-bold text-white">
-                {walletConnected ? stat.value : 0}
+                {walletConnected
+                  ? stat.value
+                  : 0}
               </span>
             </div>
 

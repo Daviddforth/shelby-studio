@@ -10,7 +10,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileStats from "@/components/profile/ProfileStats";
 import EditProfile from "@/components/profile/EditProfile";
-import AccountSettings from "@/components/profile/AccountSettings";
+import ProfileWallet from "@/components/profile/ProfileWallet";
 import ProfileActivity from "@/components/profile/ProfileActivity";
 
 import { useWallet } from "@/context/WalletContext";
@@ -21,10 +21,6 @@ export default function ProfilePage() {
     walletAddress,
   } = useWallet();
 
-  /*
-   * Never expose profile/workspace data
-   * while no wallet is connected.
-   */
   if (
     !walletConnected ||
     !walletAddress
@@ -46,8 +42,8 @@ export default function ProfilePage() {
 
               <p className="mt-3 leading-7 text-slate-400">
                 Connect your wallet to access your
-                Shelby Studio profile, creator settings,
-                statistics and activity.
+                Shelby Studio profile and wallet-linked
+                workspace information.
               </p>
 
               <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950 px-4 py-2 text-sm text-slate-400">
@@ -58,11 +54,6 @@ export default function ProfilePage() {
 
                 No profile loaded
               </div>
-
-              <p className="mt-4 text-xs text-slate-500">
-                Profile information remains hidden until
-                the associated wallet is connected.
-              </p>
             </div>
           </div>
         </div>
@@ -77,12 +68,12 @@ export default function ProfilePage() {
 
         <ProfileStats />
 
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
+        <div className="grid gap-8 xl:grid-cols-3">
+          <div className="xl:col-span-2">
             <EditProfile />
           </div>
 
-          <AccountSettings />
+          <ProfileWallet />
         </div>
 
         <ProfileActivity />

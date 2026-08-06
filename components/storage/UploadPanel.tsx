@@ -33,6 +33,7 @@ export default function UploadPanel() {
   const {
     upload,
     loading,
+    progress,
   } = useStorage();
 
   const {
@@ -76,17 +77,10 @@ export default function UploadPanel() {
       setUploadSuccess(true);
       setSelectedFile(null);
 
-      /*
-       * Reset the file input so the same
-       * file can be selected again later.
-       */
       if (inputRef.current) {
         inputRef.current.value = "";
       }
 
-      /*
-       * Hide success state after a moment.
-       */
       window.setTimeout(() => {
         setUploadSuccess(false);
       }, 3000);
@@ -104,6 +98,31 @@ export default function UploadPanel() {
       alert(
         `Shelby upload failed:\n\n${message}`
       );
+    }
+  }
+
+  /*
+   * Human-readable upload phase.
+   */
+  function getPhaseLabel() {
+    switch (progress?.phase) {
+      case "preparing":
+        return "Preparing file";
+
+      case "registering":
+        return "Registering on Shelby";
+
+      case "uploading":
+        return "Uploading to Shelby Storage";
+
+      case "committing":
+        return "Finalizing upload";
+
+      case "complete":
+        return "Upload complete";
+
+      default:
+        return "Preparing upload";
     }
   }
 
@@ -190,7 +209,7 @@ export default function UploadPanel() {
                 className="shrink-0 text-blue-400"
               />
 
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold text-white">
                   {selectedFile.name}
                 </p>
@@ -202,6 +221,73 @@ export default function UploadPanel() {
                 </p>
               </div>
             </div>
+
+            {/* REAL UPLOAD PROGRESS */}
+            {loading && progress && (
+              <div className="mt-6 rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <Loader2
+                      size={17}
+                      className="animate-spin text-blue-400"
+                    />
+
+                    <span className="text-sm font-medium text-slate-200">
+                      {getPhaseLabel()}
+                    </span>
+                  </div>
+
+                  <span className="text-sm font-bold text-blue-400">
+                    {progress.percentage}%
+                  </span>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-800">
+                  <div
+                    className="h-full rounded-full bg-blue-500 transition-all duration-300"
+                    style={{
+                      width: `${Math.max(
+                        0,
+                        Math.min(
+                          100,
+                          progress.percentage
+                        )
+                      )}%`,
+                    }}
+                  />
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+                  <span>
+                    {formatStorage(
+                      progress.uploadedBytes
+                    )}
+                    {" / "}
+                    {formatStorage(
+                      progress.totalBytes
+                    )}
+                  </span>
+
+                  {typeof progress.chunksetIdx ===
+                    "number" &&
+                    typeof progress.totalChunksets ===
+                      "number" && (
+                      <span>
+                        Chunk{" "}
+                        {Math.min(
+                          progress.chunksetIdx + 1,
+                          progress.totalChunksets
+                        )}{" "}
+                        of{" "}
+                        {
+                          progress.totalChunksets
+                        }
+                      </span>
+                    )}
+                </div>
+              </div>
+            )}
 
             <button
               type="button"
@@ -219,7 +305,9 @@ export default function UploadPanel() {
                     className="animate-spin"
                   />
 
-                  Uploading...
+                  {progress
+                    ? `${getPhaseLabel()} — ${progress.percentage}%`
+                    : "Uploading..."}
                 </>
               ) : (
                 <>
@@ -238,7 +326,7 @@ export default function UploadPanel() {
             <CheckCircle2 size={18} />
 
             <span className="text-sm font-medium">
-              Asset stored successfully.
+              File successfully stored on Shelby.
             </span>
           </div>
         )}
@@ -247,8 +335,10 @@ export default function UploadPanel() {
   );
 }
 
-function formatStorage(bytes: number) {
-  if (!bytes) {
+function formatStorage(
+  bytes: number
+) {
+  if (bytes === 0) {
     return "0 B";
   }
 
@@ -260,17 +350,20 @@ function formatStorage(bytes: number) {
     "TB",
   ];
 
-  const index = Math.min(
+  const index =
     Math.floor(
-      Math.log(bytes) / Math.log(1024)
-    ),
-    units.length - 1
-  );
+      Math.log(bytes) /
+        Math.log(1024)
+    );
 
   const value =
-    bytes / Math.pow(1024, index);
+    bytes /
+    Math.pow(
+      1024,
+      index
+    );
 
   return `${value.toFixed(
-    value >= 10 || index === 0 ? 0 : 1
+    index === 0 ? 0 : 2
   )} ${units[index]}`;
 }
