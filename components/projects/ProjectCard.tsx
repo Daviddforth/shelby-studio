@@ -8,7 +8,6 @@ import {
   Database,
   FileJson,
   FolderKanban,
-  MoreVertical,
   Trash2,
 } from "lucide-react";
 
@@ -90,10 +89,20 @@ export default function ProjectCard({
 
   return (
     <article
-      className={`group rounded-3xl border bg-slate-900 p-6 transition ${
+      onClick={handleOpenProject}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          handleOpenProject();
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`Open project ${project.name}`}
+      className={`group cursor-pointer rounded-3xl border bg-slate-900 p-6 transition ${
         isActive
           ? "border-blue-500/60 shadow-lg shadow-blue-500/5"
-          : "border-slate-800 hover:border-slate-700"
+          : "border-slate-800 hover:border-blue-500/40 hover:bg-slate-900/90"
       }`}
     >
       {/* Header */}
@@ -125,13 +134,6 @@ export default function ProjectCard({
           </p>
         </div>
 
-        <button
-          type="button"
-          className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-800 hover:text-white"
-          aria-label={`More options for ${project.name}`}
-        >
-          <MoreVertical size={18} />
-        </button>
       </div>
 
       {/* Stats */}
@@ -177,7 +179,10 @@ export default function ProjectCard({
       <div className="mt-6 flex items-center justify-between border-t border-slate-800 pt-5">
         <button
           type="button"
-          onClick={handleDelete}
+          onClick={(event) => {
+            event.stopPropagation();
+            handleDelete();
+          }}
           className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-500 transition hover:bg-red-500/10 hover:text-red-400"
         >
           <Trash2 size={16} />
@@ -187,7 +192,10 @@ export default function ProjectCard({
 
         <button
           type="button"
-          onClick={handleOpenProject}
+          onClick={(event) => {
+            event.stopPropagation();
+            handleOpenProject();
+          }}
           className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-500"
         >
           {isActive

@@ -14,18 +14,26 @@ export default function MetadataValidation() {
     {
       label: "NFT Name",
       valid: metadata.name.trim() !== "",
+      required: true,
     },
     {
       label: "Description",
       valid: metadata.description.trim() !== "",
-    },
-    {
-      label: "Collection",
-      valid: metadata.collection.trim() !== "",
+      required: true,
     },
     {
       label: "Image",
-      valid: metadata.image.trim() !== "",
+      valid:
+        metadata.image.trim() !== "" ||
+        Boolean(metadata.imagePreview),
+      required: true,
+    },
+  ];
+
+  const optionalChecks = [
+    {
+      label: "Collection",
+      valid: metadata.collection.trim() !== "",
     },
     {
       label: "Attributes",
@@ -76,6 +84,35 @@ export default function MetadataValidation() {
             )}
           </div>
         ))}
+      </div>
+
+      <div className="mt-8 border-t border-slate-800 pt-6">
+        <p className="mb-4 text-sm font-medium text-slate-400">
+          Optional metadata
+        </p>
+
+        <div className="space-y-3">
+          {optionalChecks.map((check) => (
+            <div
+              key={check.label}
+              className="flex items-center justify-between rounded-2xl bg-slate-950 p-4"
+            >
+              <span className="text-slate-300">
+                {check.label}
+              </span>
+
+              <span
+                className={`text-sm ${
+                  check.valid
+                    ? "text-green-400"
+                    : "text-slate-500"
+                }`}
+              >
+                {check.valid ? "Added" : "Optional"}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

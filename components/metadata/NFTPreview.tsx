@@ -15,10 +15,10 @@ export default function NFTPreview() {
       <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden">
 
         <div className="aspect-square flex items-center justify-center bg-slate-900">
-          {metadata.image ? (
+          {metadata.imagePreview ? (
             <img
-              src={metadata.image}
-              alt="NFT"
+              src={metadata.imagePreview}
+              alt={metadata.name || "NFT preview"}
               className="h-full w-full object-cover"
             />
           ) : (

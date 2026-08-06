@@ -48,11 +48,11 @@ export default function AttributeBuilder() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white">
-            NFT Attributes
+            NFT Attributes <span className="text-base font-normal text-slate-500">(Optional)</span>
           </h2>
 
           <p className="mt-2 text-slate-400">
-            Add traits that define your NFT.
+            Add traits only when your NFT needs properties such as rarity, background, genre, level, or other characteristics.
           </p>
         </div>
 
@@ -72,7 +72,7 @@ export default function AttributeBuilder() {
           </p>
 
           <p className="mt-2 text-slate-400">
-            Click "Add Trait" to begin building your metadata.
+            No traits are required. Add them only when they are useful for this NFT.
           </p>
         </div>
       ) : (

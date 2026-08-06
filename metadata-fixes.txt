@@ -1,0 +1,430 @@
+===== ATTRIBUTE BUILDER =====
+"use client";
+
+import { Plus, Trash2 } from "lucide-react";
+import { useMetadata } from "@/context/MetadataContext";
+
+export default function AttributeBuilder() {
+  const { metadata, setMetadata } = useMetadata();
+
+  function addAttribute() {
+    setMetadata((prev) => ({
+      ...prev,
+      attributes: [
+        ...prev.attributes,
+        {
+          trait_type: "",
+          value: "",
+        },
+      ],
+    }));
+  }
+
+  function updateAttribute(
+    index: number,
+    field: "trait_type" | "value",
+    value: string
+  ) {
+    const updated = [...metadata.attributes];
+
+    updated[index][field] = value;
+
+    setMetadata((prev) => ({
+      ...prev,
+      attributes: updated,
+    }));
+  }
+
+  function removeAttribute(index: number) {
+    setMetadata((prev) => ({
+      ...prev,
+      attributes: prev.attributes.filter(
+        (_, i) => i !== index
+      ),
+    }));
+  }
+
+  return (
+    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-white">
+            NFT Attributes
+          </h2>
+
+          <p className="mt-2 text-slate-400">
+            Add traits that define your NFT.
+          </p>
+        </div>
+
+        <button
+          onClick={addAttribute}
+          className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-white hover:bg-blue-700"
+        >
+          <Plus size={18} />
+          Add Trait
+        </button>
+      </div>
+
+      {metadata.attributes.length === 0 ? (
+        <div className="mt-8 rounded-2xl border border-dashed border-slate-700 p-10 text-center">
+          <p className="text-white">
+            No attributes added yet.
+          </p>
+
+          <p className="mt-2 text-slate-400">
+            Click "Add Trait" to begin building your metadata.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-8 space-y-4">
+          {metadata.attributes.map(
+            (attribute, index) => (
+              <div
+                key={index}
+                className="grid gap-4 md:grid-cols-[1fr_1fr_auto]"
+              >
+                <input
+                  value={attribute.trait_type}
+                  placeholder="Trait Type"
+                  onChange={(e) =>
+                    updateAttribute(
+                      index,
+                      "trait_type",
+                      e.target.value
+                    )
+                  }
+                  className="rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none focus:border-blue-500"
+                />
+
+                <input
+                  value={attribute.value}
+                  placeholder="Value"
+                  onChange={(e) =>
+                    updateAttribute(
+                      index,
+                      "value",
+                      e.target.value
+                    )
+                  }
+                  className="rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none focus:border-blue-500"
+                />
+
+                <button
+                  onClick={() =>
+                    removeAttribute(index)
+                  }
+                  className="rounded-xl bg-red-600 px-4 text-white hover:bg-red-700"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            )
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+===== TEMPLATES =====
+"use client";
+
+import { useMetadata } from "@/context/MetadataContext";
+
+const templates = [
+  {
+    name: "PFP Collection",
+    metadata: {
+      collection: "PFP Collection",
+      attributes: [
+        { trait_type: "Background", value: "" },
+        { trait_type: "Eyes", value: "" },
+        { trait_type: "Mouth", value: "" },
+        { trait_type: "Accessory", value: "" },
+      ],
+    },
+  },
+  {
+    name: "Game Item",
+    metadata: {
+      collection: "Game Assets",
+      attributes: [
+        { trait_type: "Rarity", value: "Common" },
+        { trait_type: "Level", value: "1" },
+        { trait_type: "Attack", value: "0" },
+        { trait_type: "Defense", value: "0" },
+      ],
+    },
+  },
+  {
+    name: "Music NFT",
+    metadata: {
+      collection: "Music",
+      attributes: [
+        { trait_type: "Genre", value: "" },
+        { trait_type: "Duration", value: "" },
+      ],
+    },
+  },
+];
+
+export default function MetadataTemplates() {
+  const { setMetadata } = useMetadata();
+
+  function loadTemplate(template: (typeof templates)[number]) {
+    setMetadata((prev) => ({
+      ...prev,
+      collection: template.metadata.collection,
+      attributes: template.metadata.attributes,
+    }));
+  }
+
+  return (
+    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
+      <h2 className="text-2xl font-bold text-white">
+        Templates
+      </h2>
+
+      <p className="mt-2 text-slate-400">
+        Start faster with pre-built metadata templates.
+      </p>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-3">
+        {templates.map((template) => (
+          <button
+            key={template.name}
+            onClick={() => loadTemplate(template)}
+            className="rounded-2xl border border-slate-700 bg-slate-950 p-6 text-left transition hover:border-blue-500 hover:bg-slate-900"
+          >
+            <h3 className="font-semibold text-white">
+              {template.name}
+            </h3>
+
+            <p className="mt-2 text-sm text-slate-400">
+              Load starter metadata.
+            </p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+===== NFT PREVIEW =====
+"use client";
+
+import { ImageIcon } from "lucide-react";
+import { useMetadata } from "@/context/MetadataContext";
+
+export default function NFTPreview() {
+  const { metadata } = useMetadata();
+
+  return (
+    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
+      <h2 className="text-2xl font-bold text-white">
+        Live NFT Preview
+      </h2>
+
+      <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden">
+
+        <div className="aspect-square flex items-center justify-center bg-slate-900">
+          {metadata.image ? (
+            <img
+              src={metadata.image}
+              alt="NFT"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <ImageIcon
+              size={64}
+              className="text-slate-600"
+            />
+          )}
+        </div>
+
+        <div className="p-6">
+          <h3 className="text-xl font-bold text-white">
+            {metadata.name || "Untitled NFT"}
+          </h3>
+
+          <p className="mt-2 text-slate-400">
+            {metadata.description ||
+              "Your NFT description will appear here."}
+          </p>
+
+          <div className="mt-6 flex items-center justify-between">
+            <span className="rounded-full bg-blue-600 px-3 py-1 text-sm text-white">
+              {metadata.collection || "No Collection"}
+            </span>
+
+            <span className="text-sm text-slate-500">
+              {metadata.attributes.length} Traits
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+===== VALIDATION =====
+"use client";
+
+import {
+  CheckCircle2,
+  AlertTriangle,
+} from "lucide-react";
+
+import { useMetadata } from "@/context/MetadataContext";
+
+export default function MetadataValidation() {
+  const { metadata } = useMetadata();
+
+  const checks = [
+    {
+      label: "NFT Name",
+      valid: metadata.name.trim() !== "",
+    },
+    {
+      label: "Description",
+      valid: metadata.description.trim() !== "",
+    },
+    {
+      label: "Collection",
+      valid: metadata.collection.trim() !== "",
+    },
+    {
+      label: "Image",
+      valid: metadata.image.trim() !== "",
+    },
+    {
+      label: "Attributes",
+      valid: metadata.attributes.length > 0,
+    },
+  ];
+
+  const completed = checks.filter(
+    (check) => check.valid
+  ).length;
+
+  const percentage = Math.round(
+    (completed / checks.length) * 100
+  );
+
+  return (
+    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-white">
+            Metadata Validation
+          </h2>
+
+          <p className="mt-2 text-slate-400">
+            Shelby Studio checks your metadata as you build.
+          </p>
+        </div>
+
+        <span className="rounded-full bg-blue-600 px-4 py-2 font-semibold text-white">
+          {percentage}% Complete
+        </span>
+      </div>
+
+      <div className="mt-8 space-y-4">
+        {checks.map((check) => (
+          <div
+            key={check.label}
+            className="flex items-center justify-between rounded-2xl bg-slate-950 p-4"
+          >
+            <span className="text-white">
+              {check.label}
+            </span>
+
+            {check.valid ? (
+              <CheckCircle2 className="text-green-500" />
+            ) : (
+              <AlertTriangle className="text-yellow-500" />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+===== ACTIONS =====
+"use client";
+
+import { Download, Save, RotateCcw } from "lucide-react";
+
+import { useMetadata } from "@/context/MetadataContext";
+
+export default function MetadataActions() {
+  const {
+    metadata,
+    resetMetadata,
+  } = useMetadata();
+
+  function exportJSON() {
+    const blob = new Blob(
+      [
+        JSON.stringify(
+          metadata,
+          null,
+          2
+        ),
+      ],
+      {
+        type: "application/json",
+      }
+    );
+
+    const url =
+      URL.createObjectURL(blob);
+
+    const link =
+      document.createElement("a");
+
+    link.href = url;
+    link.download = "metadata.json";
+
+    link.click();
+
+    URL.revokeObjectURL(url);
+  }
+
+  return (
+    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
+      <h2 className="text-2xl font-bold text-white">
+        Metadata Actions
+      </h2>
+
+      <div className="mt-8 grid gap-4 md:grid-cols-3">
+
+        <button
+          className="flex items-center justify-center gap-3 rounded-2xl bg-blue-600 py-4 text-white hover:bg-blue-700"
+        >
+          <Save size={20} />
+
+          Save Draft
+        </button>
+
+        <button
+          onClick={exportJSON}
+          className="flex items-center justify-center gap-3 rounded-2xl bg-green-600 py-4 text-white hover:bg-green-700"
+        >
+          <Download size={20} />
+
+          Export JSON
+        </button>
+
+        <button
+          onClick={resetMetadata}
+          className="flex items-center justify-center gap-3 rounded-2xl bg-red-600 py-4 text-white hover:bg-red-700"
+        >
+          <RotateCcw size={20} />
+
+          Reset
+        </button>
+
+      </div>
+    </div>
+  );
+}

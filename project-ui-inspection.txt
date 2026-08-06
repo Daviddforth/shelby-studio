@@ -1,3 +1,4 @@
+===== UPLOAD PANEL =====
 "use client";
 
 import {
@@ -170,6 +171,12 @@ export default function UploadPanel() {
           and wallet assets.
         </p>
 
+        {activeProject && (
+          <p className="mt-2 text-sm text-blue-400">
+            Working in: {activeProject.name}
+          </p>
+        )}
+
         <input
           ref={inputRef}
           type="file"
@@ -312,41 +319,34 @@ export default function UploadPanel() {
               File successfully stored on Shelby.
             </span>
           </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
-function formatStorage(
-  bytes: number
-) {
-  if (bytes === 0) {
-    return "0 B";
-  }
+===== PROJECT COMPONENTS =====
+components/collections/ActiveProjectBanner.tsx
+components/metadata/ActiveProjectBanner.tsx
+components/projects/EmptyProjects.tsx
+components/projects/NewProject.tsx
+components/projects/NewProjectModal.tsx
+components/projects/ProjectCard.tsx
+components/projects/ProjectProgress.tsx
+components/projects/ProjectsGrid.tsx
+components/projects/ProjectsHeader.tsx
+components/projects/dashboard/ProjectActions.tsx
+components/projects/dashboard/ProjectDashboardHeader.tsx
+components/projects/dashboard/ProjectReadiness.tsx
+components/projects/dashboard/ProjectStats.tsx
+components/projects/dashboard/PublishedProjectDetails.tsx
+components/projects/publish/PublishChecklist.tsx
+components/projects/publish/PublishProjectModal.tsx
+components/projects/publish/PublishSuccess.tsx
+components/projects/publish/PublishSummary.tsx
+components/storage/ActiveProjectBanner.tsx
 
-  const units = [
-    "B",
-    "KB",
-    "MB",
-    "GB",
-    "TB",
-  ];
+===== PROJECT PAGE =====
+app/projects/page.tsx
+app/projects/[id]/page.tsx
 
-  const index =
-    Math.floor(
-      Math.log(bytes) /
-        Math.log(1024)
-    );
-
-  const value =
-    bytes /
-    Math.pow(
-      1024,
-      index
-    );
-
-  return `${value.toFixed(
-    index === 0 ? 0 : 2
-  )} ${units[index]}`;
-}
+===== THREE DOT REFERENCES =====
+components/storage/FileRow.tsx:7:  MoreHorizontal,
+components/storage/FileRow.tsx:62:          <MoreHorizontal
+components/projects/ProjectCard.tsx:11:  MoreVertical,
+components/projects/ProjectCard.tsx:133:          <MoreVertical size={18} />
