@@ -2,13 +2,11 @@
 
 > **Document Information**
 >
-> **Project:** Shelby Studio
 >
 > **Version:** v0.1.0
 >
 > **Status:** Active Development
 >
-> **Maintainer:** Daviddforth
 >
 > **Last Updated:** August 2026
 >
@@ -183,9 +181,3 @@ It is centered on creating a developer experience that combines simplicity, tran
 As the platform evolves, these principles will continue guiding both its technical architecture and user experience.
 
 ---
-
-**Document Version:** v0.1.0
-
-**Project:** Shelby Studio
-
-**Maintainer:** Daviddforth

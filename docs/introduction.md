@@ -2,13 +2,11 @@
 
 > **Document Information**
 >
-> **Project:** Shelby Studio
 >
 > **Version:** v0.1.0
 >
 > **Status:** Active Development
 >
-> **Maintainer:** Daviddforth
 >
 > **Last Updated:** August 2026
 >
@@ -110,7 +108,7 @@ The current release includes the following capabilities.
 - Verify uploaded objects
 - Download stored objects
 - Query object metadata
-- Replace objects atomically
+- Persist and inspect uploaded asset records
 
 ### Explorer
 
@@ -123,7 +121,7 @@ The current release includes the following capabilities.
 - Shelby SDK integration
 - Shelby RPC integration
 - Shelby Coordination integration
-- Secure server-side API routes
+- Hybrid browser and server-side Shelby integration
 
 These features represent the current production state of Shelby Studio.
 
@@ -214,9 +212,3 @@ It is being developed as a complete developer workspace that brings together dec
 As the Shelby ecosystem evolves, Shelby Studio is intended to evolve alongside it while maintaining a strong focus on developer experience, modular architecture and production-ready workflows.
 
 ---
-
-**Document Version:** v0.1.0
-
-**Project:** Shelby Studio
-
-**Maintainer:** Daviddforth

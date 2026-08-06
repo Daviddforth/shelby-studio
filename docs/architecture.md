@@ -1,13 +1,11 @@
 # Architecture
 
 > [!IMPORTANT]
-> **Project:** Shelby Studio
 >
 > **Version:** v0.1.0
 >
 > **Status:** Active Development
 >
-> **Maintainer:** Daviddforth
 >
 > This document describes the architecture of Shelby Studio.
 >
@@ -36,7 +34,7 @@ Shelby Studio follows a layered architecture that separates presentation, applic
 
 Each layer has a clearly defined responsibility, allowing the application to remain modular, maintainable and scalable as new capabilities are introduced.
 
-Rather than communicating directly with Shelby from the browser, Shelby Studio routes storage operations through secure server-side API endpoints.
+Shelby Studio uses a hybrid architecture. Next.js API routes prepare and coordinate storage operations, while the browser performs the Shelby data-transfer stages required by the upload pipeline and the connected Aptos wallet signs on-chain transactions.
 
 ---
 
@@ -140,7 +138,7 @@ Responsibilities include:
 - Upload processing
 - Download requests
 - Object queries
-- Replacement operations
+- Upload preparation and coordination
 - Future deletion operations
 
 Sensitive credentials remain isolated within this layer.
@@ -168,10 +166,10 @@ The architecture currently supports:
 - Secure uploads
 - Object queries
 - Downloads
-- Atomic replacements
+- Wallet-signed storage transactions
 - Asset verification
 
-All communication with Shelby occurs through server-side API routes.
+Shelby communication is split between server-side coordination and browser-side storage operations. The connected wallet remains the sender for registration and commit transactions.
 
 ---
 
@@ -203,7 +201,7 @@ Each layer performs one responsibility.
 
 ## Security
 
-Sensitive operations remain on the server.
+Server-only configuration remains isolated from the browser, while user-authorized blockchain transactions are signed by the connected wallet.
 
 ## Modularity
 
@@ -240,9 +238,3 @@ The architecture of Shelby Studio has been designed to support both the current 
 By separating presentation, business logic and decentralized storage into independent layers, the platform provides a secure and maintainable foundation for developers building on Shelby.
 
 ---
-
-**Document Version:** v0.1.0
-
-**Project:** Shelby Studio
-
-**Maintainer:** Daviddforth

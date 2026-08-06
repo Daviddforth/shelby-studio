@@ -61,7 +61,7 @@ Topics include:
 - Asset uploads
 - Object verification
 - Downloads
-- Replacement
+- Planned replacement workflows
 - Shelby Coordination
 - Shelby RPC
 - Storage workflows
@@ -90,7 +90,7 @@ Topics include:
 
 - Layered architecture
 - Secure API design
-- Server-side Shelby operations
+- Hybrid browser/server Shelby architecture
 - Verification workflows
 - Future scalability
 
@@ -104,7 +104,7 @@ The current version of Shelby Studio includes:
 - Object verification
 - Object querying
 - Downloads
-- Atomic replacement
+- Wallet-signed storage transactions
 - Asset Explorer
 - Dashboard foundation
 - Project workspace
@@ -148,9 +148,4 @@ This structure ensures the documentation remains consistent as Shelby Studio evo
 As Shelby Studio grows, new documentation should follow the same structure and writing style to maintain consistency across the project.
 
 ---
-
-**Project:** Shelby Studio
-
-**Maintainer:** Daviddforth
-
 **Version:** v0.1.0

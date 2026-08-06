@@ -1,13 +1,11 @@
 # Explorer
 
 > [!IMPORTANT]
-> **Project:** Shelby Studio
 >
 > **Version:** v0.1.0
 >
 > **Status:** Active Development
 >
-> **Maintainer:** Daviddforth
 >
 > This document describes the Explorer module of Shelby Studio.
 >
@@ -135,9 +133,9 @@ Retrieve the latest committed version of an asset directly from Shelby.
 
 ### Replace
 
-Replace an existing object while preserving its blob name.
+> **Status: In Progress**
 
-Shelby Studio performs an atomic replacement and verifies the object before updating the interface.
+Replacement controls are planned for the Explorer but are not currently enabled.
 
 ---
 
@@ -168,11 +166,7 @@ Download
 
 ↓
 
-Replace
-
-↓
-
-Verification
+Future Asset Actions
 
 ↓
 
@@ -227,7 +221,7 @@ These features will expand the Explorer while preserving its current architectur
 
 The Explorer intentionally separates presentation from storage operations.
 
-Rather than communicating directly with Shelby, every action passes through server-side API routes.
+Explorer actions use the appropriate Shelby Studio storage path: server-side coordination where required, browser-side Shelby communication for supported storage operations, and connected-wallet authorization for blockchain transactions.
 
 This approach:
 
@@ -256,9 +250,3 @@ The Explorer provides the primary interface for interacting with stored Shelby a
 By combining verified object information with streamlined storage operations, it enables developers to confidently manage decentralized assets while maintaining a clean and scalable user experience.
 
 ---
-
-**Document Version:** v0.1.0
-
-**Project:** Shelby Studio
-
-**Maintainer:** Daviddforth

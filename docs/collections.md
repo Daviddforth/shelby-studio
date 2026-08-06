@@ -1,13 +1,11 @@
 # Collections
 
 > [!IMPORTANT]
-> **Project:** Shelby Studio
 >
 > **Version:** v0.1.0
 >
 > **Status:** In Development
 >
-> **Maintainer:** Daviddforth
 >
 > This document describes the Collection module of Shelby Studio.
 >
@@ -190,9 +188,3 @@ The Collection module introduces structured asset organization to Shelby Studio.
 By grouping related assets into cohesive workspaces, collections prepare the platform for advanced NFT workflows, batch operations and scalable decentralized application development.
 
 ---
-
-**Document Version:** v0.1.0
-
-**Project:** Shelby Studio
-
-**Maintainer:** Daviddforth

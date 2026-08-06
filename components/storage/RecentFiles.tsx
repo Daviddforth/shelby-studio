@@ -7,12 +7,17 @@ import {
 
 import { useState } from "react";
 import { useStorage } from "@/hooks/useStorage";
+import AssetDetails from "@/components/storage/AssetDetails";
+import type { UploadedAsset } from "@/lib/services/storage";
 
 export default function RecentFiles() {
   const { assets } = useStorage();
 
   const [downloadingUid, setDownloadingUid] =
     useState<string | null>(null);
+
+  const [selectedAsset, setSelectedAsset] =
+    useState<UploadedAsset | null>(null);
 
   async function handleDownload(asset: {
     uid: string;
@@ -116,22 +121,33 @@ export default function RecentFiles() {
                 key={asset.uid}
                 className="flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-950 p-4"
               >
-                <div className="flex min-w-0 items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSelectedAsset(asset)
+                  }
+                  className="flex min-w-0 items-center gap-3 text-left"
+                  title="View Shelby asset details"
+                >
                   <FileText
                     size={22}
                     className="shrink-0 text-blue-400"
                   />
 
                   <div className="min-w-0">
-                    <p className="truncate font-semibold text-white">
+                    <p className="truncate font-semibold text-white transition hover:text-blue-400">
                       {asset.name}
                     </p>
 
                     <p className="text-sm text-slate-400">
                       {(asset.size / 1024).toFixed(1)} KB
                     </p>
+
+                    <p className="mt-1 text-xs text-blue-400">
+                      View details
+                    </p>
                   </div>
-                </div>
+                </button>
 
                 <div className="flex shrink-0 items-center gap-5">
                   <div className="text-right">
@@ -179,6 +195,15 @@ export default function RecentFiles() {
             );
           })}
         </div>
+      )}
+
+      {selectedAsset && (
+        <AssetDetails
+          asset={selectedAsset}
+          onClose={() =>
+            setSelectedAsset(null)
+          }
+        />
       )}
     </div>
   );

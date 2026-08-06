@@ -1,13 +1,11 @@
 # Upload Pipeline
 
 > [!IMPORTANT]
-> **Project:** Shelby Studio
 >
 > **Version:** v0.1.0
 >
 > **Status:** Active Development
 >
-> **Maintainer:** Daviddforth
 >
 > This document describes how Shelby Studio uploads assets to the Shelby network.
 >
@@ -111,9 +109,9 @@ Shelby SDK
              Shelby Network
 ```
 
-The browser never communicates directly with Shelby.
+The browser participates directly in the Shelby upload pipeline.
 
-All communication passes through secure server-side API routes.
+Next.js API routes handle preparation and coordination, while file data is transferred through the browser and final blockchain transactions are authorized by the connected Aptos wallet.
 
 ---
 
@@ -238,9 +236,3 @@ The Upload Pipeline transforms a selected file into a verified Shelby object thr
 By validating every stage before exposing the object to the user, Shelby Studio provides a reliable and transparent upload experience while remaining fully aligned with Shelby's decentralized storage architecture.
 
 ---
-
-**Document Version:** v0.1.0
-
-**Project:** Shelby Studio
-
-**Maintainer:** Daviddforth

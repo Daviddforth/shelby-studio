@@ -42,11 +42,12 @@ Shelby Studio is organized into several independent modules that work together a
 
 ### Storage
 
-- Upload assets to Shelby
-- Query stored objects
-- Download stored assets
-- Replace existing objects without changing their identity
-- Verify storage operations directly from Shelby
+- Upload assets to Shelbynet
+- Commit uploaded assets through the connected Aptos wallet
+- Persist wallet/project storage records locally
+- Inspect stored asset identifiers and transaction information
+- Download stored assets from Shelby
+- Verify successful storage operations
 
 ### Asset Management
 
@@ -86,23 +87,24 @@ Shelby Studio follows a layered architecture that separates the user interface, 
 
            React + Next.js UI
 
+              │           │
+              │           │
+              ▼           ▼
+
+       Next.js API     Shelby RPC
+          Routes       / Providers
+
+              │           │
+              └─────┬─────┘
                     │
-
-                    ▼
-
-          Next.js API Routes
-
-                    │
-
                     ▼
 
               Shelby SDK
 
                     │
-
                     ▼
 
-             Shelby Network
+             Shelbynet
 
                     │
 
@@ -111,7 +113,7 @@ Shelby Studio follows a layered architecture that separates the user interface, 
           Distributed Storage Providers
 ```
 
-This architecture ensures that sensitive operations remain on the server while providing developers with a clean, intuitive interface for interacting with decentralized storage.
+Shelby Studio coordinates server-side preparation with direct browser-to-Shelby data transfer. Final Shelby transactions are signed and submitted by the connected Aptos wallet, keeping the user as the transaction sender and gas payer.
 
 ---
 
@@ -145,7 +147,6 @@ Shelby Studio is currently under active development.
 - ✅ Shelby Storage Integration
 - ✅ Upload Assets
 - ✅ Download Assets
-- ✅ Replace Existing Objects
 - ✅ Object Verification
 - ✅ Asset Explorer
 - ✅ Dashboard
@@ -158,6 +159,7 @@ Shelby Studio is currently under active development.
 
 ### In Progress
 
+- 🚧 Replace Existing Objects
 - 🚧 Delete Objects
 - 🚧 Explorer Actions
 - 🚧 Collection Builder
@@ -300,14 +302,6 @@ Current priorities include:
 - AI-assisted development
 
 The long-term objective is to establish Shelby Studio as a complete developer platform for building applications on the Shelby network.
-
----
-
-## Maintainer
-
-**Daviddforth**
-
-Shelby Studio is developed as an open platform focused on improving the developer experience for applications built on Shelby.
 
 ---
 

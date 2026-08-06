@@ -1,13 +1,11 @@
 # Engineering Decisions
 
 > [!IMPORTANT]
-> **Project:** Shelby Studio
 >
 > **Version:** v0.1.0
 >
 > **Status:** Active Development
 >
-> **Maintainer:** Daviddforth
 >
 > This document explains the engineering decisions that shape the architecture and implementation of Shelby Studio.
 >
@@ -62,11 +60,11 @@ Each module can evolve independently without affecting the internal implementati
 
 ---
 
-## Server-First Architecture
+## Hybrid Shelby Architecture
 
-Shelby credentials never exist inside the browser.
+Server-only Shelby credentials and configuration remain isolated from the browser.
 
-All storage operations pass through secure Next.js API routes before communicating with Shelby.
+Next.js API routes handle preparation and coordination, while the browser performs required Shelby upload operations and the connected Aptos wallet authorizes blockchain transactions.
 
 This reduces the attack surface while allowing future authentication and permission systems to be introduced without redesigning the application.
 
@@ -112,7 +110,7 @@ Shelby SDK
 Shelby Network
 ```
 
-Each layer communicates only with the layer directly below it.
+The layers have explicit responsibilities, while the upload pipeline can coordinate across API routes, Shelby providers and the connected wallet.
 
 This creates a predictable and maintainable architecture.
 
@@ -120,25 +118,23 @@ This creates a predictable and maintainable architecture.
 
 ## API Boundary
 
-The browser never communicates directly with Shelby.
+The browser communicates with Shelby where required by the storage upload pipeline.
 
-Instead:
+The current boundary is:
 
 Browser
 
-↓
+├── Next.js API Routes
 
-API Route
+├── Shelby Upload Providers
 
-↓
-
-Shelby SDK
+└── Connected Aptos Wallet
 
 ↓
 
-Shelby
+Shelbynet
 
-This provides a consistent interface for every storage operation while keeping sensitive configuration on the server.
+This separates server-only configuration from user-authorized operations while allowing the connected wallet to remain the transaction sender.
 
 ---
 
@@ -158,13 +154,13 @@ This avoids displaying assets that were not successfully committed.
 
 ---
 
-## Atomic Replacement
+## Object Replacement
 
-Object replacement is implemented as an atomic operation.
+Object replacement is currently in progress.
 
-Instead of deleting an object and uploading another one, Shelby Studio registers a new object, uploads its data and commits it using Shelby's overwrite mechanism.
+The planned replacement workflow will be implemented only after its behavior has been validated against the current Shelby SDK and Shelbynet.
 
-This preserves the logical identity of the object while replacing its contents.
+Until then, replacement is not presented as an implemented storage capability.
 
 ---
 
@@ -245,9 +241,3 @@ Shelby Studio is being developed with that philosophy in mind.
 Every subsystem has been designed to support future expansion while maintaining a consistent developer experience.
 
 ---
-
-**Document Version:** v0.1.0
-
-**Project:** Shelby Studio
-
-**Maintainer:** Daviddforth

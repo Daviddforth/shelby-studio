@@ -1,0 +1,202 @@
+"use client";
+
+import {
+  X,
+  FileText,
+  Copy,
+  CheckCircle2,
+} from "lucide-react";
+
+import type {
+  UploadedAsset,
+} from "@/lib/services/storage";
+
+interface AssetDetailsProps {
+  asset: UploadedAsset;
+  onClose: () => void;
+}
+
+export default function AssetDetails({
+  asset,
+  onClose,
+}: AssetDetailsProps) {
+  async function copyValue(
+    value: string
+  ) {
+    try {
+      await navigator.clipboard.writeText(
+        value
+      );
+    } catch (error) {
+      console.error(
+        "Failed to copy value:",
+        error
+      );
+    }
+  }
+
+  return (
+    <div className="mt-6 rounded-2xl border border-blue-500/30 bg-slate-950 p-6">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="rounded-xl bg-blue-500/10 p-3">
+            <FileText
+              size={24}
+              className="text-blue-400"
+            />
+          </div>
+
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-widest text-blue-400">
+              Shelby Asset
+            </p>
+
+            <h3 className="mt-1 truncate text-xl font-bold text-white">
+              {asset.name}
+            </h3>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+          title="Close asset details"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <Detail
+          label="Status"
+          value={asset.status}
+        />
+
+        <Detail
+          label="Network"
+          value={asset.network}
+        />
+
+        <Detail
+          label="File Size"
+          value={`${(
+            asset.size / 1024
+          ).toFixed(1)} KB`}
+        />
+
+        <Detail
+          label="Uploaded"
+          value={new Date(
+            asset.uploadedAt
+          ).toLocaleString()}
+        />
+      </div>
+
+      <div className="mt-4 space-y-3">
+        <CopyDetail
+          label="Shelby UID"
+          value={asset.uid}
+          onCopy={copyValue}
+        />
+
+        {asset.blobName && (
+          <CopyDetail
+            label="Blob Name"
+            value={asset.blobName}
+            onCopy={copyValue}
+          />
+        )}
+
+        {asset.owner && (
+          <CopyDetail
+            label="Owner Wallet"
+            value={asset.owner}
+            onCopy={copyValue}
+          />
+        )}
+
+        {asset.registrationTransaction && (
+          <CopyDetail
+            label="Registration Transaction"
+            value={
+              asset.registrationTransaction
+            }
+            onCopy={copyValue}
+          />
+        )}
+
+        {asset.commitTransaction && (
+          <CopyDetail
+            label="Commit Transaction"
+            value={
+              asset.commitTransaction
+            }
+            onCopy={copyValue}
+          />
+        )}
+      </div>
+
+      {asset.status === "Stored" && (
+        <div className="mt-6 flex items-center gap-2 rounded-xl border border-green-500/20 bg-green-500/5 px-4 py-3 text-sm text-green-400">
+          <CheckCircle2 size={18} />
+
+          Stored successfully on Shelby
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Detail({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+      <p className="text-xs uppercase tracking-wider text-slate-500">
+        {label}
+      </p>
+
+      <p className="mt-2 break-all text-sm font-medium text-slate-200">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function CopyDetail({
+  label,
+  value,
+  onCopy,
+}: {
+  label: string;
+  value: string;
+  onCopy: (value: string) => void;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-xs uppercase tracking-wider text-slate-500">
+          {label}
+        </p>
+
+        <button
+          type="button"
+          onClick={() => onCopy(value)}
+          className="shrink-0 text-slate-500 transition hover:text-blue-400"
+          title={`Copy ${label}`}
+        >
+          <Copy size={16} />
+        </button>
+      </div>
+
+      <p className="mt-2 break-all font-mono text-xs leading-5 text-slate-300">
+        {value}
+      </p>
+    </div>
+  );
+}

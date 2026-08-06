@@ -1,13 +1,11 @@
 # Metadata
 
 > [!IMPORTANT]
-> **Project:** Shelby Studio
 >
 > **Version:** v0.1.0
 >
 > **Status:** In Development
 >
-> **Maintainer:** Daviddforth
 >
 > This document describes the design and planned implementation of the Metadata module within Shelby Studio.
 >
@@ -198,9 +196,3 @@ The Metadata module extends Shelby Studio beyond decentralized storage by introd
 Although still under development, its architecture has been designed to integrate naturally with the existing Storage Engine while remaining flexible for future expansion.
 
 ---
-
-**Document Version:** v0.1.0
-
-**Project:** Shelby Studio
-
-**Maintainer:** Daviddforth

@@ -1,13 +1,11 @@
 # Storage Engine
 
 > [!IMPORTANT]
-> **Project:** Shelby Studio
 >
 > **Version:** v0.1.0
 >
 > **Status:** Active Development
 >
-> **Maintainer:** Daviddforth
 >
 > This document describes how Shelby Studio stores, retrieves and manages digital assets using the Shelby network.
 >
@@ -96,9 +94,9 @@ Coordination    RPC
         Shelbynet
 ```
 
-The browser never communicates directly with Shelby.
+The browser participates directly in Shelby storage operations where required by the upload pipeline.
 
-All storage operations are performed securely through server-side API routes.
+Storage operations use a hybrid architecture combining Next.js API coordination, browser-side Shelby data transfer and connected-wallet transaction signing.
 
 ---
 
@@ -161,9 +159,11 @@ Downloads always retrieve the latest committed version of the object.
 
 # Replace Workflow
 
-Shelby Studio replaces objects without changing their logical identity.
+> **Status: In Progress**
 
-The workflow performs an atomic replacement.
+Object replacement is planned as an asset-management capability.
+
+The intended workflow will preserve the logical identity of an object while replacing its stored contents.
 
 ```text
 Existing Object
@@ -198,13 +198,13 @@ The Storage Engine currently supports:
 
 ✅ Download objects
 
-✅ Atomic replacement
+🚧 Object replacement
 
 ✅ Upload verification
 
 ✅ Object verification
 
-These capabilities are fully integrated with Shelby through secure server-side API routes.
+Implemented storage capabilities use Shelby SDK integration, server-side preparation, browser-side data transfer and connected-wallet transaction signing.
 
 ---
 
@@ -246,11 +246,11 @@ These additions will extend the Storage Engine while preserving its current arch
 
 Several engineering decisions influence the Storage Engine.
 
-- Credentials remain server-side.
+- Server-only credentials and configuration remain server-side.
 - Verification occurs after critical operations.
-- Atomic replacement is preferred over delete-and-upload.
+- Replacement behavior remains under development.
 - Shelby remains the source of truth for stored assets.
-- The browser never communicates directly with Shelby services.
+- Browser-side Shelby communication is used where required by the upload pipeline.
 
 These decisions improve reliability, maintainability and security.
 
@@ -276,9 +276,3 @@ It provides a secure, modular and verifiable interface for interacting with Shel
 As Shelby Studio evolves, the Storage Engine will remain the foundation upon which higher-level features such as metadata management, collections and NFT workflows are built.
 
 ---
-
-**Document Version:** v0.1.0
-
-**Project:** Shelby Studio
-
-**Maintainer:** Daviddforth

@@ -1,13 +1,11 @@
 # Dashboard
 
 > [!IMPORTANT]
-> **Project:** Shelby Studio
 >
 > **Version:** v0.1.0
 >
 > **Status:** In Development
 >
-> **Maintainer:** Daviddforth
 >
 > This document describes the Dashboard module of Shelby Studio.
 >
@@ -208,9 +206,3 @@ The Dashboard represents the central workspace of Shelby Studio.
 By consolidating information from storage, metadata and collections into a single interface, it provides developers with a clear view of their projects while preparing the platform for future analytics and advanced workflow management.
 
 ---
-
-**Document Version:** v0.1.0
-
-**Project:** Shelby Studio
-
-**Maintainer:** Daviddforth
