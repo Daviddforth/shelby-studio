@@ -21,6 +21,13 @@ export interface Collection {
   royalty: number;
   category: string;
   visibility: "Private" | "Public";
+
+  /*
+   * Whether the active project's
+   * metadata has been intentionally
+   * attached to this collection.
+   */
+  metadataAttached: boolean;
 }
 
 interface CollectionContextType {
@@ -32,7 +39,11 @@ interface CollectionContextType {
 
   resetCollection: () => void;
 
+  attachMetadata: () => void;
+  detachMetadata: () => void;
+
   hasCollection: boolean;
+  metadataAttached: boolean;
 }
 
 const defaultCollection: Collection = {
@@ -45,6 +56,7 @@ const defaultCollection: Collection = {
   royalty: 5,
   category: "",
   visibility: "Private",
+  metadataAttached: false,
 };
 
 const CollectionContext =
@@ -83,9 +95,6 @@ export function CollectionProvider({
   /*
    * Load only the collection belonging
    * to the connected wallet + project.
-   *
-   * Disconnecting immediately clears
-   * the visible collection workspace.
    */
   useEffect(() => {
     setLoadedStorageKey(null);
@@ -119,6 +128,12 @@ export function CollectionProvider({
         const parsed =
           JSON.parse(saved);
 
+        /*
+         * Spreading over defaultCollection
+         * keeps older saved collections
+         * compatible with new fields such
+         * as metadataAttached.
+         */
         setCollection({
           ...defaultCollection,
           ...parsed,
@@ -147,6 +162,9 @@ export function CollectionProvider({
   /*
    * Collection data only counts while
    * the correct wallet/project is active.
+   *
+   * metadataAttached intentionally does
+   * not create a collection by itself.
    */
   const hasCollection =
     walletConnected &&
@@ -161,6 +179,12 @@ export function CollectionProvider({
       collection.logo.trim().length > 0 ||
       collection.category.trim().length > 0
     );
+
+  const metadataAttached =
+    walletConnected &&
+    !!walletAddress &&
+    !!activeProject &&
+    collection.metadataAttached;
 
   /*
    * Persist only to the storage key that
@@ -255,6 +279,36 @@ export function CollectionProvider({
   ]);
 
   /*
+   * Explicitly attach the active
+   * project's metadata.
+   */
+  function attachMetadata() {
+    if (
+      !walletConnected ||
+      !walletAddress ||
+      !activeProject
+    ) {
+      return;
+    }
+
+    setCollection((previous) => ({
+      ...previous,
+      metadataAttached: true,
+    }));
+  }
+
+  /*
+   * Remove the metadata relationship
+   * without deleting the metadata itself.
+   */
+  function detachMetadata() {
+    setCollection((previous) => ({
+      ...previous,
+      metadataAttached: false,
+    }));
+  }
+
+  /*
    * Reset only the connected wallet's
    * active project collection.
    */
@@ -283,7 +337,12 @@ export function CollectionProvider({
         collection,
         setCollection,
         resetCollection,
+
+        attachMetadata,
+        detachMetadata,
+
         hasCollection,
+        metadataAttached,
       }}
     >
       {children}
