@@ -1,7 +1,7 @@
 "use client";
 
 import AssetCard from "./AssetCard";
-import { UploadedAsset } from "@/lib/services/storage";
+import type { UploadedAsset } from "@/lib/services/storage";
 
 interface Props {
   assets: UploadedAsset[];
@@ -29,12 +29,7 @@ export default function AssetList({
       {assets.map((asset) => (
         <AssetCard
           key={asset.uid}
-          uid={asset.uid}
-          name={asset.name}
-          size={`${(asset.size / 1024).toFixed(1)} KB`}
-          network={asset.network}
-          uploadedAt={asset.uploadedAt}
-          status={asset.status}
+          asset={asset}
         />
       ))}
     </div>
