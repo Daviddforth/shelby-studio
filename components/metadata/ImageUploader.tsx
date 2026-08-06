@@ -2,7 +2,6 @@
 
 import {
   useCallback,
-  useEffect,
   useState,
 } from "react";
 
@@ -41,82 +40,114 @@ export default function ImageUploader() {
   ] = useState("");
 
   /*
-   * Release temporary browser preview URLs
-   * when they are replaced or the component
-   * is removed.
-   */
-  useEffect(() => {
-    return () => {
-      if (
-        metadata.imagePreview.startsWith(
-          "blob:"
-        )
-      ) {
-        URL.revokeObjectURL(
-          metadata.imagePreview
-        );
-      }
-    };
-  }, [metadata.imagePreview]);
-
-  /*
-   * Selecting artwork is LOCAL ONLY.
+   * Selecting artwork is local only.
    *
-   * No Shelby transaction happens here.
+   * We use a data URL instead of
+   * URL.createObjectURL().
+   *
+   * Blob URLs die after a refresh.
+   * Data URLs remain valid when the
+   * metadata is restored from localStorage.
    */
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
 
-      if (!file) return;
+      if (!file) {
+        return;
+      }
 
       setUploadError("");
 
       if (
-        metadata.imagePreview.startsWith(
-          "blob:"
-        )
+        !file.type.startsWith("image/")
       ) {
-        URL.revokeObjectURL(
-          metadata.imagePreview
+        setUploadError(
+          "Please select a valid image."
         );
+
+        return;
       }
 
-      const preview =
-        URL.createObjectURL(file);
+      /*
+       * Prevent extremely large images
+       * from being written into localStorage.
+       *
+       * The original file is still uploaded
+       * directly to Shelby when requested.
+       */
+      const MAX_PREVIEW_SIZE =
+        2 * 1024 * 1024;
 
-      setSelectedFile(file);
+      if (
+        file.size >
+        MAX_PREVIEW_SIZE
+      ) {
+        setUploadError(
+          "Artwork preview must be smaller than 2 MB."
+        );
 
-      setMetadata((prev) => ({
-        ...prev,
+        return;
+      }
 
-        /*
-         * image remains empty until the
-         * Shelby upload succeeds.
-         */
-        image: "",
+      const reader =
+        new FileReader();
 
-        imagePreview: preview,
-      }));
+      reader.onload = () => {
+        if (
+          typeof reader.result !==
+          "string"
+        ) {
+          setUploadError(
+            "Could not create artwork preview."
+          );
+
+          return;
+        }
+
+        setSelectedFile(file);
+
+        setMetadata((prev) => ({
+          ...prev,
+
+          /*
+           * The real Shelby reference
+           * remains empty until upload.
+           */
+          image: "",
+
+          /*
+           * Persistent browser preview.
+           */
+          imagePreview:
+            reader.result as string,
+        }));
+      };
+
+      reader.onerror = () => {
+        setUploadError(
+          "Could not read the selected image."
+        );
+      };
+
+      reader.readAsDataURL(file);
     },
-    [
-      metadata.imagePreview,
-      setMetadata,
-    ]
+    [setMetadata]
   );
 
   /*
-   * Explicit Shelby upload.
-   *
-   * THIS is the action that is allowed
-   * to request wallet transaction approval.
+   * Upload the original File object
+   * directly to Shelby.
    */
   async function uploadToShelby(
-    event: React.MouseEvent<HTMLButtonElement>
+    event: React.MouseEvent
   ) {
     event.stopPropagation();
 
-    if (!selectedFile || loading) {
+    if (
+      !selectedFile ||
+      loading
+    ) {
       return;
     }
 
@@ -130,13 +161,16 @@ export default function ImageUploader() {
         ...prev,
 
         /*
-         * Persist the actual Shelby asset
-         * reference after successful upload.
+         * Actual Shelby asset reference.
          */
         image:
           asset.blobName ||
           asset.name,
 
+        /*
+         * Keep the persistent local
+         * preview for Shelby Studio UI.
+         */
         imagePreview:
           prev.imagePreview,
       }));
@@ -157,19 +191,9 @@ export default function ImageUploader() {
   }
 
   function removeImage(
-    event?: React.MouseEvent<HTMLButtonElement>
+    event?: React.MouseEvent
   ) {
     event?.stopPropagation();
-
-    if (
-      metadata.imagePreview.startsWith(
-        "blob:"
-      )
-    ) {
-      URL.revokeObjectURL(
-        metadata.imagePreview
-      );
-    }
 
     setSelectedFile(null);
     setUploadError("");
@@ -193,11 +217,6 @@ export default function ImageUploader() {
       "image/*": [],
     },
 
-    /*
-     * Once an image is selected, clicking
-     * the action buttons should not reopen
-     * the browser file picker.
-     */
     noClick: !!metadata.imagePreview,
   });
 
@@ -245,11 +264,13 @@ export default function ImageUploader() {
         </div>
       ) : (
         <div className="text-center">
-          {/* Artwork Preview */}
           <div className="mx-auto max-w-md overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
             <img
               src={metadata.imagePreview}
-              alt="NFT artwork preview"
+              alt={
+                metadata.name ||
+                "NFT artwork preview"
+              }
               className="max-h-80 w-full object-contain"
             />
           </div>
@@ -277,7 +298,8 @@ export default function ImageUploader() {
               />
 
               <h3 className="mt-3 font-semibold text-white">
-                {selectedFile?.name}
+                {selectedFile?.name ||
+                  "Artwork selected"}
               </h3>
 
               <p className="mt-2 text-sm text-slate-400">
