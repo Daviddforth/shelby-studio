@@ -1,81 +1,86 @@
 "use client";
 
 import {
-  Images,
   FolderKanban,
   Database,
+  CheckCircle2,
   HardDrive,
 } from "lucide-react";
 
-import { useWallet } from "@/context/WalletContext";
-import { usePortfolio } from "@/hooks/usePortfolio";
-import { useCollection } from "@/context/CollectionContext";
-import { useStorageContext } from "@/context/StorageContext";
+import { useProject } from "@/context/project/ProjectContext";
+import {
+  isProjectPublished,
+  isPublicationComplete,
+} from "@/lib/project/publication";
+
+function formatBytes(bytes: number) {
+  if (!bytes) return "0 B";
+
+  const units = ["B", "KB", "MB", "GB", "TB"];
+
+  const index = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1
+  );
+
+  const value =
+    bytes / Math.pow(1024, index);
+
+  return `${value.toFixed(index === 0 ? 0 : 1)} ${
+    units[index]
+  }`;
+}
 
 export default function PortfolioStats() {
-  const {
-    walletConnected,
-  } = useWallet();
+  const { projects } = useProject();
 
-  const {
-    nfts,
-  } = usePortfolio();
+  const published =
+    projects.filter(isProjectPublished);
 
-  const {
-    collection,
-  } = useCollection();
-
-  const {
-    assets,
-    storageUsed,
-  } = useStorageContext();
-
-  /*
-   * No wallet means absolutely no
-   * portfolio statistics.
-   */
-  const nftCount =
-    walletConnected
-      ? nfts.length
-      : 0;
-
-  const collectionCount =
-    walletConnected &&
-    collection.name.trim().length > 0
-      ? 1
-      : 0;
-
-  const assetCount =
-    walletConnected
-      ? assets.length
-      : 0;
+  const totalAssets =
+    published.reduce(
+      (sum, project) => sum + project.assetCount,
+      0
+    );
 
   const storage =
-    walletConnected
-      ? storageUsed
-      : 0;
+    published.reduce(
+      (sum, project) => sum + project.storageUsed,
+      0
+    );
+
+  const completed =
+    published.filter(isPublicationComplete)
+      .length;
+
+  const completion =
+    published.length === 0
+      ? "0%"
+      : `${Math.round(
+          (completed / published.length) *
+            100
+        )}%`;
 
   const stats = [
     {
-      title: "NFTs",
-      value: nftCount.toString(),
-      icon: Images,
-    },
-    {
-      title: "Collections",
-      value:
-        collectionCount.toString(),
+      title: "Published Projects",
+      value: published.length,
       icon: FolderKanban,
     },
     {
-      title: "Assets",
-      value: assetCount.toString(),
+      title: "Published Assets",
+      value: totalAssets,
       icon: Database,
     },
     {
       title: "Storage Used",
       value: formatBytes(storage),
       icon: HardDrive,
+    },
+    {
+      title: "Publication Complete",
+      value: completion,
+      icon: CheckCircle2,
     },
   ];
 
@@ -91,8 +96,8 @@ export default function PortfolioStats() {
           >
             <div className="flex items-center justify-between">
               <Icon
-                size={30}
                 className="text-blue-400"
+                size={28}
               />
 
               <span className="text-3xl font-bold text-white">
@@ -108,36 +113,4 @@ export default function PortfolioStats() {
       })}
     </div>
   );
-}
-
-function formatBytes(bytes: number) {
-  if (!bytes) {
-    return "0 B";
-  }
-
-  const units = [
-    "B",
-    "KB",
-    "MB",
-    "GB",
-    "TB",
-  ];
-
-  const index = Math.min(
-    Math.floor(
-      Math.log(bytes) /
-        Math.log(1024)
-    ),
-    units.length - 1
-  );
-
-  const value =
-    bytes /
-    Math.pow(1024, index);
-
-  return `${value.toFixed(
-    value >= 10 || index === 0
-      ? 0
-      : 1
-  )} ${units[index]}`;
 }

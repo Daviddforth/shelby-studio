@@ -323,7 +323,20 @@ export function ProjectProvider({
       ]
     );
 
-  const updateProject =
+  const getProject =
+useCallback(
+(id: string) => {
+return (
+projects.find(
+(project) =>
+project.id === id
+) ?? null
+);
+},
+[projects]
+);
+
+const updateProject =
     useCallback(
       (
         updates: Partial<Project>
@@ -362,7 +375,38 @@ export function ProjectProvider({
       ]
     );
 
-  const deleteProject =
+  const updateProjectById =
+useCallback(
+(
+id: string,
+updates: Partial<Project>
+) => {
+if (!walletAddress) {
+return;
+}
+
+setProjects((previous) =>
+previous.map((project) => {
+if (project.id !== id) {
+return project;
+}
+
+return {
+...project,
+...updates,
+
+id: project.id,
+
+updatedAt:
+new Date().toISOString(),
+};
+})
+);
+},
+[walletAddress]
+);
+
+const deleteProject =
     useCallback(
       (id: string) => {
         if (!walletAddress) {
@@ -461,3 +505,9 @@ export function useProject() {
 
   return context;
 }
+
+
+
+
+
+
