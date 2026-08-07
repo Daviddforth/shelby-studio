@@ -19,10 +19,15 @@ export const defaultProject: Project = {
 
   progress: {
     wallet: false,
+
     assets: false,
+
     metadata: false,
+
     collection: false,
+
     storage: false,
+
     published: false,
   },
 
@@ -33,4 +38,10 @@ export const defaultProject: Project = {
   collectionCount: 0,
 
   storageUsed: 0,
+
+  /*
+   * Shelby assets that belong
+   * to this project.
+   */
+  projectAssets: [],
 };

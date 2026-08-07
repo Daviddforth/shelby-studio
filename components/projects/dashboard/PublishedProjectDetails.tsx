@@ -47,6 +47,19 @@ export default function PublishedProjectDetails({
             This project has completed the Shelby Studio
             publishing workflow.
           </p>
+
+          {record?.verified && (
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1">
+              <CheckCircle2
+                size={15}
+                className="text-emerald-400"
+              />
+
+              <span className="text-xs font-medium text-emerald-300">
+                Verified on Shelby
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -96,6 +109,71 @@ export default function PublishedProjectDetails({
             Shelby Studio only. It does not represent a
             confirmed on-chain transaction.
           </p>
+        </div>
+      )}
+
+      {/* Shelby Verification */}
+      {record?.owner && (
+        <div className="mt-5 rounded-xl border border-slate-800 bg-slate-950 p-4 space-y-4">
+          <div>
+            <p className="text-xs text-slate-500">
+              Publisher
+            </p>
+
+            <p className="mt-1 break-all font-mono text-sm text-slate-300">
+              {record.owner}
+            </p>
+          </div>
+
+          {record.manifestBlob && (
+            <div>
+              <p className="text-xs text-slate-500">
+                Manifest Blob
+              </p>
+
+              <p className="mt-1 break-all font-mono text-sm text-slate-300">
+                {record.manifestBlob}
+              </p>
+            </div>
+          )}
+
+          {record.registrationTransaction && (
+            <div>
+              <p className="text-xs text-slate-500">
+                Registration Transaction
+              </p>
+
+              <p className="mt-1 break-all font-mono text-sm text-slate-300">
+                {record.registrationTransaction}
+              </p>
+            </div>
+          )}
+
+          {record.commitTransaction && (
+            <div>
+              <p className="text-xs text-slate-500">
+                Commit Transaction
+              </p>
+
+              <p className="mt-1 break-all font-mono text-sm text-slate-300">
+                {record.commitTransaction}
+              </p>
+            </div>
+          )}
+
+          {record.verifiedAt && (
+            <div>
+              <p className="text-xs text-slate-500">
+                Verified
+              </p>
+
+              <p className="mt-1 text-sm text-slate-300">
+                {formatPublishedDate(
+                  record.verifiedAt
+                )}
+              </p>
+            </div>
+          )}
         </div>
       )}
 
