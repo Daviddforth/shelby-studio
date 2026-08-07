@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import Link from "next/link";
@@ -11,6 +11,7 @@ import ProjectOverview from "@/components/projects/dashboard/ProjectOverview";
 import ProjectStats from "@/components/projects/dashboard/ProjectStats";
 import ProjectActions from "@/components/projects/dashboard/ProjectActions";
 import ProjectReadiness from "@/components/projects/dashboard/ProjectReadiness";
+import { buildProjectView } from "@/lib/project/projectView";
 
 import { useProject } from "@/context/project/ProjectContext";
 import { useWallet } from "@/context/WalletContext";
@@ -48,6 +49,11 @@ export default function ProjectDashboardPage() {
     (item) => item.id === projectId
   );
 
+const projectView =
+  project
+    ? buildProjectView(project)
+    : null;
+
   /*
    * Keep the route project synchronized
    * with the active project.
@@ -77,7 +83,7 @@ export default function ProjectDashboardPage() {
         <div className="flex min-h-[500px] items-center justify-center">
           <div className="max-w-md text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-2xl">
-              🔐
+              ðŸ”
             </div>
 
             <h1 className="mt-6 text-2xl font-bold text-white">
@@ -111,7 +117,7 @@ export default function ProjectDashboardPage() {
         <div className="flex min-h-[500px] items-center justify-center">
           <div className="max-w-md text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-2xl">
-              📁
+              ðŸ“
             </div>
 
             <h1 className="mt-6 text-2xl font-bold text-white">
@@ -165,3 +171,7 @@ export default function ProjectDashboardPage() {
     </DashboardLayout>
   );
 }
+
+
+
+
