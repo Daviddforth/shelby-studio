@@ -16,6 +16,34 @@ export type PublishMode =
   | "prototype"
   | "onchain";
 
+/*
+ * Every uploaded Shelby asset that
+ * belongs to a project.
+ *
+ * This allows the project to know
+ * exactly which files were uploaded
+ * without scanning Storage every time.
+ */
+export interface ProjectAsset {
+  uid: string;
+
+  name: string;
+
+  size: number;
+
+  uploadedAt: string;
+
+  network: string;
+
+  blobName?: string;
+
+  owner?: string;
+
+  registrationTransaction?: string;
+
+  commitTransaction?: string;
+}
+
 export interface ProjectPublishRecord {
   id: string;
 
@@ -26,10 +54,31 @@ export interface ProjectPublishRecord {
   mode: PublishMode;
 
   /*
-   * These become useful when real
-   * Shelby/Aptos publishing is connected.
+   * Shelby manifest information.
    */
-  transactionHash?: string;
+  manifestBlob?: string;
+
+  owner?: string;
+
+  registrationTransaction?: string;
+
+  commitTransaction?: string;
+
+  assetCount?: number;
+
+storageUsed?: number;
+
+/*
+ * Verification.
+ */
+verified: boolean;
+
+verifiedAt?: string;
+
+/*
+ * Future blockchain information.
+ */
+transactionHash?: string;
 
   collectionAddress?: string;
 
@@ -70,4 +119,10 @@ export interface Project {
   collectionCount: number;
 
   storageUsed: number;
+
+  /*
+   * Shelby assets belonging to
+   * this specific project.
+   */
+  projectAssets: ProjectAsset[];
 }

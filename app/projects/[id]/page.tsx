@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
 import ProjectDashboardHeader from "@/components/projects/dashboard/ProjectDashboardHeader";
+import ProjectOverview from "@/components/projects/dashboard/ProjectOverview";
 import ProjectStats from "@/components/projects/dashboard/ProjectStats";
 import ProjectActions from "@/components/projects/dashboard/ProjectActions";
 import ProjectReadiness from "@/components/projects/dashboard/ProjectReadiness";
@@ -138,23 +139,28 @@ export default function ProjectDashboardPage() {
     <DashboardLayout>
       <div className="space-y-10">
         {/* Project Header */}
-        <ProjectDashboardHeader
-          project={project}
-        />
+<ProjectDashboardHeader
+  project={project}
+/>
 
-        {/* Project Statistics */}
-        <ProjectStats
-          project={project}
-        />
+{/* Project Overview */}
+<ProjectOverview
+  project={project}
+/>
 
-        {/* Project Workspace */}
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px]">
-          <ProjectActions />
+{/* Project Statistics */}
+<ProjectStats
+  project={project}
+/>
 
-          <ProjectReadiness
-            project={project}
-          />
-        </div>
+{/* Project Workspace */}
+<div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px]">
+  <ProjectActions />
+
+  <ProjectReadiness
+    project={project}
+  />
+</div>
       </div>
     </DashboardLayout>
   );

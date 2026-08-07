@@ -31,7 +31,9 @@ interface StorageContextType {
 }
 
 const StorageContext =
-  createContext<StorageContextType | null>(null);
+  createContext<StorageContextType | null>(
+    null
+  );
 
 function getStorageKey(
   walletAddress: string,
@@ -55,10 +57,9 @@ export function StorageProvider({
     updateProject,
   } = useProject();
 
-  const walletAddress =
-    connected
-      ? account?.address?.toString() ?? null
-      : null;
+  const walletAddress = connected
+    ? account?.address?.toString() ?? null
+    : null;
 
   const [assets, setAssets] =
     useState<UploadedAsset[]>([]);
@@ -72,8 +73,9 @@ export function StorageProvider({
   ] = useState<string | null>(null);
 
   /*
-   * The storage key exists only when
-   * BOTH a wallet and project exist.
+   * Storage belongs to BOTH
+   * the connected wallet and
+   * the active project.
    */
   const currentStorageKey =
     useMemo(() => {
@@ -94,11 +96,7 @@ export function StorageProvider({
     ]);
 
   /*
-   * Load storage belonging to the
-   * connected wallet + active project.
-   *
-   * Disconnecting the wallet immediately
-   * clears everything visible.
+   * Load storage.
    */
   useEffect(() => {
     setLoadedStorageKey(null);
@@ -129,7 +127,7 @@ export function StorageProvider({
       }
     } catch (error) {
       console.error(
-        "Failed to load project storage:",
+        "Failed to load storage:",
         error
       );
 
@@ -142,27 +140,21 @@ export function StorageProvider({
   }, [currentStorageKey]);
 
   /*
-   * Calculate total storage currently
-   * visible in this workspace.
+   * Total bytes.
    */
   const storageUsed =
     useMemo(
       () =>
         assets.reduce(
           (total, asset) =>
-            total +
-            (asset.size || 0),
+            total + asset.size,
           0
         ),
       [assets]
     );
 
   /*
-   * Save assets only when they belong
-   * to the storage key we actually loaded.
-   *
-   * This prevents an empty disconnected
-   * state from overwriting saved data.
+   * Persist storage.
    */
   useEffect(() => {
     if (
@@ -180,7 +172,7 @@ export function StorageProvider({
       );
     } catch (error) {
       console.error(
-        "Failed to save project storage:",
+        "Failed to save storage:",
         error
       );
     }
@@ -191,8 +183,8 @@ export function StorageProvider({
   ]);
 
   /*
-   * Keep the Project Dashboard stats
-   * synchronized with actual storage.
+   * Synchronize Project
+   * with uploaded Shelby assets.
    */
   useEffect(() => {
     if (
@@ -208,7 +200,8 @@ export function StorageProvider({
     const storedAssets =
       assets.filter(
         (asset) =>
-          asset.status === "Stored"
+          asset.status ===
+          "Stored"
       );
 
     const assetCount =
@@ -220,6 +213,35 @@ export function StorageProvider({
     const hasStorage =
       storageUsed > 0;
 
+    const projectAssets =
+      storedAssets.map(
+        (asset) => ({
+          uid: asset.uid,
+
+          name: asset.name,
+
+          size: asset.size,
+
+          uploadedAt:
+            asset.uploadedAt,
+
+          network:
+            asset.network,
+
+          blobName:
+            asset.blobName,
+
+          owner:
+            asset.owner,
+
+          registrationTransaction:
+            asset.registrationTransaction,
+
+          commitTransaction:
+            asset.commitTransaction,
+        })
+      );
+
     const alreadySynchronized =
       activeProject.assetCount ===
         assetCount &&
@@ -228,9 +250,17 @@ export function StorageProvider({
       activeProject.progress.assets ===
         hasAssets &&
       activeProject.progress.storage ===
-        hasStorage;
+        hasStorage &&
+      JSON.stringify(
+        activeProject.projectAssets
+      ) ===
+        JSON.stringify(
+          projectAssets
+        );
 
-    if (alreadySynchronized) {
+    if (
+      alreadySynchronized
+    ) {
       return;
     }
 
@@ -238,6 +268,8 @@ export function StorageProvider({
       assetCount,
 
       storageUsed,
+
+      projectAssets,
 
       progress: {
         ...activeProject.progress,
@@ -257,13 +289,6 @@ export function StorageProvider({
     updateProject,
   ]);
 
-  /*
-   * Extra protection:
-   *
-   * Consumers receive an empty storage
-   * workspace whenever the wallet or
-   * active project is unavailable.
-   */
   const visibleAssets =
     walletAddress &&
     activeProject &&
@@ -283,7 +308,8 @@ export function StorageProvider({
   return (
     <StorageContext.Provider
       value={{
-        assets: visibleAssets,
+        assets:
+          visibleAssets,
         setAssets,
         search,
         setSearch,
@@ -298,7 +324,9 @@ export function StorageProvider({
 
 export function useStorageContext() {
   const context =
-    useContext(StorageContext);
+    useContext(
+      StorageContext
+    );
 
   if (!context) {
     throw new Error(

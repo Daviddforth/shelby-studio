@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
 
@@ -154,6 +154,10 @@ export default function PublishProjectModal({
           network: "Shelbynet",
 
           mode: "onchain",
+
+          verified: true,
+
+          verifiedAt: publishedAt,
 
           storageUri:
             publishedAsset.blobName,
@@ -379,6 +383,7 @@ export default function PublishProjectModal({
     </div>
   );
 }
+
 
 
 
