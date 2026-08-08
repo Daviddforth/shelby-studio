@@ -1,190 +1,336 @@
 # Collections
 
-> [!IMPORTANT]
->
-> **Version:** v0.1.0
->
-> **Status:** In Development
->
->
-> This document describes the Collection module of Shelby Studio.
->
-> Sections marked **Current Implementation** represent functionality available today.
->
-> Sections marked **Planned** describe features currently under development.
+Shelby Studio provides a project-aware collection workspace for organizing related digital assets. Collections group assets that belong to the same project or NFT collection while keeping collection information, assets, metadata, branding, and preview functionality within one workspace.
 
----
+The collection system is part of the broader project-centric architecture and works alongside Storage, Metadata, Projects, and future publication workflows.
 
-# Contents
+## Overview
 
-1. Overview
-2. Objectives
-3. Collection Philosophy
-4. Collection Architecture
-5. Current Implementation
-6. Planned Workflow
-7. Future Development
-8. Related Documentation
+A collection represents a group of related assets managed within a Shelby Studio project. The current collection interface provides components for:
 
----
+- Collection information
+- Collection assets
+- Collection metadata
+- Collection branding
+- Collection preview
+- Collection actions
+- Active project context
 
-# Overview
+The collection system provides the organizational layer required to prepare related assets for NFT-oriented workflows.
 
-The Collection module enables developers to organize individual digital assets into structured collections.
+## Architecture
 
-Rather than managing files independently, Shelby Studio introduces collections as logical workspaces where related assets, metadata and future NFT configurations can be managed together.
-
-Collections are intended to become the central organizational layer of Shelby Studio.
-
----
-
-# Objectives
-
-The Collection module is designed to:
-
-- Organize related assets.
-- Simplify project management.
-- Prepare assets for NFT creation.
-- Reduce repetitive workflows.
-- Improve scalability for large projects.
-
----
-
-# Collection Philosophy
-
-Individual assets rarely exist in isolation.
-
-Most decentralized applications manage groups of related assets that share metadata, ownership or deployment goals.
-
-Shelby Studio treats collections as the primary organizational unit rather than simply grouping files inside folders.
-
-This approach creates a more structured development experience while remaining flexible enough for different project types.
-
----
-
-# Collection Architecture
-
-```text
-Project
-
-      │
-
-      ▼
-
-Collection
-
-      │
-
-      ├──────────────┐
-      │              │
-      ▼              ▼
-
- Assets        Metadata
-
-      │              │
-
-      └──────┬───────┘
-             │
-
-             ▼
-
-      Future NFT Export
+```
+components/collections/
+├── ActiveProjectBanner.tsx
+├── CollectionActions.tsx
+├── CollectionAssets.tsx
+├── CollectionBranding.tsx
+├── CollectionHeader.tsx
+├── CollectionInformation.tsx
+├── CollectionMetadata.tsx
+└── CollectionPreview.tsx
 ```
 
-Collections provide a logical relationship between stored assets and the metadata associated with them.
+The collection interface is built from smaller feature-specific components rather than placing all collection functionality inside a single page component. This allows individual parts of the collection workflow to evolve independently.
 
----
+### Collection Structure
 
-# Current Implementation
+```
+Project
+│
+└── Collection
+    │
+    ├── Information
+    ├── Branding
+    ├── Metadata
+    ├── Assets
+    └── Preview
+```
 
-Collection pages and project workspaces have been introduced as part of the Shelby Studio interface.
+A collection exists within the context of a project rather than being treated as an isolated global object.
 
-The underlying collection management workflow is currently under active development.
+### Active Project
 
-Existing storage capabilities provide the foundation for future collection management.
+The collection workspace is project-aware. The active project provides the organizational context for the collection and its associated assets:
 
----
+```
+Connect Wallet → Select Project → Open Collection Workspace → Manage Collection
+```
 
-# Planned Workflow
+This matters because the same application can contain multiple projects with separate assets and collection workflows.
 
-The completed Collection module will support:
+## Core Components
 
-### Collection Creation
+### Collection Information
 
-Create and organize multiple collections within a workspace.
+Describes the identity and basic properties of a collection. Typical fields may include:
 
----
+- Collection name
+- Description
+- Collection identity
+- Supporting project information
 
-### Asset Assignment
+The exact fields are determined by the current collection data model and interface.
 
-Assign uploaded Shelby assets to specific collections.
+### Collection Assets
 
----
+Provides the interface for working with assets associated with a collection:
 
-### Metadata Linking
+```
+Collection
+   │
+   ├── Asset 1
+   ├── Asset 2
+   ├── Asset 3
+   └── ...
+```
 
-Associate metadata with individual assets inside a collection.
+Collection assets can originate from the broader project asset workflow. Storage and collection organization remain related but separate responsibilities — **Storage** determines *where* an asset is stored; **Collections** determine *how* related assets are organized.
 
----
+### Collection Metadata
 
-### Collection Overview
+Collections can contain metadata associated with the collection itself, separate from metadata belonging to individual NFTs:
 
-Display collection statistics including:
+```
+Collection
+│
+├── Collection Metadata
+│
+└── Assets
+    │
+    ├── NFT Metadata
+    ├── NFT Metadata
+    └── NFT Metadata
+```
 
-- Total assets
-- Metadata completion
-- Storage usage
-- Upload status
+This separation allows collection-level information and individual asset metadata to evolve independently.
 
----
+### Collection Branding
 
-### Export Preparation
+Provides a dedicated area for collection presentation information — the visual identity of a collection within the workspace. Branding is intentionally separated from collection information so presentation concerns don't need to be embedded directly into the underlying asset model.
 
-Prepare collections for NFT deployment through standardized export workflows.
+Future branding workflows may become more closely connected with portfolio presentation and published project views.
 
----
+### Collection Preview
 
-# Future Development
+Provides a visual representation of the collection, letting developers inspect how collection information and associated assets come together before moving to later workflows:
 
-Planned capabilities include:
+```
+Collection Information
+        │
+        ├── Branding
+        ├── Metadata
+        └── Assets
+              │
+              ▼
+        Collection Preview
+```
 
-- Collection templates
-- Batch metadata assignment
-- Smart filtering
-- Bulk asset operations
+The preview is a presentation layer, not a blockchain publication confirmation.
+
+### Collection Actions
+
+Provides controls for managing the collection workflow. The actions layer is separated from presentation components so collection operations can evolve without redesigning the entire collection interface. Available actions depend on the current implementation.
+
+Planned future actions:
+
+- Collection export
+- Batch metadata generation
+- Collection validation
+- Collection publication preparation
 - Collection duplication
-- Import and export tools
-- Marketplace compatibility
 
----
+## Relationships to Other Systems
 
-# Engineering Notes
+### Storage
 
-Collections intentionally exist above the Storage Engine.
+Storage and Collections have different responsibilities — Storage handles decentralized asset storage; Collections handle organizing related assets:
 
-The Storage Engine manages individual objects.
+```
+Project
+   │
+   ├── Storage
+   │     ├── Asset A
+   │     ├── Asset B
+   │     └── Asset C
+   │
+   └── Collection
+         ├── Asset A
+         ├── Asset B
+         └── Asset C
+```
 
-The Collection module manages relationships between those objects.
+The same underlying project assets can participate in both storage and collection workflows without the collection system implementing its own storage layer.
 
-Separating these responsibilities improves modularity while allowing both systems to evolve independently.
+### Metadata
 
----
+A collection may contain multiple assets, and each asset may have its own metadata:
 
-# Related Documentation
+```
+Collection
+│
+├── Asset 1 → Metadata 1
+├── Asset 2 → Metadata 2
+└── Asset 3 → Metadata 3
+```
 
-- Introduction
-- Architecture
-- Storage Engine
-- Metadata
-- Dashboard
-- Engineering Decisions
+The **Metadata** workspace provides tools for creating and validating individual metadata records. The **Collection** workspace provides the organizational context for grouping those assets.
 
----
+### Projects
+
+Projects provide the higher-level workspace boundary:
+
+```
+Project
+│
+├── Assets
+├── Storage
+├── Metadata
+├── Collections
+├── Activity
+└── Publication
+```
+
+Collections operate as a project-level organizational feature, letting developers manage multiple independent collections without mixing their assets or project state.
+
+### Publication
+
+Collections are part of the broader project lifecycle. A future publication workflow may use collection information when determining whether a project is ready for publication:
+
+```
+Create Project → Add Assets → Organize Collection → Prepare Metadata → Validate Project → Publish Project
+```
+
+Creating a collection does not by itself mean the project has been published — publication state must be derived from the project's actual publication information and transaction state.
+
+## Collection Workflow
+
+```
+Open Project
+     │
+     ▼
+Create / Manage Collection
+     │
+     ▼
+Enter Collection Information
+     │
+     ▼
+Add Branding
+     │
+     ▼
+Associate Assets
+     │
+     ▼
+Prepare Metadata
+     │
+     ▼
+Review Collection Preview
+     │
+     ▼
+Validate
+     │
+     ▼
+Continue Project Workflow
+```
+
+Not every project must use every step — collections are intended to be modular within the larger Shelby Studio workspace.
+
+## NFT-Oriented Workflows
+
+The collection system provides an organizational foundation for NFT development. A collection may eventually contain:
+
+- Collection identity
+- Collection branding
+- Collection metadata
+- Individual NFT assets
+- Individual NFT metadata
+- Storage references
+- Publication information
+
+This lets Shelby Studio connect storage operations with higher-level NFT preparation without making storage itself dependent on NFT functionality.
+
+## Current Implementation
+
+The current collection workspace includes:
+
+- Active project context
+- Collection information interface
+- Collection asset interface
+- Collection metadata interface
+- Collection branding interface
+- Collection preview
+- Collection actions
+
+These components provide the current foundation for collection management within Shelby Studio.
+
+## Current Limitations
+
+The current collection implementation should be considered a development foundation rather than a complete NFT collection management platform. It does not by itself provide:
+
+- NFT minting
+- Marketplace deployment
+- Collection-wide blockchain indexing
+- Full multi-user collection collaboration
+- Complete collection version history
+- Automatic marketplace synchronization
+
+These capabilities belong to future platform development.
+
+## Planned Development
+
+- **Batch Metadata Generation** — generate metadata for multiple assets from collection-level data
+- **Collection Validation** — validate collection-level information and relationships between assets and metadata
+- **Collection Export** — export collection assets and metadata as a structured package
+- **Collection Versioning** — track changes to collection information and asset membership
+- **Storage Integration** — automatically connect collection assets with their corresponding Shelby storage records
+- **Publication Preparation** — use collection state as part of project publication readiness checks
+- **Mint-Ready Packages** — prepare assets and metadata in formats suitable for downstream minting systems
+
+## Engineering Principles
+
+- **Project-Centric** — collections belong to projects and should respect project boundaries.
+- **Modular** — collection features are separated into dedicated components.
+- **Storage-Agnostic** — collection organization should not require knowledge of the underlying storage implementation.
+- **Metadata-Aware** — collections should be able to work with metadata without owning the metadata generation system.
+- **Extensible** — the current collection model should support future batch operations, validation, export, and publication workflows.
+
+## Future Collection Model
+
+As the platform develops, a more complete collection model could look like:
+
+```
+Collection
+│
+├── Identity
+│   ├── Name
+│   ├── Description
+│   └── Branding
+│
+├── Assets
+│   ├── Asset 1
+│   ├── Asset 2
+│   └── Asset N
+│
+├── Metadata
+│   ├── Collection Metadata
+│   └── Asset Metadata
+│
+├── Storage
+│   ├── Storage References
+│   └── Asset Locations
+│
+├── Validation
+│   └── Readiness Information
+│
+└── Publication
+    └── Project Publication
+```
+
+This model provides a path toward more advanced NFT development workflows without requiring the current collection interface to become tightly coupled to blockchain operations.
 
 ## Summary
 
-The Collection module introduces structured asset organization to Shelby Studio.
+Collections provide the organizational layer between individual assets and the larger project workspace. Shelby Studio currently provides collection information, asset management, metadata, branding, preview, and action components within a project-aware interface.
 
-By grouping related assets into cohesive workspaces, collections prepare the platform for advanced NFT workflows, batch operations and scalable decentralized application development.
-
----
+The collection system is designed to work alongside Storage, Metadata, Projects, and Publication while keeping each subsystem responsible for its own domain. Future development can extend this foundation with batch generation, collection validation, export, versioning, storage-aware asset mapping, publication preparation, and mint-ready workflows.
