@@ -1,3 +1,5 @@
+import { getShelbyBlobExpirationMicros } from "@/lib/shelby/config";
+
 import {
   Account,
   Ed25519PrivateKey,
@@ -124,15 +126,10 @@ export async function streamUploadToShelby({
     `shelby-studio/${crypto.randomUUID()}/${file.name}`;
 
   /*
-   * Keep uploaded blobs for 30 days.
+   * Use the centralized Shelbynet retention policy.
    */
   const expirationMicros =
-    Date.now() * 1000 +
-    30 *
-      24 *
-      60 *
-      60 *
-      1_000_000;
+    getShelbyBlobExpirationMicros();
 
   /*
    * STEP 1
