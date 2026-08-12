@@ -1,3 +1,5 @@
+import { getShelbyBlobExpirationMicros } from "@/lib/shelby/config";
+
 import { NextResponse } from "next/server";
 
 import {
@@ -104,14 +106,10 @@ export async function POST(
       );
 
     /*
-     * Keep blobs for 30 days for now.
-     *
-     * We can make expiration configurable
-     * later from Shelby Studio.
+     * Use the centralized Shelbynet retention policy.
      */
     const expirationMicros =
-      Date.now() * 1000 +
-      30 * 24 * 60 * 60 * 1_000_000;
+      getShelbyBlobExpirationMicros();
 
     /*
      * Give every upload a unique Shelby

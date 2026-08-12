@@ -1,3 +1,5 @@
+import { getShelbyBlobExpirationMicros } from "@/lib/shelby/config";
+
 import { NextResponse } from "next/server";
 
 import {
@@ -202,15 +204,10 @@ export async function POST(
       `shelby-studio/${crypto.randomUUID()}/${fileName}`;
 
     /*
-     * Keep object for 30 days.
+     * Use the centralized Shelbynet retention policy.
      */
     const expirationMicros =
-      Date.now() * 1000 +
-      30 *
-        24 *
-        60 *
-        60 *
-        1_000_000;
+      getShelbyBlobExpirationMicros();
 
     /*
      * IMPORTANT:
