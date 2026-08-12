@@ -1460,9 +1460,53 @@ export async function uploadDirectlyToShelby({
   }
 
   /*
-   * At this point the wallet accepted
-   * and submitted the final Shelby
-   * commit transaction.
+   * WAIT FOR THE FINAL COMMIT
+   *
+   * The wallet returning a transaction hash
+   * only means the transaction was submitted.
+   *
+   * Do not report the asset as Stored until
+   * Shelbynet confirms the transaction.
+   */
+  const commitResponse =
+    await aptos.waitForTransaction({
+      transactionHash:
+        commitTransaction,
+    });
+
+  if (!commitResponse.success) {
+    throw new Error(
+      `Shelby object commit failed: ${commitResponse.vm_status}`
+    );
+  }
+
+  /*
+   * Make sure the finalized transaction
+   * did not contain a Shelby object-commit
+   * rejection event.
+   */
+  if ("events" in commitResponse) {
+    const rejection =
+      ShelbyBlobClient.findObjectCommitRejection(
+        commitResponse.events,
+        AccountAddress.fromString(
+          prepared.owner
+        ),
+        BigInt(prepared.uid)
+      );
+
+    if (rejection) {
+      throw new Error(
+        `Shelby rejected the object commit: ${String(
+          rejection
+        )}`
+      );
+    }
+  }
+
+  /*
+   * At this point the Shelby commit transaction
+   * has been confirmed successfully.
    */
   onProgress?.({
     phase: "complete",
