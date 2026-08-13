@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect } from "react";
 import Link from "next/link";
@@ -7,11 +7,9 @@ import { useParams } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
 import ProjectDashboardHeader from "@/components/projects/dashboard/ProjectDashboardHeader";
-import ProjectOverview from "@/components/projects/dashboard/ProjectOverview";
 import ProjectStats from "@/components/projects/dashboard/ProjectStats";
 import ProjectActions from "@/components/projects/dashboard/ProjectActions";
 import ProjectReadiness from "@/components/projects/dashboard/ProjectReadiness";
-import { buildProjectView } from "@/lib/project/projectView";
 
 import { useProject } from "@/context/project/ProjectContext";
 import { useWallet } from "@/context/WalletContext";
@@ -29,11 +27,6 @@ export default function ProjectDashboardPage() {
     walletConnected,
   } = useWallet();
 
-  /*
-   * Get project ID from:
-   *
-   * /projects/[id]
-   */
   const projectId =
     typeof params.id === "string"
       ? params.id
@@ -41,23 +34,10 @@ export default function ProjectDashboardPage() {
         ? params.id[0]
         : "";
 
-  /*
-   * Find the project belonging
-   * to the current route.
-   */
   const project = projects.find(
     (item) => item.id === projectId
   );
 
-const projectView =
-  project
-    ? buildProjectView(project)
-    : null;
-
-  /*
-   * Keep the route project synchronized
-   * with the active project.
-   */
   useEffect(() => {
     if (
       walletConnected &&
@@ -83,7 +63,7 @@ const projectView =
         <div className="flex min-h-[500px] items-center justify-center">
           <div className="max-w-md text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-2xl">
-              ðŸ”
+              🔐
             </div>
 
             <h1 className="mt-6 text-2xl font-bold text-white">
@@ -117,7 +97,7 @@ const projectView =
         <div className="flex min-h-[500px] items-center justify-center">
           <div className="max-w-md text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-800 bg-slate-900 text-2xl">
-              ðŸ“
+              📁
             </div>
 
             <h1 className="mt-6 text-2xl font-bold text-white">
@@ -143,35 +123,26 @@ const projectView =
 
   return (
     <DashboardLayout>
-      <div className="space-y-10">
+      <div className="space-y-7">
         {/* Project Header */}
-<ProjectDashboardHeader
-  project={project}
-/>
+        <ProjectDashboardHeader
+          project={project}
+        />
 
-{/* Project Overview */}
-<ProjectOverview
-  project={project}
-/>
+        {/* Compact Project Statistics */}
+        <ProjectStats
+          project={project}
+        />
 
-{/* Project Statistics */}
-<ProjectStats
-  project={project}
-/>
+        {/* Workspace + Publishing */}
+        <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <ProjectActions />
 
-{/* Project Workspace */}
-<div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px]">
-  <ProjectActions />
-
-  <ProjectReadiness
-    project={project}
-  />
-</div>
+          <ProjectReadiness
+            project={project}
+          />
+        </div>
       </div>
     </DashboardLayout>
   );
 }
-
-
-
-

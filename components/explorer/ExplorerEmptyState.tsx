@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   FolderSearch,
@@ -15,27 +15,34 @@ export default function ExplorerEmptyState({
   filtered = false,
 }: ExplorerEmptyStateProps) {
   const hasSearch = search.trim().length > 0;
+  const noResults = hasSearch || filtered;
 
   return (
-    <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-900/50 p-12 text-center">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-800 text-slate-400">
-        {hasSearch || filtered ? (
-          <SearchX size={30} />
+    <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-900/40 px-6 py-14 text-center">
+      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800/70">
+        {noResults ? (
+          <SearchX
+            size={19}
+            className="text-slate-500"
+          />
         ) : (
-          <FolderSearch size={30} />
+          <FolderSearch
+            size={19}
+            className="text-blue-400"
+          />
         )}
       </div>
 
-      <h2 className="mt-6 text-xl font-semibold text-white">
-        {hasSearch || filtered
-          ? "No Projects Found"
-          : "No Projects Yet"}
+      <h2 className="mt-4 text-base font-semibold text-white">
+        {noResults
+          ? "No projects found"
+          : "No projects yet"}
       </h2>
 
-      <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-400">
-        {hasSearch || filtered
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+        {noResults
           ? "No projects match your current search or filter. Try adjusting your search or status."
-          : "Create a project and begin building your Shelby Studio publication workflow."}
+          : "Create your first project to begin building your Shelby Studio workspace."}
       </p>
     </div>
   );

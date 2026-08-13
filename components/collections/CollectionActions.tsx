@@ -30,30 +30,20 @@ export default function CollectionActions() {
     useState<string | null>(null);
 
   function buildCollectionJson() {
-    return JSON.stringify(
-      collection,
-      null,
-      2
-    );
+    return JSON.stringify(collection, null, 2);
   }
 
   function exportCollection() {
     const blob = new Blob(
       [buildCollectionJson()],
-      {
-        type: "application/json",
-      }
+      { type: "application/json" }
     );
 
-    const url =
-      URL.createObjectURL(blob);
-
-    const link =
-      document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
 
     link.href = url;
     link.download = "collection.json";
-
     link.click();
 
     URL.revokeObjectURL(url);
@@ -64,42 +54,13 @@ export default function CollectionActions() {
     setPublishError(null);
 
     try {
-      /*
-       * Convert the current collection
-       * metadata into a JSON file.
-       *
-       * This allows the collection to use
-       * the exact same Shelby upload system
-       * already used by Storage.
-       */
-      const collectionJson =
-        buildCollectionJson();
-
       const file = new File(
-        [collectionJson],
+        [buildCollectionJson()],
         `collection-${Date.now()}.json`,
-        {
-          type: "application/json",
-        }
+        { type: "application/json" }
       );
 
-      /*
-       * Upload through Shelby Studio's
-       * existing browser-direct pipeline.
-       *
-       * The existing upload() function
-       * handles:
-       *
-       * - connected wallet
-       * - Shelby registration
-       * - transaction signing
-       * - API authentication
-       * - storage provider upload
-       * - final Shelby commit
-       * - adding the result to Storage
-       */
-      const asset =
-        await upload(file);
+      const asset = await upload(file);
 
       setPublishMessage(
         `Published to Shelby: ${asset.name}`
@@ -119,74 +80,70 @@ export default function CollectionActions() {
   }
 
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
-      <h2 className="text-2xl font-bold text-white">
-        Collection Actions
-      </h2>
+    <section className="rounded-2xl border border-slate-800 bg-slate-900">
+      <div className="border-b border-slate-800 px-6 py-5">
+        <h2 className="text-lg font-semibold text-white">
+          Collection Actions
+        </h2>
 
-      <p className="mt-2 text-slate-400">
-        Save, export or publish your NFT collection.
-      </p>
+        <p className="mt-1 text-sm text-slate-500">
+          Save, export or publish your collection.
+        </p>
+      </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
-        {/* SAVE DRAFT */}
+      <div className="grid gap-3 p-6 sm:grid-cols-2">
         <button
           type="button"
-          className="flex items-center justify-center gap-3 rounded-2xl bg-blue-600 py-4 text-white hover:bg-blue-700"
+          className="flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm font-medium text-slate-200 transition hover:border-blue-500 hover:text-white"
         >
-          <Save size={20} />
+          <Save size={17} />
           Save Draft
         </button>
 
-        {/* EXPORT JSON */}
         <button
           type="button"
           onClick={exportCollection}
-          className="flex items-center justify-center gap-3 rounded-2xl bg-green-600 py-4 text-white hover:bg-green-700"
+          className="flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm font-medium text-slate-200 transition hover:border-blue-500 hover:text-white"
         >
-          <Download size={20} />
+          <Download size={17} />
           Export JSON
         </button>
 
-        {/* PUBLISH TO SHELBY */}
         <button
           type="button"
           onClick={publishToShelby}
           disabled={loading}
-          className="flex items-center justify-center gap-3 rounded-2xl bg-purple-600 py-4 text-white hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <Rocket size={20} />
+          <Rocket size={17} />
 
           {loading
             ? "Publishing..."
             : "Publish to Shelby"}
         </button>
 
-        {/* RESET */}
         <button
           type="button"
           onClick={resetCollection}
           disabled={loading}
-          className="flex items-center justify-center gap-3 rounded-2xl bg-red-600 py-4 text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm font-medium text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
         >
-          <RotateCcw size={20} />
+          <RotateCcw size={17} />
           Reset
         </button>
       </div>
 
-      {/* SUCCESS MESSAGE */}
       {publishMessage && (
-        <div className="mt-5 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm text-green-400">
+        <div className="mx-6 mb-6 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-400">
           {publishMessage}
         </div>
       )}
 
-      {/* ERROR MESSAGE */}
       {publishError && (
-        <div className="mt-5 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+        <div className="mx-6 mb-6 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-400">
           {publishError}
         </div>
       )}
-    </div>
+    </section>
   );
 }

@@ -16,52 +16,47 @@ const actions = [
     description: "Store files on Shelby",
     href: "/storage",
     icon: Upload,
-    color: "bg-blue-600",
   },
   {
     title: "Create Collection",
     description: "Organize your assets",
     href: "/collections",
     icon: FolderPlus,
-    color: "bg-purple-600",
   },
   {
     title: "Generate Metadata",
     description: "Create NFT metadata",
     href: "/metadata",
     icon: FileJson,
-    color: "bg-green-600",
   },
   {
     title: "Asset Explorer",
     description: "Browse stored assets",
     href: "/explorer",
     icon: Search,
-    color: "bg-orange-600",
   },
   {
     title: "Documentation",
     description: "Developer guides",
     href: "/docs",
     icon: BookOpen,
-    color: "bg-cyan-600",
   },
 ];
 
 export default function QuickActions() {
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-white">
+    <section>
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold text-white">
           Quick Actions
         </h2>
 
-        <p className="mt-2 text-slate-400">
-          Jump straight into the tools you use most.
+        <p className="mt-1 text-sm text-slate-500">
+          Jump into the tools you use most.
         </p>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
         {actions.map((action) => {
           const Icon = action.icon;
 
@@ -69,28 +64,25 @@ export default function QuickActions() {
             <Link
               key={action.title}
               href={action.href}
-              className="group rounded-2xl border border-slate-800 bg-slate-950 p-6 transition hover:-translate-y-1 hover:border-blue-500"
+              className="group flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 transition hover:border-slate-700 hover:bg-slate-900"
             >
-              <div
-                className={`inline-flex rounded-xl p-3 ${action.color}`}
-              >
-                <Icon
-                  size={24}
-                  className="text-white"
-                />
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-slate-400 transition group-hover:text-blue-400">
+                <Icon size={16} />
               </div>
 
-              <h3 className="mt-5 text-lg font-semibold text-white">
-                {action.title}
-              </h3>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-white">
+                  {action.title}
+                </p>
 
-              <p className="mt-2 text-sm text-slate-400">
-                {action.description}
-              </p>
+                <p className="mt-0.5 truncate text-xs text-slate-500">
+                  {action.description}
+                </p>
+              </div>
             </Link>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

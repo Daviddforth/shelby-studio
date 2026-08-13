@@ -5,6 +5,7 @@ import { useMetadata } from "@/context/MetadataContext";
 const templates = [
   {
     name: "PFP Collection",
+    description: "Profile-picture collection",
     metadata: {
       collection: "PFP Collection",
       attributes: [
@@ -17,6 +18,7 @@ const templates = [
   },
   {
     name: "Game Item",
+    description: "Game asset with traits",
     metadata: {
       collection: "Game Assets",
       attributes: [
@@ -29,6 +31,7 @@ const templates = [
   },
   {
     name: "Music NFT",
+    description: "Music and audio assets",
     metadata: {
       collection: "Music",
       attributes: [
@@ -51,32 +54,36 @@ export default function MetadataTemplates() {
   }
 
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
-      <h2 className="text-2xl font-bold text-white">
-        Templates
-      </h2>
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-base font-semibold text-white">
+            Templates
+          </h2>
 
-      <p className="mt-2 text-slate-400">
-        Start faster with pre-built metadata templates.
-      </p>
+          <p className="mt-1 text-xs text-slate-500">
+            Start with a predefined metadata structure.
+          </p>
+        </div>
+      </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
         {templates.map((template) => (
           <button
             key={template.name}
             onClick={() => loadTemplate(template)}
-            className="rounded-2xl border border-slate-700 bg-slate-950 p-6 text-left transition hover:border-blue-500 hover:bg-slate-900"
+            className="rounded-xl border border-slate-800 bg-slate-950 p-4 text-left transition hover:border-blue-500/60 hover:bg-slate-900"
           >
-            <h3 className="font-semibold text-white">
+            <h3 className="text-sm font-semibold text-white">
               {template.name}
             </h3>
 
-            <p className="mt-2 text-sm text-slate-400">
-              Load starter metadata.
+            <p className="mt-1 text-xs text-slate-500">
+              {template.description}
             </p>
           </button>
         ))}
       </div>
-    </div>
+    </section>
   );
 }

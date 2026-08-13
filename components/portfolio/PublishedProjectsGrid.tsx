@@ -1,6 +1,7 @@
 "use client";
 
-import { FolderOpen } from "lucide-react";
+import Link from "next/link";
+import { FolderOpen, ArrowRight } from "lucide-react";
 
 import { useProject } from "@/context/project/ProjectContext";
 import { isProjectPublished } from "@/lib/project/publication";
@@ -10,31 +11,37 @@ import PublishedProjectCard from "./PublishedProjectCard";
 export default function PublishedProjectsGrid() {
   const { projects } = useProject();
 
-  const published =
-    projects.filter(isProjectPublished);
+  const published = projects.filter(isProjectPublished);
 
   if (published.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-900 p-20 text-center">
-        <FolderOpen
-          className="mx-auto text-slate-600"
-          size={50}
-        />
+      <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-900/40 px-6 py-14 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900">
+          <FolderOpen size={22} className="text-slate-500" />
+        </div>
 
-        <h2 className="mt-6 text-2xl font-bold text-white">
-          No Published Projects
+        <h2 className="mt-5 text-lg font-semibold text-white">
+          No published projects yet
         </h2>
 
-        <p className="mt-3 text-slate-400">
-          Publish a Shelby project and it
-          will automatically appear here.
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+          Projects you successfully publish through Shelby Studio
+          will appear here automatically.
         </p>
+
+        <Link
+          href="/projects"
+          className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-500"
+        >
+          Go to Projects
+          <ArrowRight size={15} />
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+    <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
       {published.map((project) => (
         <PublishedProjectCard
           key={project.id}

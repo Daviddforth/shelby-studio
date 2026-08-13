@@ -3,15 +3,11 @@
 import {
   FolderKanban,
   Database,
-  CheckCircle2,
   HardDrive,
 } from "lucide-react";
 
 import { useProject } from "@/context/project/ProjectContext";
-import {
-  isProjectPublished,
-  isPublicationComplete,
-} from "@/lib/project/publication";
+import { isProjectPublished } from "@/lib/project/publication";
 
 function formatBytes(bytes: number) {
   if (!bytes) return "0 B";
@@ -23,43 +19,25 @@ function formatBytes(bytes: number) {
     units.length - 1
   );
 
-  const value =
-    bytes / Math.pow(1024, index);
+  const value = bytes / Math.pow(1024, index);
 
-  return `${value.toFixed(index === 0 ? 0 : 1)} ${
-    units[index]
-  }`;
+  return `${value.toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
 }
 
 export default function PortfolioStats() {
   const { projects } = useProject();
 
-  const published =
-    projects.filter(isProjectPublished);
+  const published = projects.filter(isProjectPublished);
 
-  const totalAssets =
-    published.reduce(
-      (sum, project) => sum + project.assetCount,
-      0
-    );
+  const totalAssets = published.reduce(
+    (sum, project) => sum + project.assetCount,
+    0
+  );
 
-  const storage =
-    published.reduce(
-      (sum, project) => sum + project.storageUsed,
-      0
-    );
-
-  const completed =
-    published.filter(isPublicationComplete)
-      .length;
-
-  const completion =
-    published.length === 0
-      ? "0%"
-      : `${Math.round(
-          (completed / published.length) *
-            100
-        )}%`;
+  const storage = published.reduce(
+    (sum, project) => sum + project.storageUsed,
+    0
+  );
 
   const stats = [
     {
@@ -77,36 +55,28 @@ export default function PortfolioStats() {
       value: formatBytes(storage),
       icon: HardDrive,
     },
-    {
-      title: "Publication Complete",
-      value: completion,
-      icon: CheckCircle2,
-    },
   ];
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-px overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 md:grid-cols-3">
       {stats.map((stat) => {
         const Icon = stat.icon;
 
         return (
           <div
             key={stat.title}
-            className="rounded-3xl border border-slate-800 bg-slate-900 p-6"
+            className="bg-slate-950 px-5 py-5"
           >
-            <div className="flex items-center justify-between">
-              <Icon
-                className="text-blue-400"
-                size={28}
-              />
+            <div className="flex items-center gap-2 text-slate-500">
+              <Icon size={15} className="text-blue-400" />
 
-              <span className="text-3xl font-bold text-white">
-                {stat.value}
+              <span className="text-[11px] font-medium uppercase tracking-wider">
+                {stat.title}
               </span>
             </div>
 
-            <p className="mt-5 text-slate-400">
-              {stat.title}
+            <p className="mt-2 text-2xl font-semibold tracking-tight text-white">
+              {stat.value}
             </p>
           </div>
         );

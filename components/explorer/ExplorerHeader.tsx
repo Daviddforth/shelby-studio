@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   Search,
@@ -16,23 +16,23 @@ export default function ExplorerHeader() {
   return (
     <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
       <div>
-        <p className="uppercase tracking-widest text-blue-400">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-400">
           Shelby Studio
         </p>
 
-        <h1 className="mt-2 text-4xl font-bold tracking-tight text-white">
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
           Project Explorer
         </h1>
 
-        <p className="mt-3 max-w-2xl text-slate-400">
-          Browse projects, inspect publication status, and
-          explore assets published through Shelby Studio.
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+          Explore your projects, publication status, assets,
+          storage usage, and Shelby network activity from one place.
         </p>
       </div>
 
-      <div className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950 px-5 py-4">
+      <div className="inline-flex w-fit items-center gap-3 rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
         <Wallet
-          size={21}
+          size={18}
           className={
             walletConnected
               ? "text-emerald-400"
@@ -41,12 +41,12 @@ export default function ExplorerHeader() {
         />
 
         <div>
-          <p className="text-xs uppercase tracking-wider text-slate-500">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
             Wallet
           </p>
 
           <p
-            className={`font-semibold ${
+            className={`text-sm font-medium ${
               walletConnected
                 ? "text-emerald-400"
                 : "text-slate-400"
@@ -58,7 +58,7 @@ export default function ExplorerHeader() {
           </p>
 
           {walletConnected && walletAddress && (
-            <p className="mt-1 font-mono text-xs text-slate-500">
+            <p className="mt-0.5 font-mono text-[11px] text-slate-500">
               {shortenAddress(walletAddress)}
             </p>
           )}

@@ -25,16 +25,11 @@ export default function DashboardStats() {
     0
   );
 
-  const collectionCount =
-    hasCollection ? 1 : 0;
-
-  const metadataCount =
-    hasMetadata ? 1 : 0;
+  const collectionCount = hasCollection ? 1 : 0;
+  const metadataCount = hasMetadata ? 1 : 0;
 
   function formatBytes(bytes: number) {
-    if (bytes === 0) {
-      return "0 MB";
-    }
+    if (bytes === 0) return "0 MB";
 
     const mb = bytes / 1024 / 1024;
 
@@ -50,53 +45,45 @@ export default function DashboardStats() {
       title: "Assets",
       value: totalFiles,
       icon: Database,
-      color: "text-blue-400",
     },
     {
       title: "Collections",
       value: collectionCount,
       icon: FolderKanban,
-      color: "text-purple-400",
     },
     {
       title: "Metadata",
       value: metadataCount,
       icon: FileJson,
-      color: "text-green-400",
     },
     {
       title: "Storage Used",
       value: formatBytes(totalStorage),
       icon: HardDrive,
-      color: "text-cyan-400",
     },
   ];
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-      {stats.map((stat) => {
+    <div className="grid grid-cols-2 border-y border-slate-800 md:grid-cols-4">
+      {stats.map((stat, index) => {
         const Icon = stat.icon;
 
         return (
           <div
             key={stat.title}
-            className="rounded-3xl border border-slate-800 bg-slate-900 p-6 transition hover:border-blue-500"
+            className={`px-4 py-5 ${
+              index > 0 ? "border-l border-slate-800" : ""
+            }`}
           >
-            <div className="flex items-center justify-between">
-              <Icon
-                size={30}
-                className={stat.color}
-              />
-
-              <span className="text-3xl font-bold text-white">
-                {walletConnected
-                  ? stat.value
-                  : 0}
+            <div className="flex items-center gap-2 text-slate-500">
+              <Icon size={16} />
+              <span className="text-xs font-medium uppercase tracking-wide">
+                {stat.title}
               </span>
             </div>
 
-            <p className="mt-6 text-slate-400">
-              {stat.title}
+            <p className="mt-2 text-xl font-semibold text-white">
+              {walletConnected ? stat.value : 0}
             </p>
           </div>
         );

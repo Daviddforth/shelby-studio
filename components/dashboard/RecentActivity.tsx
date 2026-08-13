@@ -40,57 +40,49 @@ export default function RecentActivity() {
     .slice(0, 5);
 
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
-      {/* Header */}
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
       <div>
-        <h2 className="text-2xl font-bold text-white">
+        <h2 className="text-base font-semibold text-white">
           Recent Activity
         </h2>
 
-        <p className="mt-2 text-slate-400">
-          Latest activity from your current workspace.
+        <p className="mt-1 text-xs text-slate-500">
+          Latest workspace activity
         </p>
       </div>
 
-      {/* Activity Feed */}
-      <div className="mt-8 space-y-3">
+      <div className="mt-5 divide-y divide-slate-800">
         {recentActivity.map((asset) => (
           <div
             key={asset.uid}
-            className="flex items-start gap-4 rounded-2xl border border-slate-800 bg-slate-950 p-5"
+            className="flex items-center gap-3 py-3"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400">
-              <Upload size={18} />
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+              <Upload size={15} />
             </div>
 
             <div className="min-w-0 flex-1">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <p className="truncate font-semibold text-white">
-                  Asset uploaded
-                </p>
-
-                <div className="flex items-center gap-1.5 text-xs text-emerald-400">
-                  <CheckCircle2 size={14} />
-                  Stored
-                </div>
-              </div>
-
-              <p className="mt-1 truncate text-sm text-slate-400">
-                {asset.name}
+              <p className="truncate text-sm font-medium text-white">
+                Asset uploaded
               </p>
 
-              <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
-                <Clock3 size={13} />
-
-                <span>
-                  {formatActivityTime(asset.uploadedAt)}
-                </span>
-              </div>
+              <p className="truncate text-xs text-slate-500">
+                {asset.name}
+              </p>
             </div>
+
+            <div className="flex shrink-0 items-center gap-1.5 text-xs text-emerald-400">
+              <CheckCircle2 size={13} />
+              <span>Stored</span>
+            </div>
+
+            <span className="hidden text-xs text-slate-600 sm:block">
+              {formatActivityTime(asset.uploadedAt)}
+            </span>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -102,24 +94,22 @@ function EmptyState({
   description: string;
 }) {
   return (
-    <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-slate-800 bg-slate-900 p-8 text-center">
+    <section className="flex min-h-[240px] items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/60 p-6 text-center">
       <div className="max-w-sm">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-800">
-          <Clock3
-            size={25}
-            className="text-slate-500"
-          />
-        </div>
+        <Clock3
+          size={22}
+          className="mx-auto text-slate-600"
+        />
 
-        <h2 className="mt-5 text-xl font-bold text-white">
+        <h2 className="mt-4 text-base font-semibold text-white">
           {title}
         </h2>
 
-        <p className="mt-3 text-sm leading-6 text-slate-400">
+        <p className="mt-2 text-sm leading-6 text-slate-500">
           {description}
         </p>
       </div>
-    </div>
+    </section>
   );
 }
 

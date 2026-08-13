@@ -20,22 +20,20 @@ export default function JsonPreview() {
   };
 
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-white">
-            Live JSON Preview
-          </h2>
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+      <div>
+        <h2 className="text-base font-semibold text-white">
+          Live JSON Preview
+        </h2>
 
-          <p className="mt-2 text-slate-400">
-            Your metadata updates automatically as you edit.
-          </p>
-        </div>
+        <p className="mt-1 text-xs text-slate-500">
+          Updates automatically as you edit.
+        </p>
       </div>
 
-      <pre className="mt-8 overflow-auto rounded-2xl bg-slate-950 p-6 text-sm text-green-400">
+      <pre className="mt-4 max-h-[360px] overflow-auto rounded-xl border border-slate-800 bg-slate-950 p-4 font-mono text-xs leading-5 text-green-400">
         {JSON.stringify(json, null, 2)}
       </pre>
-    </div>
+    </section>
   );
 }

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo } from "react";
 
@@ -36,8 +36,8 @@ export default function PublishedProjectsGrid({
     const query =
       search.trim().toLowerCase();
 
-    const filtered = projectViews.filter(
-      (project) => {
+    const filtered =
+      projectViews.filter((project) => {
         const matchesSearch =
           !query ||
           project.title
@@ -53,8 +53,7 @@ export default function PublishedProjectsGrid({
         let matchesStatus = true;
 
         if (status === "published") {
-          matchesStatus =
-            project.published;
+          matchesStatus = project.published;
         }
 
         if (status === "complete") {
@@ -71,10 +70,9 @@ export default function PublishedProjectsGrid({
           matchesSearch &&
           matchesStatus
         );
-      }
-    );
+      });
 
-    return filtered.sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       if (sort === "name") {
         return a.title.localeCompare(
           b.title
@@ -89,17 +87,11 @@ export default function PublishedProjectsGrid({
       }
 
       if (sort === "largest") {
-        return (
-          b.assetCount -
-          a.assetCount
-        );
+        return b.assetCount - a.assetCount;
       }
 
       if (sort === "smallest") {
-        return (
-          a.assetCount -
-          b.assetCount
-        );
+        return a.assetCount - b.assetCount;
       }
 
       return (
@@ -118,32 +110,28 @@ export default function PublishedProjectsGrid({
     return (
       <ExplorerEmptyState
         search={search}
-        filtered={
-          projects.length > 0
-        }
+        filtered={projects.length > 0}
       />
     );
   }
 
   return (
     <div>
-      <div className="mb-5 flex items-center justify-between">
-        <div>
-          <p className="text-sm text-slate-400">
-            {filteredProjects.length}{" "}
-            {filteredProjects.length === 1
-              ? "project"
-              : "projects"}{" "}
-            found
-          </p>
-        </div>
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-xs text-slate-500">
+          {filteredProjects.length}{" "}
+          {filteredProjects.length === 1
+            ? "project"
+            : "projects"}{" "}
+          found
+        </p>
 
-        <div className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1 text-xs text-slate-500">
+        <span className="rounded-full border border-slate-800 bg-slate-900 px-2.5 py-1 text-[10px] text-slate-600">
           Wallet workspace
-        </div>
+        </span>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {filteredProjects.map(
           (project) => (
             <PublishedProjectCard
