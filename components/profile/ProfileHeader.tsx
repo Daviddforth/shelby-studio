@@ -8,6 +8,7 @@ import {
 import {
   CheckCircle2,
   Wallet,
+  UserRound,
 } from "lucide-react";
 
 import { useWallet } from "@/context/WalletContext";
@@ -42,10 +43,7 @@ export default function ProfileHeader() {
     useState<ProfileData>(emptyProfile);
 
   function loadProfile() {
-    if (
-      !walletConnected ||
-      !walletAddress
-    ) {
+    if (!walletConnected || !walletAddress) {
       setProfile(emptyProfile);
       return;
     }
@@ -62,8 +60,7 @@ export default function ProfileHeader() {
         return;
       }
 
-      const parsed =
-        JSON.parse(saved);
+      const parsed = JSON.parse(saved);
 
       setProfile({
         ...emptyProfile,
@@ -97,10 +94,7 @@ export default function ProfileHeader() {
         handleProfileUpdate
       );
     };
-  }, [
-    walletConnected,
-    walletAddress,
-  ]);
+  }, [walletConnected, walletAddress]);
 
   const displayName =
     profile.displayName.trim() ||
@@ -114,59 +108,59 @@ export default function ProfileHeader() {
     profile.bio.trim();
 
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-center">
-        {/* Avatar */}
-        <AvatarUploader />
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 md:p-7">
+      <div className="flex flex-col gap-6 md:flex-row md:items-center">
+        <div className="shrink-0">
+          <AvatarUploader />
+        </div>
 
-        {/* Profile Details */}
-        <div className="flex-1">
-          <p className="uppercase tracking-widest text-blue-400">
-            Shelby Studio
-          </p>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-400">
+            <UserRound size={14} />
+            Creator Profile
+          </div>
 
-          <h1 className="mt-2 text-5xl font-bold text-white">
+          <h1 className="mt-2 truncate text-3xl font-bold tracking-tight text-white">
             {displayName}
           </h1>
 
           {username && (
-            <p className="mt-2 text-lg text-blue-400">
-              @{username.replace(
-                /^@/,
-                ""
-              )}
+            <p className="mt-1 text-sm text-blue-400">
+              @{username.replace(/^@/, "")}
             </p>
           )}
 
-          {bio ? (
-            <p className="mt-4 max-w-2xl leading-7 text-slate-400">
-              {bio}
-            </p>
-          ) : (
-            <p className="mt-4 max-w-2xl text-slate-400">
-              Your Shelby Studio creator profile.
-            </p>
-          )}
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+            {bio ||
+              "Manage your Shelby Studio creator profile and wallet-linked workspace."}
+          </p>
 
-          <div className="mt-6 flex flex-wrap gap-3">
-            <span className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white">
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1.5 text-xs font-medium text-blue-400">
               {network}
             </span>
 
             {walletConnected ? (
-              <span className="flex items-center gap-2 rounded-full bg-green-700 px-4 py-2 text-sm font-semibold text-white">
-                <CheckCircle2 size={16} />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-400">
+                <CheckCircle2 size={13} />
                 Wallet Connected
               </span>
             ) : (
-              <span className="flex items-center gap-2 rounded-full bg-slate-700 px-4 py-2 text-sm font-semibold text-slate-300">
-                <Wallet size={16} />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs text-slate-500">
+                <Wallet size={13} />
                 Wallet Not Connected
+              </span>
+            )}
+
+            {walletConnected && walletAddress && (
+              <span className="rounded-full border border-slate-800 bg-slate-950 px-3 py-1.5 font-mono text-[10px] text-slate-500">
+                {walletAddress.slice(0, 8)}...
+                {walletAddress.slice(-6)}
               </span>
             )}
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

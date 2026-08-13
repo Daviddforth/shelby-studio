@@ -1,62 +1,33 @@
 "use client";
 
-import Link from "next/link";
-import {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
-
-import {
-  Upload,
-  FolderPlus,
-  Search,
-  Wallet,
-  CheckCircle2,
-} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { CheckCircle2, Wallet } from "lucide-react";
 
 import { useWallet } from "@/context/WalletContext";
 import { useStorageContext } from "@/context/StorageContext";
 
 export default function DashboardHero() {
-  const {
-    walletConnected,
-    walletAddress,
-    network,
-  } = useWallet();
-
+  const { walletConnected, walletAddress, network } = useWallet();
   const { assets } = useStorageContext();
 
-  const [profileName, setProfileName] =
-    useState("");
+  const [profileName, setProfileName] = useState("");
 
-  /*
-   * Load the profile belonging to the
-   * currently connected wallet.
-   */
   const loadProfile = useCallback(() => {
-    if (
-      !walletConnected ||
-      !walletAddress
-    ) {
+    if (!walletConnected || !walletAddress) {
       setProfileName("");
       return;
     }
 
     try {
-      const storageKey =
-        `shelby-profile-${walletAddress.toLowerCase()}`;
-
-      const savedProfile =
-        localStorage.getItem(storageKey);
+      const storageKey = `shelby-profile-${walletAddress.toLowerCase()}`;
+      const savedProfile = localStorage.getItem(storageKey);
 
       if (!savedProfile) {
         setProfileName("");
         return;
       }
 
-      const profile =
-        JSON.parse(savedProfile);
+      const profile = JSON.parse(savedProfile);
 
       const name =
         profile.displayName?.trim() ||
@@ -65,22 +36,11 @@ export default function DashboardHero() {
 
       setProfileName(name);
     } catch (error) {
-      console.error(
-        "Failed to load dashboard profile:",
-        error
-      );
-
+      console.error("Failed to load dashboard profile:", error);
       setProfileName("");
     }
-  }, [
-    walletConnected,
-    walletAddress,
-  ]);
+  }, [walletConnected, walletAddress]);
 
-  /*
-   * Load the profile when the wallet
-   * changes and listen for profile edits.
-   */
   useEffect(() => {
     loadProfile();
 
@@ -98,14 +58,14 @@ export default function DashboardHero() {
   }, [loadProfile]);
 
   return (
-    <div className="rounded-3xl border border-slate-800 bg-gradient-to-r from-slate-900 to-slate-950 p-10">
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+    <section className="border-b border-slate-800 pb-7">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="uppercase tracking-widest text-blue-400">
+          <p className="text-sm font-medium text-blue-400">
             Shelby Studio
           </p>
 
-          <h1 className="mt-2 text-5xl font-bold text-white">
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-white md:text-4xl">
             {walletConnected
               ? profileName
                 ? `Welcome back, ${profileName}`
@@ -113,77 +73,40 @@ export default function DashboardHero() {
               : "Welcome to Shelby Studio"}
           </h1>
 
-          <p className="mt-4 max-w-2xl text-slate-400">
-            Build, manage and publish digital assets on Shelby from one workspace.
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+            Manage your projects, assets, storage, and development
+            workflow from one workspace.
           </p>
 
-          <div className="mt-6 flex flex-wrap gap-3">
-            <span className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white">
-              {network}
-            </span>
-
-            {walletConnected ? (
-              <span className="flex items-center gap-2 rounded-full bg-green-700 px-4 py-2 text-sm text-white">
-                <CheckCircle2 size={16} />
-                Wallet Connected
-              </span>
-            ) : (
-              <span className="flex items-center gap-2 rounded-full bg-slate-800 px-4 py-2 text-sm text-slate-300">
-                <Wallet size={16} />
-                Wallet Not Connected
-              </span>
-            )}
-
-            <span className="rounded-full bg-slate-800 px-4 py-2 text-sm text-slate-300">
-              {assets.length}{" "}
-              {assets.length === 1
-                ? "Asset"
-                : "Assets"}{" "}
-              Stored
-            </span>
-          </div>
-
-          {walletConnected &&
-            walletAddress && (
-              <p className="mt-4 font-mono text-sm text-slate-500">
-                {walletAddress}
-              </p>
-            )}
+          {walletConnected && walletAddress && (
+            <p className="mt-3 font-mono text-xs text-slate-600">
+              {walletAddress}
+            </p>
+          )}
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Link
-            href="/storage"
-            className="flex items-center gap-3 rounded-2xl bg-blue-600 px-6 py-5 text-white transition hover:bg-blue-700"
-          >
-            <Upload size={22} />
-            Upload Asset
-          </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-300">
+            {network}
+          </span>
 
-          <Link
-            href="/collections"
-            className="flex items-center gap-3 rounded-2xl bg-slate-800 px-6 py-5 text-white transition hover:bg-slate-700"
-          >
-            <FolderPlus size={22} />
-            Create Collection
-          </Link>
+          {walletConnected ? (
+            <span className="flex items-center gap-1.5 rounded-full border border-green-500/20 bg-green-500/10 px-3 py-1.5 text-xs font-medium text-green-400">
+              <CheckCircle2 size={14} />
+              Wallet Connected
+            </span>
+          ) : (
+            <span className="flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-400">
+              <Wallet size={14} />
+              Wallet Not Connected
+            </span>
+          )}
 
-          <Link
-            href="/metadata"
-            className="flex items-center gap-3 rounded-2xl bg-slate-800 px-6 py-5 text-white transition hover:bg-slate-700"
-          >
-            Generate Metadata
-          </Link>
-
-          <Link
-            href="/explorer"
-            className="flex items-center gap-3 rounded-2xl bg-slate-800 px-6 py-5 text-white transition hover:bg-slate-700"
-          >
-            <Search size={22} />
-            Asset Explorer
-          </Link>
+          <span className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-400">
+            {assets.length} {assets.length === 1 ? "asset" : "assets"}
+          </span>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

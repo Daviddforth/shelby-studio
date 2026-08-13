@@ -5,6 +5,8 @@ import {
   useState,
 } from "react";
 
+import { Save } from "lucide-react";
+
 import { useWallet } from "@/context/WalletContext";
 
 interface ProfileData {
@@ -31,55 +33,36 @@ export default function EditProfile() {
     walletAddress,
   } = useWallet();
 
-  const [
-    profile,
-    setProfile,
-  ] = useState<ProfileData>(
-    emptyProfile
-  );
+  const [profile, setProfile] =
+    useState<ProfileData>(emptyProfile);
 
-  /*
-   * Every wallet receives its own
-   * local Shelby Studio profile.
-   */
-  function getStorageKey(
-    address: string
-  ) {
+  const [saved, setSaved] =
+    useState(false);
+
+  function getStorageKey(address: string) {
     return `shelby-profile-${address.toLowerCase()}`;
   }
 
-  /*
-   * Load the profile belonging to
-   * the currently connected wallet.
-   */
   useEffect(() => {
-    if (
-      !walletConnected ||
-      !walletAddress
-    ) {
+    if (!walletConnected || !walletAddress) {
       setProfile(emptyProfile);
       return;
     }
 
     try {
-      const saved =
+      const savedProfile =
         localStorage.getItem(
-          getStorageKey(
-            walletAddress
-          )
+          getStorageKey(walletAddress)
         );
 
-      if (!saved) {
+      if (!savedProfile) {
         setProfile(emptyProfile);
         return;
       }
 
-      const parsed =
-        JSON.parse(saved);
-
       setProfile({
         ...emptyProfile,
-        ...parsed,
+        ...JSON.parse(savedProfile),
       });
     } catch (error) {
       console.error(
@@ -89,53 +72,40 @@ export default function EditProfile() {
 
       setProfile(emptyProfile);
     }
-  }, [
-    walletConnected,
-    walletAddress,
-  ]);
+  }, [walletConnected, walletAddress]);
 
   function update(
     key: keyof ProfileData,
     value: string
   ) {
+    setSaved(false);
+
     setProfile((previous) => ({
       ...previous,
       [key]: value,
     }));
   }
 
-  /*
-   * Save profile to the connected
-   * wallet's local profile.
-   *
-   * The custom event tells other
-   * components that the profile changed.
-   */
   function saveProfile() {
-    if (
-      !walletConnected ||
-      !walletAddress
-    ) {
+    if (!walletConnected || !walletAddress) {
       return;
     }
 
     try {
       localStorage.setItem(
-        getStorageKey(
-          walletAddress
-        ),
+        getStorageKey(walletAddress),
         JSON.stringify(profile)
       );
 
       window.dispatchEvent(
-        new Event(
-          "shelby-profile-updated"
-        )
+        new Event("shelby-profile-updated")
       );
 
-      alert(
-        "Profile saved successfully."
-      );
+      setSaved(true);
+
+      window.setTimeout(() => {
+        setSaved(false);
+      }, 2500);
     } catch (error) {
       console.error(
         "Failed to save profile:",
@@ -145,68 +115,52 @@ export default function EditProfile() {
   }
 
   const fields = [
-    [
-      "Display Name",
-      "displayName",
-    ],
-    [
-      "Username",
-      "username",
-    ],
-    [
-      "Website",
-      "website",
-    ],
-    [
-      "GitHub",
-      "github",
-    ],
-    [
-      "Twitter / X",
-      "twitter",
-    ],
+    ["Display Name", "displayName"],
+    ["Username", "username"],
+    ["Website", "website"],
+    ["GitHub", "github"],
+    ["Twitter / X", "twitter"],
   ] as const;
 
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
-      <h2 className="text-2xl font-bold text-white">
-        Edit Profile
-      </h2>
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+      <div>
+        <h2 className="text-base font-semibold text-white">
+          Edit Profile
+        </h2>
 
-      <p className="mt-2 text-sm text-slate-400">
-        Manage the creator profile associated
-        with your connected wallet.
-      </p>
+        <p className="mt-1 text-xs text-slate-500">
+          Update the creator information connected to this wallet.
+        </p>
+      </div>
 
-      <div className="mt-8 space-y-6">
-        {fields.map(
-          ([label, key]) => (
-            <div key={key}>
-              <label className="mb-2 block text-sm text-slate-400">
-                {label}
-              </label>
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+        {fields.map(([label, key]) => (
+          <div key={key}>
+            <label className="mb-1.5 block text-xs font-medium text-slate-400">
+              {label}
+            </label>
 
-              <input
-                value={profile[key]}
-                onChange={(event) =>
-                  update(
-                    key,
-                    event.target.value
-                  )
-                }
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none transition focus:border-blue-500"
-              />
-            </div>
-          )
-        )}
+            <input
+              value={profile[key]}
+              onChange={(event) =>
+                update(
+                  key,
+                  event.target.value
+                )
+              }
+              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-blue-500"
+            />
+          </div>
+        ))}
 
-        <div>
-          <label className="mb-2 block text-sm text-slate-400">
+        <div className="md:col-span-2">
+          <label className="mb-1.5 block text-xs font-medium text-slate-400">
             Bio
           </label>
 
           <textarea
-            rows={5}
+            rows={4}
             value={profile.bio}
             onChange={(event) =>
               update(
@@ -214,18 +168,25 @@ export default function EditProfile() {
                 event.target.value
               )
             }
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none transition focus:border-blue-500"
+            className="w-full resize-y rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-blue-500"
           />
         </div>
+      </div>
+
+      <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-800 pt-5">
+        <p className="text-xs text-slate-600">
+          Profile data is stored for this wallet.
+        </p>
 
         <button
           type="button"
           onClick={saveProfile}
-          className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-500"
+          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-500"
         >
-          Save Profile
+          <Save size={15} />
+          {saved ? "Saved" : "Save Profile"}
         </button>
       </div>
-    </div>
+    </section>
   );
 }

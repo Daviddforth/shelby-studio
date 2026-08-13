@@ -20,72 +20,52 @@ export default function ProjectStats({
     {
       label: "Assets",
       value: project.assetCount.toLocaleString(),
-      description: "Digital assets",
       icon: Boxes,
     },
     {
       label: "Metadata",
       value: project.metadataCount.toLocaleString(),
-      description: "Metadata files",
       icon: FileJson,
     },
     {
       label: "Collections",
       value: project.collectionCount.toLocaleString(),
-      description: "NFT collections",
       icon: FolderKanban,
     },
     {
       label: "Storage",
       value: formatStorage(project.storageUsed),
-      description: "Storage used",
       icon: Database,
     },
   ];
 
   return (
-    <section>
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold text-white">
-          Project Overview
-        </h2>
-
-        <p className="mt-1 text-sm text-slate-400">
-          A quick overview of your project resources.
-        </p>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="rounded-2xl border border-slate-800 bg-slate-900">
+      <div className="grid grid-cols-2 divide-x divide-y divide-slate-800 xl:grid-cols-4 xl:divide-y-0">
         {stats.map((stat) => {
           const Icon = stat.icon;
 
           return (
             <div
               key={stat.label}
-              className="rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-slate-700"
+              className="flex items-center gap-3 px-5 py-4"
             >
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm text-slate-400">
-                    {stat.label}
-                  </p>
-
-                  <p className="mt-2 text-2xl font-bold text-white">
-                    {stat.value}
-                  </p>
-                </div>
-
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10">
-                  <Icon
-                    size={20}
-                    className="text-blue-400"
-                  />
-                </div>
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10">
+                <Icon
+                  size={17}
+                  className="text-blue-400"
+                />
               </div>
 
-              <p className="mt-3 text-xs text-slate-500">
-                {stat.description}
-              </p>
+              <div className="min-w-0">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                  {stat.label}
+                </p>
+
+                <p className="mt-0.5 truncate text-sm font-semibold text-white">
+                  {stat.value}
+                </p>
+              </div>
             </div>
           );
         })}

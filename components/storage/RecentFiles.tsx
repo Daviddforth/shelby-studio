@@ -94,17 +94,29 @@ export default function RecentFiles() {
   }
 
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
-      <h2 className="text-2xl font-bold text-white">
-        Recent Files
-      </h2>
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+      <div>
+        <h2 className="text-base font-semibold text-white">
+          Recent Files
+        </h2>
+
+        <p className="mt-1 text-xs text-slate-500">
+          Files stored in your active project.
+        </p>
+      </div>
 
       {assets.length === 0 ? (
-        <p className="mt-4 text-slate-400">
-          No files uploaded yet.
-        </p>
+        <div className="mt-5 rounded-xl border border-dashed border-slate-800 px-5 py-8 text-center">
+          <p className="text-sm font-medium text-white">
+            No files uploaded yet.
+          </p>
+
+          <p className="mt-1 text-xs text-slate-500">
+            Your uploaded Shelby assets will appear here.
+          </p>
+        </div>
       ) : (
-        <div className="mt-6 space-y-4">
+        <div className="mt-4 divide-y divide-slate-800">
           {assets.slice(0, 5).map((asset) => {
             const downloading =
               downloadingUid === asset.uid;
@@ -119,7 +131,7 @@ export default function RecentFiles() {
             return (
               <div
                 key={asset.uid}
-                className="flex items-center justify-between gap-4 rounded-2xl border border-slate-800 bg-slate-950 p-4"
+                className="flex items-center justify-between gap-4 py-3"
               >
                 <button
                   type="button"
@@ -129,44 +141,40 @@ export default function RecentFiles() {
                   className="flex min-w-0 items-center gap-3 text-left"
                   title="View Shelby asset details"
                 >
-                  <FileText
-                    size={22}
-                    className="shrink-0 text-blue-400"
-                  />
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800">
+                    <FileText
+                      size={16}
+                      className="text-blue-400"
+                    />
+                  </div>
 
                   <div className="min-w-0">
-                    <p className="truncate font-semibold text-white transition hover:text-blue-400">
+                    <p className="truncate text-sm font-medium text-white transition hover:text-blue-400">
                       {asset.name}
                     </p>
 
-                    <p className="text-sm text-slate-400">
+                    <p className="text-xs text-slate-500">
                       {(asset.size / 1024).toFixed(1)} KB
-                    </p>
-
-                    <p className="mt-1 text-xs text-blue-400">
-                      View details
+                      <span className="mx-1.5 text-slate-700">
+                        •
+                      </span>
+                      {asset.network}
                     </p>
                   </div>
                 </button>
 
-                <div className="flex shrink-0 items-center gap-5">
-                  <div className="text-right">
-                    <p
-                      className={
-                        asset.status === "Stored"
-                          ? "text-sm font-semibold text-green-400"
-                          : asset.status === "Failed"
-                          ? "text-sm font-semibold text-red-400"
-                          : "text-sm font-semibold text-amber-400"
-                      }
-                    >
-                      {asset.status}
-                    </p>
-
-                    <p className="text-xs text-slate-500">
-                      {asset.network}
-                    </p>
-                  </div>
+                <div className="flex shrink-0 items-center gap-3">
+                  <span
+                    className={
+                      asset.status === "Stored"
+                        ? "text-xs font-medium text-emerald-400"
+                        : asset.status === "Failed"
+                        ? "text-xs font-medium text-red-400"
+                        : "text-xs font-medium text-amber-400"
+                    }
+                  >
+                    {asset.status}
+                  </span>
 
                   <button
                     type="button"
@@ -182,9 +190,9 @@ export default function RecentFiles() {
                         ? "Download from Shelby"
                         : "Shelby download information unavailable"
                     }
-                    className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-blue-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-blue-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    <Download size={16} />
+                    <Download size={14} />
 
                     {downloading
                       ? "Downloading..."
@@ -205,6 +213,6 @@ export default function RecentFiles() {
           }
         />
       )}
-    </div>
+    </section>
   );
 }

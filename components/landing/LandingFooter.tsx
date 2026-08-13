@@ -3,24 +3,24 @@ import Link from "next/link";
 export default function LandingFooter() {
   return (
     <footer className="border-t border-slate-800">
-      <div className="mx-auto max-w-7xl px-6 py-12">
-        <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
+      <div className="mx-auto max-w-6xl px-6 py-10">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           {/* Brand */}
           <div>
             <Link
               href="/"
-              className="text-lg font-bold tracking-tight text-white"
+              className="text-base font-semibold tracking-tight text-white"
             >
               Shelby Studio
             </Link>
 
-            <p className="mt-2 text-sm text-slate-500">
-              The integrated developer workspace for building on Shelby.
+            <p className="mt-1.5 text-sm text-slate-500">
+              A creator and developer workspace for Shelby.
             </p>
           </div>
 
           {/* Links */}
-          <div className="flex flex-wrap items-center gap-6 text-sm text-slate-400">
+          <nav className="flex flex-wrap items-center gap-5 text-sm text-slate-400">
             <Link
               href="/dashboard"
               className="transition hover:text-white"
@@ -32,7 +32,7 @@ export default function LandingFooter() {
               href="/docs"
               className="transition hover:text-white"
             >
-              Documentation
+              Docs
             </Link>
 
             <a
@@ -43,18 +43,14 @@ export default function LandingFooter() {
             >
               GitHub
             </a>
-          </div>
+          </nav>
         </div>
 
         {/* Bottom */}
-        <div className="mt-10 flex flex-col gap-3 border-t border-slate-800 pt-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © 2026 Shelby Studio
-          </p>
+        <div className="mt-8 flex flex-col gap-2 border-t border-slate-800 pt-5 text-xs text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+          <p>© 2026 Shelby Studio</p>
 
-          <p>
-            Built for the Shelby ecosystem.
-          </p>
+          <p>Built for the Shelby ecosystem.</p>
         </div>
       </div>
     </footer>

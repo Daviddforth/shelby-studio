@@ -14,19 +14,16 @@ export default function MetadataValidation() {
     {
       label: "NFT Name",
       valid: metadata.name.trim() !== "",
-      required: true,
     },
     {
       label: "Description",
       valid: metadata.description.trim() !== "",
-      required: true,
     },
     {
       label: "Image",
       valid:
         metadata.image.trim() !== "" ||
         Boolean(metadata.imagePreview),
-      required: true,
     },
   ];
 
@@ -50,62 +47,74 @@ export default function MetadataValidation() {
   );
 
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
-      <div className="flex items-center justify-between">
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white">
+          <h2 className="text-base font-semibold text-white">
             Metadata Validation
           </h2>
 
-          <p className="mt-2 text-slate-400">
-            Shelby Studio checks your metadata as you build.
+          <p className="mt-1 text-xs text-slate-500">
+            Required fields are checked as you build.
           </p>
         </div>
 
-        <span className="rounded-full bg-blue-600 px-4 py-2 font-semibold text-white">
-          {percentage}% Complete
+        <span
+          className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+            percentage === 100
+              ? "bg-emerald-500/10 text-emerald-400"
+              : "bg-blue-500/10 text-blue-400"
+          }`}
+        >
+          {percentage}%
         </span>
       </div>
 
-      <div className="mt-8 space-y-4">
+      <div className="mt-4 divide-y divide-slate-800">
         {checks.map((check) => (
           <div
             key={check.label}
-            className="flex items-center justify-between rounded-2xl bg-slate-950 p-4"
+            className="flex items-center justify-between py-3"
           >
-            <span className="text-white">
+            <span className="text-sm text-slate-300">
               {check.label}
             </span>
 
             {check.valid ? (
-              <CheckCircle2 className="text-green-500" />
+              <CheckCircle2
+                size={18}
+                className="text-emerald-400"
+              />
             ) : (
-              <AlertTriangle className="text-yellow-500" />
+              <AlertTriangle
+                size={18}
+                className="text-amber-400"
+              />
             )}
           </div>
         ))}
       </div>
 
-      <div className="mt-8 border-t border-slate-800 pt-6">
-        <p className="mb-4 text-sm font-medium text-slate-400">
-          Optional metadata
+      <div className="mt-4 border-t border-slate-800 pt-4">
+        <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-slate-500">
+          Optional
         </p>
 
-        <div className="space-y-3">
+        <div className="divide-y divide-slate-800">
           {optionalChecks.map((check) => (
             <div
               key={check.label}
-              className="flex items-center justify-between rounded-2xl bg-slate-950 p-4"
+              className="flex items-center justify-between py-2.5"
             >
-              <span className="text-slate-300">
+              <span className="text-sm text-slate-400">
                 {check.label}
               </span>
 
               <span
-                className={`text-sm ${
+                className={`text-xs ${
                   check.valid
-                    ? "text-green-400"
-                    : "text-slate-500"
+                    ? "text-emerald-400"
+                    : "text-slate-600"
                 }`}
               >
                 {check.valid ? "Added" : "Optional"}
@@ -114,6 +123,6 @@ export default function MetadataValidation() {
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

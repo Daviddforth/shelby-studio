@@ -12,8 +12,6 @@ export default function StorageOverview() {
   );
 
   const usedMB = totalBytes / 1024 / 1024;
-
-  // Development limit (later this will come from Shelby)
   const totalLimitMB = 500;
 
   const percentage = Math.min(
@@ -22,87 +20,56 @@ export default function StorageOverview() {
   );
 
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
-      <div className="flex items-center gap-4">
-        <div className="rounded-2xl bg-blue-600 p-4">
-          <HardDrive
-            size={28}
-            className="text-white"
-          />
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <HardDrive size={17} className="text-blue-400" />
+            <h2 className="text-base font-semibold text-white">
+              Storage
+            </h2>
+          </div>
+
+          <p className="mt-1 text-xs text-slate-500">
+            Shelby Storage usage
+          </p>
+        </div>
+
+        <span className="text-sm font-medium text-slate-300">
+          {usedMB.toFixed(2)} MB
+          <span className="text-slate-600"> / {totalLimitMB} MB</span>
+        </span>
+      </div>
+
+      <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-800">
+        <div
+          className="h-full rounded-full bg-blue-600 transition-all"
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+
+      <div className="mt-5 flex items-center gap-6 text-xs">
+        <div>
+          <span className="text-slate-500">Files</span>
+          <p className="mt-1 font-medium text-white">
+            {assets.length}
+          </p>
         </div>
 
         <div>
-          <h2 className="text-2xl font-bold text-white">
-            Storage Overview
-          </h2>
+          <span className="text-slate-500">Network</span>
+          <p className="mt-1 font-medium text-white">
+            Shelbynet
+          </p>
+        </div>
 
-          <p className="text-slate-400">
-            Shelby Storage Usage
+        <div>
+          <span className="text-slate-500">Status</span>
+          <p className="mt-1 font-medium text-emerald-400">
+            Healthy
           </p>
         </div>
       </div>
-
-      <div className="mt-8">
-
-        <div className="mb-3 flex justify-between">
-          <span className="text-slate-400">
-            Used
-          </span>
-
-          <span className="font-semibold text-white">
-            {usedMB.toFixed(2)} MB / {totalLimitMB} MB
-          </span>
-        </div>
-
-        <div className="h-4 overflow-hidden rounded-full bg-slate-800">
-          <div
-            className="h-full rounded-full bg-blue-600 transition-all"
-            style={{
-              width: `${percentage}%`,
-            }}
-          />
-        </div>
-
-        <div className="mt-6 grid grid-cols-3 gap-6">
-
-          <Stat
-            title="Files"
-            value={assets.length.toString()}
-          />
-
-          <Stat
-            title="Network"
-            value="Shelbynet"
-          />
-
-          <Stat
-            title="Status"
-            value="Healthy"
-          />
-
-        </div>
-
-      </div>
-    </div>
-  );
-}
-
-function Stat({
-  title,
-  value,
-}: {
-  title: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-2xl bg-slate-950 p-5">
-      <p className="text-sm text-slate-400">
-        {title}
-      </p>
-
-      <p className="mt-2 text-xl font-bold text-white">
-        {value}
-      </p>
-    </div>
+    </section>
   );
 }

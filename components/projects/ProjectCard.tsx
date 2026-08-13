@@ -4,10 +4,6 @@ import { useRouter } from "next/navigation";
 
 import {
   ArrowRight,
-  Boxes,
-  Database,
-  FileJson,
-  FolderKanban,
   Trash2,
 } from "lucide-react";
 
@@ -34,10 +30,7 @@ export default function ProjectCard({
     activeProject?.id === project.id;
 
   function handleOpenProject() {
-    // Make this the globally active project.
     selectProject(project.id);
-
-    // Open the project's dedicated dashboard.
     router.push(`/projects/${project.id}`);
   }
 
@@ -55,7 +48,7 @@ export default function ProjectCard({
 
   const statusStyles = {
     draft:
-      "bg-slate-700/50 text-slate-300 border-slate-700",
+      "bg-slate-800 text-slate-300 border-slate-700",
 
     ready:
       "bg-blue-500/10 text-blue-400 border-blue-500/20",
@@ -64,34 +57,14 @@ export default function ProjectCard({
       "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
   };
 
-  const stats = [
-    {
-      label: "Assets",
-      value: project.assetCount,
-      icon: Boxes,
-    },
-    {
-      label: "Metadata",
-      value: project.metadataCount,
-      icon: FileJson,
-    },
-    {
-      label: "Collections",
-      value: project.collectionCount,
-      icon: FolderKanban,
-    },
-    {
-      label: "Storage",
-      value: formatStorage(project.storageUsed),
-      icon: Database,
-    },
-  ];
-
   return (
     <article
       onClick={handleOpenProject}
       onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
+        if (
+          event.key === "Enter" ||
+          event.key === " "
+        ) {
           event.preventDefault();
           handleOpenProject();
         }
@@ -99,22 +72,21 @@ export default function ProjectCard({
       role="button"
       tabIndex={0}
       aria-label={`Open project ${project.name}`}
-      className={`group cursor-pointer rounded-3xl border bg-slate-900 p-6 transition ${
+      className={`group cursor-pointer rounded-2xl border bg-slate-900 p-5 transition ${
         isActive
-          ? "border-blue-500/60 shadow-lg shadow-blue-500/5"
-          : "border-slate-800 hover:border-blue-500/40 hover:bg-slate-900/90"
+          ? "border-blue-500/50 shadow-lg shadow-blue-500/5"
+          : "border-slate-800 hover:border-blue-500/30 hover:bg-slate-900/90"
       }`}
     >
-      {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-3">
-            <h2 className="truncate text-xl font-semibold text-white">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="truncate text-lg font-semibold text-white">
               {project.name}
             </h2>
 
             <span
-              className={`rounded-full border px-2.5 py-1 text-xs font-medium capitalize ${
+              className={`rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize ${
                 statusStyles[project.status]
               }`}
             >
@@ -122,73 +94,83 @@ export default function ProjectCard({
             </span>
 
             {isActive && (
-              <span className="rounded-full bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-400">
+              <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[11px] font-medium text-blue-400">
                 Active
               </span>
             )}
           </div>
 
-          <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-slate-400">
+          <p className="mt-2 line-clamp-2 text-sm leading-5 text-slate-400">
             {project.description ||
               "No project description yet."}
           </p>
         </div>
-
       </div>
 
-      {/* Stats */}
-      <div className="mt-6 grid grid-cols-2 gap-3">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
+      <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-500">
+        <span>
+          <strong className="font-semibold text-slate-300">
+            {project.assetCount}
+          </strong>{" "}
+          {project.assetCount === 1
+            ? "Asset"
+            : "Assets"}
+        </span>
 
-          return (
-            <div
-              key={stat.label}
-              className="rounded-xl border border-slate-800 bg-slate-950 p-4"
-            >
-              <div className="flex items-center gap-2 text-slate-500">
-                <Icon size={15} />
+        <span className="text-slate-700">•</span>
 
-                <span className="text-xs">
-                  {stat.label}
-                </span>
-              </div>
+        <span>
+          <strong className="font-semibold text-slate-300">
+            {project.metadataCount}
+          </strong>{" "}
+          Metadata
+        </span>
 
-              <p className="mt-2 font-semibold text-white">
-                {stat.value}
-              </p>
-            </div>
-          );
-        })}
+        <span className="text-slate-700">•</span>
+
+        <span>
+          <strong className="font-semibold text-slate-300">
+            {project.collectionCount}
+          </strong>{" "}
+          {project.collectionCount === 1
+            ? "Collection"
+            : "Collections"}
+        </span>
+
+        <span className="text-slate-700">•</span>
+
+        <span>
+          <strong className="font-semibold text-slate-300">
+            {formatStorage(project.storageUsed)}
+          </strong>
+        </span>
       </div>
 
-      {/* Progress */}
-      <div className="mt-6">
+      <div className="mt-5 border-t border-slate-800 pt-4">
         <ProjectProgress
           progress={project.progress}
           compact
         />
       </div>
 
-      {/* Updated */}
-      <p className="mt-4 text-xs text-slate-500">
-        Updated {formatProjectDate(project.updatedAt)}
-      </p>
+      <div className="mt-5 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <p className="text-xs text-slate-600">
+            Updated {formatProjectDate(project.updatedAt)}
+          </p>
 
-      {/* Actions */}
-      <div className="mt-6 flex items-center justify-between border-t border-slate-800 pt-5">
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            handleDelete();
-          }}
-          className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-500 transition hover:bg-red-500/10 hover:text-red-400"
-        >
-          <Trash2 size={16} />
-
-          Delete
-        </button>
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              handleDelete();
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-slate-500 transition hover:bg-red-500/10 hover:text-red-400"
+          >
+            <Trash2 size={14} />
+            Delete
+          </button>
+        </div>
 
         <button
           type="button"
@@ -196,13 +178,10 @@ export default function ProjectCard({
             event.stopPropagation();
             handleOpenProject();
           }}
-          className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-500"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-medium text-white transition hover:bg-blue-500"
         >
-          {isActive
-            ? "Open Active Project"
-            : "Open Project"}
-
-          <ArrowRight size={16} />
+          Open
+          <ArrowRight size={14} />
         </button>
       </div>
     </article>
@@ -223,9 +202,7 @@ function formatStorage(bytes: number) {
   ];
 
   const index = Math.min(
-    Math.floor(
-      Math.log(bytes) / Math.log(1024)
-    ),
+    Math.floor(Math.log(bytes) / Math.log(1024)),
     units.length - 1
   );
 
@@ -237,9 +214,7 @@ function formatStorage(bytes: number) {
   )} ${units[index]}`;
 }
 
-function formatProjectDate(
-  dateString: string
-) {
+function formatProjectDate(dateString: string) {
   const date = new Date(dateString);
 
   if (Number.isNaN(date.getTime())) {

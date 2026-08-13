@@ -4,34 +4,30 @@ import { FileJson, Sparkles } from "lucide-react";
 
 export default function MetadataHeader() {
   return (
-    <div className="rounded-3xl border border-slate-800 bg-gradient-to-r from-slate-900 to-slate-950 p-8">
-      <div className="flex items-center gap-5">
-        <div className="rounded-2xl bg-blue-600 p-4">
-          <FileJson
-            size={32}
-            className="text-white"
-          />
+    <div className="flex flex-col gap-4 border-b border-slate-800 pb-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10">
+          <FileJson size={18} className="text-blue-400" />
         </div>
 
-        <div>
-          <p className="uppercase tracking-widest text-blue-400">
+        <div className="min-w-0">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-blue-400">
             Shelby Studio
           </p>
 
-          <h1 className="mt-1 text-4xl font-bold text-white">
+          <h1 className="mt-0.5 text-2xl font-semibold tracking-tight text-white">
             Metadata Builder
           </h1>
 
-          <p className="mt-2 max-w-2xl text-slate-400">
-            Create, validate and publish Shelby NFT metadata
-            with live preview and automatic validation.
+          <p className="mt-1 text-sm text-slate-500">
+            Create, validate and export structured NFT metadata.
           </p>
         </div>
+      </div>
 
-        <div className="ml-auto hidden lg:flex items-center gap-2 rounded-full bg-slate-800 px-4 py-2 text-sm text-yellow-300">
-          <Sparkles size={18} />
-          AI Ready
-        </div>
+      <div className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-yellow-300">
+        <Sparkles size={14} />
+        AI Ready
       </div>
     </div>
   );

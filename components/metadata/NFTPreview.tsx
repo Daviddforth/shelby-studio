@@ -7,14 +7,25 @@ export default function NFTPreview() {
   const { metadata } = useMetadata();
 
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
-      <h2 className="text-2xl font-bold text-white">
-        Live NFT Preview
-      </h2>
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-base font-semibold text-white">
+            Live NFT Preview
+          </h2>
 
-      <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden">
+          <p className="mt-1 text-xs text-slate-500">
+            Preview how your metadata will appear.
+          </p>
+        </div>
 
-        <div className="aspect-square flex items-center justify-center bg-slate-900">
+        <span className="text-xs text-slate-500">
+          {metadata.attributes.length} traits
+        </span>
+      </div>
+
+      <div className="mt-4 overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
+        <div className="aspect-square max-h-[420px] flex items-center justify-center bg-slate-900">
           {metadata.imagePreview ? (
             <img
               src={metadata.imagePreview}
@@ -23,34 +34,29 @@ export default function NFTPreview() {
             />
           ) : (
             <ImageIcon
-              size={64}
-              className="text-slate-600"
+              size={44}
+              className="text-slate-700"
             />
           )}
         </div>
 
-        <div className="p-6">
-          <h3 className="text-xl font-bold text-white">
+        <div className="p-4">
+          <h3 className="text-base font-semibold text-white">
             {metadata.name || "Untitled NFT"}
           </h3>
 
-          <p className="mt-2 text-slate-400">
+          <p className="mt-1.5 line-clamp-3 text-sm leading-6 text-slate-400">
             {metadata.description ||
               "Your NFT description will appear here."}
           </p>
 
-          <div className="mt-6 flex items-center justify-between">
-            <span className="rounded-full bg-blue-600 px-3 py-1 text-sm text-white">
+          <div className="mt-4">
+            <span className="rounded-full border border-blue-500/20 bg-blue-500/10 px-2.5 py-1 text-xs text-blue-400">
               {metadata.collection || "No Collection"}
-            </span>
-
-            <span className="text-sm text-slate-500">
-              {metadata.attributes.length} Traits
             </span>
           </div>
         </div>
-
       </div>
-    </div>
+    </section>
   );
 }

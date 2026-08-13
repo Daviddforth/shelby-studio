@@ -1,6 +1,11 @@
 "use client";
 
-import { Clock3 } from "lucide-react";
+import {
+  Clock3,
+  UploadCloud,
+  CheckCircle2,
+} from "lucide-react";
+
 import { useWallet } from "@/context/WalletContext";
 import { useStorageContext } from "@/context/StorageContext";
 
@@ -8,78 +13,106 @@ export default function ProfileActivity() {
   const { walletConnected } = useWallet();
   const { assets } = useStorageContext();
 
-  if (!walletConnected) {
+  if (!walletConnected || assets.length === 0) {
     return (
-      <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
-        <h2 className="text-2xl font-bold text-white">
-          Recent Activity
-        </h2>
+      <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-800">
+            <Clock3
+              size={17}
+              className="text-slate-500"
+            />
+          </div>
 
-        <div className="mt-8 flex flex-col items-center text-center">
-          <Clock3
-            size={48}
-            className="text-slate-600"
-          />
+          <div>
+            <h2 className="text-base font-semibold text-white">
+              Recent Activity
+            </h2>
 
-          <p className="mt-4 text-lg font-semibold text-white">
+            <p className="text-xs text-slate-500">
+              Your latest Shelby Studio activity.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 rounded-xl border border-dashed border-slate-800 px-5 py-8 text-center">
+          <p className="text-sm font-medium text-slate-300">
             No activity yet
           </p>
 
-          <p className="mt-2 text-slate-400">
-            Connect your wallet to begin using Shelby Studio.
+          <p className="mt-1 text-xs text-slate-600">
+            Upload an asset to start building your activity history.
           </p>
         </div>
-      </div>
-    );
-  }
-
-  if (assets.length === 0) {
-    return (
-      <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
-        <h2 className="text-2xl font-bold text-white">
-          Recent Activity
-        </h2>
-
-        <div className="mt-8 flex flex-col items-center text-center">
-          <Clock3
-            size={48}
-            className="text-slate-600"
-          />
-
-          <p className="mt-4 text-lg font-semibold text-white">
-            No activity yet
-          </p>
-
-          <p className="mt-2 text-slate-400">
-            Upload your first asset to see activity here.
-          </p>
-        </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8">
-      <h2 className="text-2xl font-bold text-white">
-        Recent Activity
-      </h2>
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+      <div className="flex items-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10">
+          <Clock3
+            size={17}
+            className="text-blue-400"
+          />
+        </div>
 
-      <div className="mt-6 space-y-4">
-        {assets.map((asset) => (
+        <div>
+          <h2 className="text-base font-semibold text-white">
+            Recent Activity
+          </h2>
+
+          <p className="text-xs text-slate-500">
+            Your latest Shelby Studio activity.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 divide-y divide-slate-800">
+        {assets.slice(0, 5).map((asset) => (
           <div
             key={asset.uid}
-            className="rounded-xl border border-slate-800 bg-slate-950 p-4"
+            className="flex items-center gap-3 py-3"
           >
-            <p className="font-medium text-white">
-              Uploaded {asset.name}
-            </p>
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-950">
+              {asset.status === "Stored" ? (
+                <CheckCircle2
+                  size={15}
+                  className="text-emerald-400"
+                />
+              ) : (
+                <UploadCloud
+                  size={15}
+                  className="text-blue-400"
+                />
+              )}
+            </div>
 
-            <p className="mt-1 text-sm text-slate-400">
-              {new Date(asset.uploadedAt).toLocaleString()}
-            </p>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-slate-200">
+                Uploaded {asset.name}
+              </p>
+
+              <p className="mt-0.5 text-xs text-slate-600">
+                {new Date(
+                  asset.uploadedAt
+                ).toLocaleString()}
+              </p>
+            </div>
+
+            <span
+              className={`text-[10px] font-medium ${
+                asset.status === "Stored"
+                  ? "text-emerald-400"
+                  : "text-amber-400"
+              }`}
+            >
+              {asset.status}
+            </span>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
