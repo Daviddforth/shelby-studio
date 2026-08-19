@@ -26,7 +26,7 @@ export default function Hero() {
 
         {/* What users can do */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-slate-400">
-          <span>Projects</span>
+          <span>Digital Assets</span>
           <span className="text-slate-700">•</span>
           <span>Decentralized Storage</span>
           <span className="text-slate-700">•</span>

@@ -13,24 +13,24 @@ import RecentActivity from "@/components/dashboard/RecentActivity";
 export default function DashboardPage() {
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        {/* Main workspace overview */}
+      <div className="space-y-6">
+        {/* Header */}
         <DashboardHero />
 
-        {/* Live workspace statistics */}
+        {/* Overview */}
         <DashboardStats />
 
-        {/* Primary developer actions */}
+        {/* Quick actions */}
         <QuickActions />
 
         {/* Storage + Network */}
-        <div className="grid gap-8 xl:grid-cols-2">
+        <div className="grid gap-5 xl:grid-cols-[1.5fr_1fr]">
           <StorageOverview />
           <NetworkStatus />
         </div>
 
         {/* Assets + Activity */}
-        <div className="grid gap-8 xl:grid-cols-2">
+        <div className="grid gap-5 xl:grid-cols-2">
           <RecentAssets />
           <RecentActivity />
         </div>

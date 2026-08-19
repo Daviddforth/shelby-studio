@@ -3,12 +3,10 @@
 import {
   Database,
   HardDrive,
-  FolderKanban,
 } from "lucide-react";
 
 import { useWallet } from "@/context/WalletContext";
 import { useStorageContext } from "@/context/StorageContext";
-import { useProject } from "@/context/project/ProjectContext";
 
 function formatBytes(bytes: number) {
   if (!bytes) return "0 B";
@@ -31,7 +29,6 @@ function formatBytes(bytes: number) {
 export default function ProfileStats() {
   const { walletConnected } = useWallet();
   const { assets } = useStorageContext();
-  const { projects } = useProject();
 
   const totalFiles =
     walletConnected ? assets.length : 0;
@@ -45,13 +42,6 @@ export default function ProfileStats() {
       : 0;
 
   const stats = [
-    {
-      title: "Projects",
-      value: walletConnected
-        ? projects.length
-        : 0,
-      icon: FolderKanban,
-    },
     {
       title: "Files",
       value: totalFiles,

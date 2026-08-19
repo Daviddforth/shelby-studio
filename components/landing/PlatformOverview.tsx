@@ -8,7 +8,7 @@ export default function PlatformOverview() {
     },
     {
       number: "02",
-      title: "Projects",
+      title: "Digital Assets",
       description:
         "Keep assets, metadata, collections and development activity organized in one workspace.",
     },
@@ -43,7 +43,7 @@ export default function PlatformOverview() {
           </h2>
 
           <p className="mt-5 max-w-md text-base leading-7 text-slate-400">
-            Bring your projects, assets, storage, metadata and development
+            Bring your assets, storage, metadata and development
             workflows together without jumping between different tools.
           </p>
         </div>

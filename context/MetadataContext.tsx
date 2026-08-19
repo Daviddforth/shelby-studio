@@ -5,10 +5,9 @@ import {
   useContext,
   useEffect,
   useState,
-  ReactNode,
+  type ReactNode,
 } from "react";
 
-import { useProject } from "@/context/project/ProjectContext";
 import { useWallet } from "@/context/WalletContext";
 
 export interface MetadataAttribute {
@@ -53,16 +52,15 @@ const defaultMetadata: Metadata = {
 const MetadataContext =
   createContext<MetadataContextType | null>(null);
 
+function getStorageKey(walletAddress: string) {
+  return `shelby-metadata:${walletAddress.toLowerCase()}`;
+}
+
 export function MetadataProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const {
-    activeProject,
-    updateProject,
-  } = useProject();
-
   const {
     walletConnected,
     walletAddress,
@@ -71,52 +69,28 @@ export function MetadataProvider({
   const [metadata, setMetadata] =
     useState<Metadata>(defaultMetadata);
 
-  const [
-    loadedStorageKey,
-    setLoadedStorageKey,
-  ] = useState<string | null>(null);
+  const [loadedStorageKey, setLoadedStorageKey] =
+    useState<string | null>(null);
 
   /*
-   * Metadata belongs to BOTH:
+   * Metadata belongs to the connected
+   * wallet only.
    *
-   * 1. Connected wallet
-   * 2. Active project
-   *
-   * This prevents one wallet from seeing
-   * another wallet's project metadata.
-   */
-  function getStorageKey(
-    address: string,
-    projectId: string
-  ) {
-    return `shelby-metadata-${address.toLowerCase()}-${projectId}`;
-  }
-
-  /*
-   * Load metadata only when:
-   *
-   * - wallet is connected
-   * - wallet address exists
-   * - active project exists
-   *
-   * Otherwise Shelby Studio must look fresh.
+   * It is not tied to a project.
    */
   useEffect(() => {
+    setLoadedStorageKey(null);
+
     if (
       !walletConnected ||
-      !walletAddress ||
-      !activeProject
+      !walletAddress
     ) {
       setMetadata(defaultMetadata);
-      setLoadedStorageKey(null);
-
       return;
     }
 
-    const storageKey = getStorageKey(
-      walletAddress,
-      activeProject.id
-    );
+    const storageKey =
+      getStorageKey(walletAddress);
 
     try {
       const saved =
@@ -145,17 +119,11 @@ export function MetadataProvider({
   }, [
     walletConnected,
     walletAddress,
-    activeProject?.id,
   ]);
 
-  /*
-   * Metadata only counts when the wallet
-   * is actually connected.
-   */
   const hasMetadata =
     walletConnected &&
     !!walletAddress &&
-    !!activeProject &&
     (
       metadata.name.trim().length > 0 ||
       metadata.description.trim().length > 0 ||
@@ -167,26 +135,21 @@ export function MetadataProvider({
     );
 
   /*
-   * Save only to the currently loaded
-   * wallet/project storage key.
+   * Persist metadata independently.
    *
-   * Nothing is persisted while disconnected.
+   * No project-specific ID.
    */
   useEffect(() => {
     if (
       !walletConnected ||
       !walletAddress ||
-      !activeProject ||
       !loadedStorageKey
     ) {
       return;
     }
 
     const expectedStorageKey =
-      getStorageKey(
-        walletAddress,
-        activeProject.id
-      );
+      getStorageKey(walletAddress);
 
     if (
       loadedStorageKey !==
@@ -210,72 +173,17 @@ export function MetadataProvider({
     metadata,
     walletConnected,
     walletAddress,
-    activeProject?.id,
     loadedStorageKey,
   ]);
 
-  /*
-   * Synchronize metadata statistics with
-   * the active project only while the
-   * wallet is connected.
-   */
-  useEffect(() => {
-    if (
-      !walletConnected ||
-      !walletAddress ||
-      !activeProject ||
-      !loadedStorageKey
-    ) {
-      return;
-    }
-
-    const nextMetadataCount =
-      hasMetadata ? 1 : 0;
-
-    const alreadySynchronized =
-      activeProject.metadataCount ===
-        nextMetadataCount &&
-      activeProject.progress.metadata ===
-        hasMetadata;
-
-    if (alreadySynchronized) {
-      return;
-    }
-
-    updateProject({
-      metadataCount: nextMetadataCount,
-
-      progress: {
-        ...activeProject.progress,
-        metadata: hasMetadata,
-      },
-    });
-  }, [
-    hasMetadata,
-    walletConnected,
-    walletAddress,
-    activeProject,
-    loadedStorageKey,
-    updateProject,
-  ]);
-
-  /*
-   * Reset only the connected wallet's
-   * active project metadata.
-   */
   function resetMetadata() {
     if (
       walletConnected &&
-      walletAddress &&
-      activeProject
+      walletAddress
     ) {
-      const storageKey =
-        getStorageKey(
-          walletAddress,
-          activeProject.id
-        );
-
-      localStorage.removeItem(storageKey);
+      localStorage.removeItem(
+        getStorageKey(walletAddress)
+      );
     }
 
     setMetadata(defaultMetadata);

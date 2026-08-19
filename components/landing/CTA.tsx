@@ -13,11 +13,11 @@ export default function CTA() {
             </p>
 
             <h2 className="mt-4 text-3xl font-bold tracking-tight text-white md:text-5xl">
-              Your next project can start here.
+              Your next workflow can start here.
             </h2>
 
             <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-slate-400">
-              Create a project, manage your assets, and build your workflow
+              Manage your assets, create metadata, and build your workflow
               around Shelby from one workspace.
             </p>
 

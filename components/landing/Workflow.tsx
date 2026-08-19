@@ -1,7 +1,7 @@
 const steps = [
   {
     number: "01",
-    title: "Create a Project",
+    title: "Upload Assets",
     description:
       "Start with a dedicated workspace for your application, assets, and development workflow.",
   },
@@ -9,13 +9,13 @@ const steps = [
     number: "02",
     title: "Upload Assets",
     description:
-      "Store files on Shelby and keep them connected to the project you're building.",
+      "Store files on Shelby and keep them organized in your workspace.",
   },
   {
     number: "03",
     title: "Create Metadata",
     description:
-      "Build and validate structured metadata for the digital assets in your project.",
+      "Build and validate structured metadata for your digital assets.",
   },
   {
     number: "04",
@@ -27,7 +27,7 @@ const steps = [
     number: "05",
     title: "Build on Shelby",
     description:
-      "Use your project and stored assets as the foundation for applications powered by Shelby.",
+      "Use your stored assets and metadata as the foundation for applications powered by Shelby.",
   },
 ];
 
@@ -45,12 +45,12 @@ export default function Workflow() {
           </p>
 
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-white md:text-4xl">
-            From idea to a Shelby-powered project.
+            From assets to a Shelby-powered workflow.
           </h2>
 
           <p className="mt-5 text-base leading-7 text-slate-400">
             Shelby Studio brings the core stages of your workflow together so
-            you can move from project setup to building without constantly
+            you can move from asset setup to building without constantly
             switching tools.
           </p>
         </div>

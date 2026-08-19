@@ -12,7 +12,6 @@ import {
 import { useWallet as useAptosWallet } from "@aptos-labs/wallet-adapter-react";
 
 import type { UploadedAsset } from "@/lib/services/storage";
-import { useProject } from "@/context/project/ProjectContext";
 
 interface StorageContextType {
   assets: UploadedAsset[];
@@ -31,15 +30,10 @@ interface StorageContextType {
 }
 
 const StorageContext =
-  createContext<StorageContextType | null>(
-    null
-  );
+  createContext<StorageContextType | null>(null);
 
-function getStorageKey(
-  walletAddress: string,
-  projectId: string
-) {
-  return `shelby-storage:${walletAddress.toLowerCase()}:${projectId}`;
+function getStorageKey(walletAddress: string) {
+  return `shelby-storage:${walletAddress.toLowerCase()}`;
 }
 
 export function StorageProvider({
@@ -51,11 +45,6 @@ export function StorageProvider({
     connected,
     account,
   } = useAptosWallet();
-
-  const {
-    activeProject,
-    updateProject,
-  } = useProject();
 
   const walletAddress = connected
     ? account?.address?.toString() ?? null
@@ -73,30 +62,22 @@ export function StorageProvider({
   ] = useState<string | null>(null);
 
   /*
-   * Storage belongs to BOTH
-   * the connected wallet and
-   * the active project.
+   * Storage belongs ONLY to the
+   * connected wallet.
+   *
+   * Storage belongs directly to the connected wallet.
    */
   const currentStorageKey =
     useMemo(() => {
-      if (
-        !walletAddress ||
-        !activeProject
-      ) {
+      if (!walletAddress) {
         return null;
       }
 
-      return getStorageKey(
-        walletAddress,
-        activeProject.id
-      );
-    }, [
-      walletAddress,
-      activeProject?.id,
-    ]);
+      return getStorageKey(walletAddress);
+    }, [walletAddress]);
 
   /*
-   * Load storage.
+   * Load wallet storage.
    */
   useEffect(() => {
     setLoadedStorageKey(null);
@@ -140,7 +121,7 @@ export function StorageProvider({
   }, [currentStorageKey]);
 
   /*
-   * Total bytes.
+   * Total bytes stored by the wallet.
    */
   const storageUsed =
     useMemo(
@@ -154,7 +135,7 @@ export function StorageProvider({
     );
 
   /*
-   * Persist storage.
+   * Persist wallet storage.
    */
   useEffect(() => {
     if (
@@ -182,116 +163,8 @@ export function StorageProvider({
     loadedStorageKey,
   ]);
 
-  /*
-   * Synchronize Project
-   * with uploaded Shelby assets.
-   */
-  useEffect(() => {
-    if (
-      !walletAddress ||
-      !activeProject ||
-      !currentStorageKey ||
-      loadedStorageKey !==
-        currentStorageKey
-    ) {
-      return;
-    }
-
-    const storedAssets =
-      assets.filter(
-        (asset) =>
-          asset.status ===
-          "Stored"
-      );
-
-    const assetCount =
-      storedAssets.length;
-
-    const hasAssets =
-      assetCount > 0;
-
-    const hasStorage =
-      storageUsed > 0;
-
-    const projectAssets =
-      storedAssets.map(
-        (asset) => ({
-          uid: asset.uid,
-
-          name: asset.name,
-
-          size: asset.size,
-
-          uploadedAt:
-            asset.uploadedAt,
-
-          network:
-            asset.network,
-
-          blobName:
-            asset.blobName,
-
-          owner:
-            asset.owner,
-
-          registrationTransaction:
-            asset.registrationTransaction,
-
-          commitTransaction:
-            asset.commitTransaction,
-        })
-      );
-
-    const alreadySynchronized =
-      activeProject.assetCount ===
-        assetCount &&
-      activeProject.storageUsed ===
-        storageUsed &&
-      activeProject.progress.assets ===
-        hasAssets &&
-      activeProject.progress.storage ===
-        hasStorage &&
-      JSON.stringify(
-        activeProject.projectAssets
-      ) ===
-        JSON.stringify(
-          projectAssets
-        );
-
-    if (
-      alreadySynchronized
-    ) {
-      return;
-    }
-
-    updateProject({
-      assetCount,
-
-      storageUsed,
-
-      projectAssets,
-
-      progress: {
-        ...activeProject.progress,
-
-        assets: hasAssets,
-
-        storage: hasStorage,
-      },
-    });
-  }, [
-    assets,
-    storageUsed,
-    walletAddress,
-    activeProject,
-    currentStorageKey,
-    loadedStorageKey,
-    updateProject,
-  ]);
-
   const visibleAssets =
     walletAddress &&
-    activeProject &&
     loadedStorageKey ===
       currentStorageKey
       ? assets
@@ -299,7 +172,6 @@ export function StorageProvider({
 
   const visibleStorageUsed =
     walletAddress &&
-    activeProject &&
     loadedStorageKey ===
       currentStorageKey
       ? storageUsed
@@ -308,8 +180,7 @@ export function StorageProvider({
   return (
     <StorageContext.Provider
       value={{
-        assets:
-          visibleAssets,
+        assets: visibleAssets,
         setAssets,
         search,
         setSearch,
@@ -324,9 +195,7 @@ export function StorageProvider({
 
 export function useStorageContext() {
   const context =
-    useContext(
-      StorageContext
-    );
+    useContext(StorageContext);
 
   if (!context) {
     throw new Error(

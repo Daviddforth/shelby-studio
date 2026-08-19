@@ -8,10 +8,8 @@ import {
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
 import CollectionHeader from "@/components/collections/CollectionHeader";
-import ActiveProjectBanner from "@/components/collections/ActiveProjectBanner";
 import CollectionInformation from "@/components/collections/CollectionInformation";
 import CollectionBranding from "@/components/collections/CollectionBranding";
-import CollectionMetadata from "@/components/collections/CollectionMetadata";
 import CollectionPreview from "@/components/collections/CollectionPreview";
 import CollectionActions from "@/components/collections/CollectionActions";
 
@@ -62,7 +60,6 @@ export default function CollectionsPage() {
       <div className="space-y-6">
         <CollectionHeader />
 
-        <ActiveProjectBanner />
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px] xl:items-start">
           <div className="space-y-6">
@@ -70,7 +67,6 @@ export default function CollectionsPage() {
 
             <CollectionBranding />
 
-            <CollectionMetadata />
 
             <CollectionActions />
           </div>

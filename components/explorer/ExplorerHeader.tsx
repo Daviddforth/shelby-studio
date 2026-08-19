@@ -21,11 +21,11 @@ export default function ExplorerHeader() {
         </p>
 
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-          Project Explorer
+          Asset Explorer
         </h1>
 
         <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-          Explore your projects, publication status, assets,
+          Explore your stored assets and storage activity,
           storage usage, and Shelby network activity from one place.
         </p>
       </div>
