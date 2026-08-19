@@ -9,7 +9,7 @@ const reasons = [
     number: "02",
     title: "One Connected Workspace",
     description:
-      "Projects, storage, metadata and collections work together instead of living across disconnected tools.",
+      "Storage, metadata and collections work together in one connected workspace.",
   },
   {
     number: "03",

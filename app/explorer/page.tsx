@@ -1,40 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import {
-  Search,
-  Wallet,
-} from "lucide-react";
+import { Search, Wallet } from "lucide-react";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ExplorerHeader from "@/components/explorer/ExplorerHeader";
-import ExplorerFilters from "@/components/explorer/ExplorerFilters";
-import PublishedProjectsGrid from "@/components/explorer/PublishedProjectsGrid";
-
-import { useProject } from "@/context/project/ProjectContext";
 import { useWallet } from "@/context/WalletContext";
 
 export default function ExplorerPage() {
-  const { projects } = useProject();
-
   const {
     walletConnected,
     walletAddress,
   } = useWallet();
 
-  const [status, setStatus] =
-    useState("all");
-
-  const [sort, setSort] =
-    useState("newest");
-
-  const [search, setSearch] =
-    useState("");
-
-  if (
-    !walletConnected ||
-    !walletAddress
-  ) {
+  if (!walletConnected || !walletAddress) {
     return (
       <DashboardLayout>
         <div className="flex min-h-[500px] items-center justify-center rounded-3xl border border-slate-800 bg-slate-900 p-8">
@@ -49,8 +27,7 @@ export default function ExplorerPage() {
 
             <p className="mt-3 leading-7 text-slate-400">
               Connect your wallet to explore
-              projects and publication activity
-              in Shelby Studio.
+              published content in Shelby Studio.
             </p>
 
             <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950 px-4 py-2 text-xs text-slate-500">
@@ -71,36 +48,21 @@ export default function ExplorerPage() {
       <div className="space-y-8">
         <ExplorerHeader />
 
-        <div className="relative">
+        <div className="rounded-3xl border border-slate-800 bg-slate-900 p-10 text-center">
           <Search
-            size={18}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+            size={32}
+            className="mx-auto text-blue-400"
           />
 
-          <input
-            type="text"
-            value={search}
-            onChange={(event) =>
-              setSearch(event.target.value)
-            }
-            placeholder="Search projects, descriptions, or owners..."
-            className="w-full rounded-xl border border-slate-800 bg-slate-900 py-3.5 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-blue-500"
-          />
+          <h2 className="mt-4 text-xl font-semibold text-white">
+            Explorer
+          </h2>
+
+          <p className="mt-2 text-sm text-slate-400">
+            Published Shelby assets, metadata, and
+            collections will appear here.
+          </p>
         </div>
-
-        <ExplorerFilters
-          status={status}
-          setStatus={setStatus}
-          sort={sort}
-          setSort={setSort}
-        />
-
-        <PublishedProjectsGrid
-          projects={projects}
-          search={search}
-          status={status}
-          sort={sort}
-        />
       </div>
     </DashboardLayout>
   );

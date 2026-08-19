@@ -4,7 +4,6 @@ import "./globals.css";
 
 import AptosWalletProvider from "../components/wallet/AptosWalletProvider";
 
-import { ProjectProvider } from "../context/project/ProjectContext";
 import { WalletProvider } from "../context/WalletContext";
 import { StorageProvider } from "../context/StorageContext";
 import { MetadataProvider } from "../context/MetadataContext";
@@ -40,21 +39,19 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-gray-50 text-gray-900">
         <AptosWalletProvider>
-          <ProjectProvider>
-            <WalletProvider>
-              <StorageProvider>
-                <MetadataProvider>
-                  <CollectionProvider>
-                    <ActivityProvider>
-                      <ShelbyProvider>
-                        {children}
-                      </ShelbyProvider>
-                    </ActivityProvider>
-                  </CollectionProvider>
-                </MetadataProvider>
-              </StorageProvider>
-            </WalletProvider>
-          </ProjectProvider>
+          <WalletProvider>
+            <StorageProvider>
+              <MetadataProvider>
+                <CollectionProvider>
+                  <ActivityProvider>
+                    <ShelbyProvider>
+                      {children}
+                    </ShelbyProvider>
+                  </ActivityProvider>
+                </CollectionProvider>
+              </MetadataProvider>
+            </StorageProvider>
+          </WalletProvider>
         </AptosWalletProvider>
       </body>
     </html>

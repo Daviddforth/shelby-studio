@@ -5,7 +5,6 @@ import { FileJson, Wallet } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
 import MetadataHeader from "@/components/metadata/MetadataHeader";
-import ActiveProjectBanner from "@/components/metadata/ActiveProjectBanner";
 import MetadataTemplates from "@/components/metadata/MetadataTemplates";
 import NFTInformation from "@/components/metadata/NFTInformation";
 import AttributeBuilder from "@/components/metadata/AttributeBuilder";
@@ -46,7 +45,7 @@ export default function MetadataPage() {
               <p className="mt-3 leading-7 text-slate-400">
                 Connect your wallet to access the
                 Metadata Builder and continue working
-                with your project metadata.
+                with your asset metadata.
               </p>
 
               <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-950 px-4 py-2 text-sm text-slate-400">
@@ -74,9 +73,6 @@ export default function MetadataPage() {
       <div className="space-y-8">
         {/* Header */}
         <MetadataHeader />
-
-        {/* Active Project */}
-        <ActiveProjectBanner />
 
         {/* Templates */}
         <MetadataTemplates />

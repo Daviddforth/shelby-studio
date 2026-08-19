@@ -52,7 +52,7 @@ const cards = [
   {
     title: "Explorer",
     description:
-      "Learn how assets and projects are searched, filtered, sorted and explored.",
+      "Learn how assets are searched, filtered, sorted and explored.",
     href: "/docs/explorer",
     icon: Search,
   },

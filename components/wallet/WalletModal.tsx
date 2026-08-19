@@ -10,16 +10,6 @@ interface WalletModalProps {
   onSelectWallet: (walletName: string) => void | Promise<void>;
 }
 
-const HIDDEN_WALLETS = [
-  "Google",
-  "Apple",
-  "Continue with Google",
-  "Continue with Apple",
-  "Identity Connect",
-  "Email",
-  "OneKey",
-];
-
 export default function WalletModal({
   open,
   onClose,
@@ -30,9 +20,7 @@ export default function WalletModal({
 
   const supportedWallets = wallets.filter(
     (wallet) =>
-      !HIDDEN_WALLETS.some((hidden) =>
-        wallet.name.toLowerCase().includes(hidden.toLowerCase())
-      )
+      wallet.name.toLowerCase().includes("petra")
   );
 
   return createPortal(

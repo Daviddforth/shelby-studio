@@ -23,7 +23,7 @@ const actions = [
   {
     title: "Storage",
     description:
-      "Upload and manage project assets.",
+      "Upload and manage your digital assets.",
     href: "/storage",
     icon: HardDrive,
   },

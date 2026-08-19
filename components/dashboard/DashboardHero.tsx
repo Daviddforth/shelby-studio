@@ -74,7 +74,7 @@ export default function DashboardHero() {
           </h1>
 
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-            Manage your projects, assets, storage, and development
+            Manage your assets, storage, metadata, and development
             workflow from one workspace.
           </p>
 

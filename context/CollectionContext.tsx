@@ -8,7 +8,6 @@ import {
   type ReactNode,
 } from "react";
 
-import { useProject } from "@/context/project/ProjectContext";
 import { useWallet } from "@/context/WalletContext";
 
 export interface Collection {
@@ -21,12 +20,6 @@ export interface Collection {
   royalty: number;
   category: string;
   visibility: "Private" | "Public";
-
-  /*
-   * Whether the active project's
-   * metadata has been intentionally
-   * attached to this collection.
-   */
   metadataAttached: boolean;
 }
 
@@ -62,11 +55,8 @@ const defaultCollection: Collection = {
 const CollectionContext =
   createContext<CollectionContextType | null>(null);
 
-function getStorageKey(
-  walletAddress: string,
-  projectId: string
-) {
-  return `shelby-collection:${walletAddress.toLowerCase()}:${projectId}`;
+function getStorageKey(walletAddress: string) {
+  return `shelby-collection:${walletAddress.toLowerCase()}`;
 }
 
 export function CollectionProvider({
@@ -75,11 +65,6 @@ export function CollectionProvider({
   children: ReactNode;
 }) {
   const {
-    activeProject,
-    updateProject,
-  } = useProject();
-
-  const {
     walletConnected,
     walletAddress,
   } = useWallet();
@@ -87,53 +72,38 @@ export function CollectionProvider({
   const [collection, setCollection] =
     useState<Collection>(defaultCollection);
 
-  const [
-    loadedStorageKey,
-    setLoadedStorageKey,
-  ] = useState<string | null>(null);
+  const [loadedStorageKey, setLoadedStorageKey] =
+    useState<string | null>(null);
 
   /*
-   * Load only the collection belonging
-   * to the connected wallet + project.
+   * Collection belongs to the connected
+   * wallet only.
+   *
+   * It is not tied to a project.
    */
   useEffect(() => {
     setLoadedStorageKey(null);
 
     if (
       !walletConnected ||
-      !walletAddress ||
-      !activeProject
+      !walletAddress
     ) {
       setCollection(defaultCollection);
       return;
     }
 
     const storageKey =
-      getStorageKey(
-        walletAddress,
-        activeProject.id
-      );
+      getStorageKey(walletAddress);
 
     try {
       const saved =
-        localStorage.getItem(
-          storageKey
-        );
+        localStorage.getItem(storageKey);
 
       if (!saved) {
-        setCollection(
-          defaultCollection
-        );
+        setCollection(defaultCollection);
       } else {
-        const parsed =
-          JSON.parse(saved);
+        const parsed = JSON.parse(saved);
 
-        /*
-         * Spreading over defaultCollection
-         * keeps older saved collections
-         * compatible with new fields such
-         * as metadataAttached.
-         */
         setCollection({
           ...defaultCollection,
           ...parsed,
@@ -145,31 +115,22 @@ export function CollectionProvider({
         error
       );
 
-      setCollection(
-        defaultCollection
-      );
-    } finally {
-      setLoadedStorageKey(
-        storageKey
-      );
+      setCollection(defaultCollection);
     }
+
+    setLoadedStorageKey(storageKey);
   }, [
     walletConnected,
     walletAddress,
-    activeProject?.id,
   ]);
 
   /*
-   * Collection data only counts while
-   * the correct wallet/project is active.
-   *
-   * metadataAttached intentionally does
-   * not create a collection by itself.
+   * Collection exists when at least one
+   * meaningful collection field is filled.
    */
   const hasCollection =
     walletConnected &&
     !!walletAddress &&
-    !!activeProject &&
     (
       collection.name.trim().length > 0 ||
       collection.symbol.trim().length > 0 ||
@@ -183,29 +144,22 @@ export function CollectionProvider({
   const metadataAttached =
     walletConnected &&
     !!walletAddress &&
-    !!activeProject &&
     collection.metadataAttached;
 
   /*
-   * Persist only to the storage key that
-   * belongs to the connected wallet and
-   * active project.
+   * Persist collection independently.
    */
   useEffect(() => {
     if (
       !walletConnected ||
       !walletAddress ||
-      !activeProject ||
       !loadedStorageKey
     ) {
       return;
     }
 
     const expectedStorageKey =
-      getStorageKey(
-        walletAddress,
-        activeProject.id
-      );
+      getStorageKey(walletAddress);
 
     if (
       loadedStorageKey !==
@@ -229,64 +183,18 @@ export function CollectionProvider({
     collection,
     walletConnected,
     walletAddress,
-    activeProject?.id,
     loadedStorageKey,
   ]);
 
   /*
-   * Synchronize Collection Builder state
-   * with the active Project Dashboard.
-   */
-  useEffect(() => {
-    if (
-      !walletConnected ||
-      !walletAddress ||
-      !activeProject ||
-      !loadedStorageKey
-    ) {
-      return;
-    }
-
-    const nextCollectionCount =
-      hasCollection ? 1 : 0;
-
-    const alreadySynchronized =
-      activeProject.collectionCount ===
-        nextCollectionCount &&
-      activeProject.progress.collection ===
-        hasCollection;
-
-    if (alreadySynchronized) {
-      return;
-    }
-
-    updateProject({
-      collectionCount:
-        nextCollectionCount,
-
-      progress: {
-        ...activeProject.progress,
-        collection: hasCollection,
-      },
-    });
-  }, [
-    hasCollection,
-    walletConnected,
-    walletAddress,
-    activeProject,
-    loadedStorageKey,
-    updateProject,
-  ]);
-
-  /*
-   * Explicitly attach the active
-   * project's metadata.
+   * Attach metadata to the collection
+   * without making either workspace
+   * belong to a project-specific workspace.
    */
   function attachMetadata() {
     if (
       !walletConnected ||
-      !walletAddress ||
-      !activeProject
+      !walletAddress
     ) {
       return;
     }
@@ -297,10 +205,6 @@ export function CollectionProvider({
     }));
   }
 
-  /*
-   * Remove the metadata relationship
-   * without deleting the metadata itself.
-   */
   function detachMetadata() {
     setCollection((previous) => ({
       ...previous,
@@ -308,27 +212,17 @@ export function CollectionProvider({
     }));
   }
 
-  /*
-   * Reset only the connected wallet's
-   * active project collection.
-   */
   function resetCollection() {
     if (
       walletConnected &&
-      walletAddress &&
-      activeProject
+      walletAddress
     ) {
       localStorage.removeItem(
-        getStorageKey(
-          walletAddress,
-          activeProject.id
-        )
+        getStorageKey(walletAddress)
       );
     }
 
-    setCollection(
-      defaultCollection
-    );
+    setCollection(defaultCollection);
   }
 
   return (
@@ -337,10 +231,8 @@ export function CollectionProvider({
         collection,
         setCollection,
         resetCollection,
-
         attachMetadata,
         detachMetadata,
-
         hasCollection,
         metadataAttached,
       }}

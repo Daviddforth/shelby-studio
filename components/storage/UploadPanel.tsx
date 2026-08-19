@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 
 import { useStorage } from "@/hooks/useStorage";
-import { useProject } from "@/context/project/ProjectContext";
 
 export default function UploadPanel() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -27,8 +26,6 @@ export default function UploadPanel() {
     loading,
     progress,
   } = useStorage();
-
-  const { activeProject } = useProject();
 
   function handleChooseFile() {
     inputRef.current?.click();
@@ -66,14 +63,19 @@ export default function UploadPanel() {
         setUploadSuccess(false);
       }, 3000);
     } catch (error) {
-      console.error("Failed to upload asset:", error);
+      console.error(
+        "Failed to upload asset:",
+        error
+      );
 
       const message =
         error instanceof Error
           ? error.message
           : "Unknown Shelby upload error.";
 
-      alert(`Shelby upload failed:\n\n${message}`);
+      alert(
+        `Shelby upload failed:\n\n${message}`
+      );
     }
   }
 
@@ -81,14 +83,19 @@ export default function UploadPanel() {
     switch (progress?.phase) {
       case "preparing":
         return "Preparing file";
+
       case "registering":
         return "Registering on Shelby";
+
       case "uploading":
         return "Uploading to Shelby Storage";
+
       case "committing":
         return "Finalizing upload";
+
       case "complete":
         return "Upload complete";
+
       default:
         return "Preparing upload";
     }
@@ -98,7 +105,10 @@ export default function UploadPanel() {
     <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
       <div>
         <div className="flex items-center gap-2">
-          <CloudUpload size={17} className="text-blue-400" />
+          <CloudUpload
+            size={17}
+            className="text-blue-400"
+          />
 
           <h2 className="text-base font-semibold text-white">
             Upload to Shelby
@@ -106,25 +116,16 @@ export default function UploadPanel() {
         </div>
 
         <p className="mt-1 text-xs text-slate-500">
-          Store an asset in your active project.
+          Store assets in Shelby Storage.
         </p>
       </div>
 
-      {!activeProject && (
-        <div className="mt-5 rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3">
-          <p className="text-sm font-medium text-amber-300">
-            No active project selected
-          </p>
-
-          <p className="mt-1 text-xs text-amber-200/60">
-            Choose a project before uploading project-specific assets.
-          </p>
-        </div>
-      )}
-
       <div className="mt-5 rounded-xl border border-dashed border-slate-700 bg-slate-950/50 px-5 py-8 text-center transition hover:border-blue-500/60">
         <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
-          <Plus size={20} className="text-blue-400" />
+          <Plus
+            size={20}
+            className="text-blue-400"
+          />
         </div>
 
         <h3 className="mt-4 text-sm font-semibold text-white">
@@ -132,7 +133,8 @@ export default function UploadPanel() {
         </h3>
 
         <p className="mt-1 text-xs text-slate-500">
-          Images, videos, metadata, documents and other assets.
+          Images, videos, metadata, documents and
+          other assets.
         </p>
 
         <input
@@ -179,6 +181,7 @@ export default function UploadPanel() {
                     size={14}
                     className="animate-spin text-blue-400"
                   />
+
                   {getPhaseLabel()}
                 </div>
 
@@ -193,7 +196,10 @@ export default function UploadPanel() {
                   style={{
                     width: `${Math.max(
                       0,
-                      Math.min(100, progress.percentage)
+                      Math.min(
+                        100,
+                        progress.percentage
+                      )
                     )}%`,
                   }}
                 />
@@ -201,19 +207,27 @@ export default function UploadPanel() {
 
               <div className="mt-2 flex justify-between text-[11px] text-slate-500">
                 <span>
-                  {formatStorage(progress.uploadedBytes)}
+                  {formatStorage(
+                    progress.uploadedBytes
+                  )}
                   {" / "}
-                  {formatStorage(progress.totalBytes)}
+                  {formatStorage(
+                    progress.totalBytes
+                  )}
                 </span>
 
-                {typeof progress.chunksetIdx === "number" &&
-                  typeof progress.totalChunksets === "number" && (
+                {typeof progress.chunksetIdx ===
+                  "number" &&
+                  typeof progress.totalChunksets ===
+                    "number" && (
                     <span>
-                      Chunk {Math.min(
+                      Chunk{" "}
+                      {Math.min(
                         progress.chunksetIdx + 1,
                         progress.totalChunksets
                       )}{" "}
-                      of {progress.totalChunksets}
+                      of{" "}
+                      {progress.totalChunksets}
                     </span>
                   )}
               </div>
@@ -228,7 +242,11 @@ export default function UploadPanel() {
           >
             {loading ? (
               <>
-                <Loader2 size={16} className="animate-spin" />
+                <Loader2
+                  size={16}
+                  className="animate-spin"
+                />
+
                 {progress
                   ? `${getPhaseLabel()} — ${progress.percentage}%`
                   : "Uploading..."}
@@ -236,6 +254,7 @@ export default function UploadPanel() {
             ) : (
               <>
                 <CloudUpload size={16} />
+
                 Upload to Shelby
               </>
             )}
@@ -246,6 +265,7 @@ export default function UploadPanel() {
       {uploadSuccess && (
         <div className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-emerald-400">
           <CheckCircle2 size={17} />
+
           <span className="text-sm font-medium">
             File successfully stored on Shelby.
           </span>
@@ -260,15 +280,25 @@ function formatStorage(bytes: number) {
     return "0 B";
   }
 
-  const units = ["B", "KB", "MB", "GB", "TB"];
+  const units = [
+    "B",
+    "KB",
+    "MB",
+    "GB",
+    "TB",
+  ];
 
   const index = Math.min(
-    Math.floor(Math.log(bytes) / Math.log(1024)),
+    Math.floor(
+      Math.log(bytes) / Math.log(1024)
+    ),
     units.length - 1
   );
 
   const value =
     bytes / Math.pow(1024, index);
 
-  return `${value.toFixed(index === 0 ? 0 : 2)} ${units[index]}`;
+  return `${value.toFixed(
+    index === 0 ? 0 : 2
+  )} ${units[index]}`;
 }

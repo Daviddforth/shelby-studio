@@ -10,8 +10,6 @@ import {
 
 import { useWallet as useAptosWallet } from "@aptos-labs/wallet-adapter-react";
 
-import { useProject } from "@/context/project/ProjectContext";
-
 interface WalletContextType {
   walletAddress: string | null;
   walletConnected: boolean;
@@ -43,42 +41,7 @@ export function WalletProvider({
     signMessage,
   } = useAptosWallet();
 
-  const {
-    activeProject,
-    updateProject,
-  } = useProject();
 
-  /*
-   * Synchronize the real Aptos wallet
-   * connection with the active project.
-   */
-  useEffect(() => {
-    if (!activeProject) {
-      return;
-    }
-
-    /*
-     * Avoid unnecessary ProjectContext
-     * updates and render loops.
-     */
-    if (
-      activeProject.progress.wallet ===
-      connected
-    ) {
-      return;
-    }
-
-    updateProject({
-      progress: {
-        ...activeProject.progress,
-        wallet: connected,
-      },
-    });
-  }, [
-    connected,
-    activeProject,
-    updateProject,
-  ]);
 
   const value = useMemo(
     () => ({

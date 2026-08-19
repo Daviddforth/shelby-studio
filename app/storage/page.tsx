@@ -7,7 +7,6 @@ import {
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
-import ActiveProjectBanner from "@/components/storage/ActiveProjectBanner";
 import StorageStats from "@/components/storage/StorageStats";
 import UploadPanel from "@/components/storage/UploadPanel";
 import RecentFiles from "@/components/storage/RecentFiles";
@@ -33,7 +32,7 @@ export default function StoragePage() {
           </h1>
 
           <p className="mt-3 max-w-3xl text-slate-400">
-            Manage project assets, upload new files,
+            Manage your assets and upload new files,
             monitor storage usage, and prepare your
             digital assets for Shelby.
           </p>
@@ -43,7 +42,7 @@ export default function StoragePage() {
           /*
            * Disconnected state.
            *
-           * Do not render project storage,
+           * Do not render workspace-specific storage,
            * previous files, statistics or
            * upload controls.
            */
@@ -63,7 +62,7 @@ export default function StoragePage() {
               <p className="mt-3 text-sm leading-6 text-slate-400">
                 Connect your wallet to access your
                 Shelby Studio storage workspace and
-                continue managing your project assets.
+                continue managing your stored assets.
               </p>
 
               <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950 px-4 py-2 text-xs text-slate-500">
@@ -75,9 +74,6 @@ export default function StoragePage() {
           </div>
         ) : (
           <>
-            {/* Active Project */}
-            <ActiveProjectBanner />
-
             {/* Storage Statistics */}
             <StorageStats />
 

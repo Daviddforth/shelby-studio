@@ -1541,5 +1541,11 @@ export async function uploadDirectlyToShelby({
 
     owner:
       prepared.owner,
+
+    registrationTransaction:
+      prepared.registrationTransaction,
+
+    commitTransaction:
+      commitTransaction,
   };
 }

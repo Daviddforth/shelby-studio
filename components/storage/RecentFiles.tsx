@@ -101,7 +101,7 @@ export default function RecentFiles() {
         </h2>
 
         <p className="mt-1 text-xs text-slate-500">
-          Files stored in your active project.
+          Files stored in your Shelby workspace.
         </p>
       </div>
 
