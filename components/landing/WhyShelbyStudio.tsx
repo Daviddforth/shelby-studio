@@ -3,19 +3,25 @@ const reasons = [
     number: "01",
     title: "Developer First",
     description:
-      "Designed around real development workflows so builders can spend less time managing infrastructure and more time creating.",
+      "Built around real development workflows so builders can spend less time managing fragmented infrastructure and more time creating.",
   },
   {
     number: "02",
     title: "One Connected Workspace",
     description:
-      "Storage, metadata and collections work together in one connected workspace.",
+      "Storage, assets, metadata, collections, exploration and developer tooling work together in one environment.",
   },
   {
     number: "03",
+    title: "Transparent Infrastructure",
+    description:
+      "Shelby Studio exposes important storage and development operations instead of treating decentralized infrastructure as a black box.",
+  },
+  {
+    number: "04",
     title: "Built for Shelby",
     description:
-      "Purpose-built around Shelby Storage and the Shelby ecosystem, with workflows designed specifically for applications building on the network.",
+      "Purpose-built around Shelby storage and the Shelby ecosystem, with workflows designed specifically for applications building on the network.",
   },
 ];
 
@@ -24,7 +30,6 @@ export default function WhyShelbyStudio() {
     <section className="border-y border-slate-800 bg-slate-900/20">
       <div className="mx-auto max-w-6xl px-6 py-24">
         <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-          {/* Section introduction */}
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-400">
               Why Shelby Studio
@@ -35,12 +40,11 @@ export default function WhyShelbyStudio() {
             </h2>
 
             <p className="mt-5 max-w-md text-base leading-7 text-slate-400">
-              Shelby Studio brings the tools developers use throughout their
-              workflow into one focused environment.
+              Shelby Studio brings the tools developers use
+              throughout their workflow into one focused environment.
             </p>
           </div>
 
-          {/* Reasons */}
           <div className="divide-y divide-slate-800 border-y border-slate-800">
             {reasons.map((reason) => (
               <div

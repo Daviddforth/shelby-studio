@@ -21,6 +21,7 @@ const allowedDocs = [
   "collections",
   "dashboard",
   "engineering-decisions",
+"developer",
 ] as const;
 
 const docTitles: Record<
@@ -38,6 +39,7 @@ const docTitles: Record<
   dashboard: "Dashboard",
   "engineering-decisions":
     "Engineering Decisions",
+developer: "Developer Platform",
 };
 
 interface Props {

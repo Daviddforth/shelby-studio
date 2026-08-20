@@ -13,12 +13,12 @@ export default function CTA() {
             </p>
 
             <h2 className="mt-4 text-3xl font-bold tracking-tight text-white md:text-5xl">
-              Your next workflow can start here.
+              Everything you need to build on Shelby.
             </h2>
 
             <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-slate-400">
-              Manage your assets, create metadata, and build your workflow
-              around Shelby from one workspace.
+              Manage assets, work with metadata, explore Shelby-backed
+              data and access developer tooling from one workspace.
             </p>
 
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
@@ -27,6 +27,13 @@ export default function CTA() {
                 className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
               >
                 Launch Workspace →
+              </Link>
+
+              <Link
+                href="/developer"
+                className="rounded-lg border border-slate-700 px-6 py-3 font-semibold text-white transition hover:border-slate-600 hover:bg-slate-950"
+              >
+                Developer Tools
               </Link>
 
               <Link

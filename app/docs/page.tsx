@@ -84,6 +84,13 @@ const cards = [
     href: "/docs/engineering-decisions",
     icon: Settings2,
   },
+  {
+    title: "Developer Platform",
+    description:
+      "Explore the API Playground, storage routes, SDK resources, code generation, and integration examples.",
+    href: "/docs/developer",
+    icon: Code2,
+  },
 ];
 
 export default function DocsPage() {
