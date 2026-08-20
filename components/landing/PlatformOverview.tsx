@@ -1,38 +1,49 @@
-export default function PlatformOverview() {
-  const features = [
-    {
-      number: "01",
-      title: "Assets & Storage",
-      description:
-        "Upload, manage, explore and retrieve digital assets using Shelby storage.",
-    },
-    {
-      number: "02",
-      title: "Digital Assets",
-      description:
-        "Keep assets, metadata, collections and development activity organized in one workspace.",
-    },
-    {
-      number: "03",
-      title: "Metadata & Collections",
-      description:
-        "Prepare NFT metadata, manage attributes and organize related assets into collections.",
-    },
-    {
-      number: "04",
-      title: "Developer Tools",
-      description:
-        "Explore Shelby capabilities through developer-focused tools, APIs, SDK resources and examples.",
-    },
-  ];
+const features = [
+  {
+    number: "01",
+    title: "Shelby Storage",
+    description:
+      "Upload, store, retrieve and manage digital assets through Shelby from a connected workspace.",
+  },
+  {
+    number: "02",
+    title: "Asset Explorer",
+    description:
+      "Inspect assets, metadata and storage information through an interface designed for exploring Shelby-backed data.",
+  },
+  {
+    number: "03",
+    title: "Metadata & Collections",
+    description:
+      "Create structured NFT metadata, manage attributes and organize related assets into collections.",
+  },
+  {
+    number: "04",
+    title: "Developer Tools",
+    description:
+      "Use the API Playground, SDK Explorer, Code Generator and examples to explore the Shelby Studio developer surface.",
+  },
+  {
+    number: "05",
+    title: "Live API Operations",
+    description:
+      "Execute supported Shelby Studio API operations and inspect JSON responses directly from the developer workspace.",
+  },
+  {
+    number: "06",
+    title: "One Connected Workspace",
+    description:
+      "Bring storage, assets, metadata, collections and development workflows together instead of managing disconnected tools.",
+  },
+];
 
+export default function PlatformOverview() {
   return (
     <section
       id="features"
       className="mx-auto max-w-6xl px-6 py-24"
     >
       <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-        {/* Section Header */}
         <div className="lg:sticky lg:top-24 lg:self-start">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-400">
             The Platform
@@ -43,12 +54,12 @@ export default function PlatformOverview() {
           </h2>
 
           <p className="mt-5 max-w-md text-base leading-7 text-slate-400">
-            Bring your assets, storage, metadata and development
-            workflows together without jumping between different tools.
+            Shelby Studio connects storage, assets, metadata,
+            collections and developer workflows in one focused
+            environment.
           </p>
         </div>
 
-        {/* Features */}
         <div className="divide-y divide-slate-800 border-y border-slate-800">
           {features.map((feature) => (
             <div

@@ -1,238 +1,459 @@
 # Upload Pipeline
 
-> [!IMPORTANT]
->
-> **Version:** v0.1.0
->
-> **Status:** Active Development
->
->
-> This document describes how Shelby Studio uploads assets to the Shelby network.
->
-> Sections marked **Current Implementation** represent functionality available today.
->
-> Sections marked **Planned** describe future improvements.
+The Shelby Studio upload pipeline moves data from the application interface through the server-side storage layer and into Shelby storage.
 
----
+## Overview
 
-# Contents
-
-1. Overview
-2. Objectives
-3. Upload Lifecycle
-4. Pipeline Architecture
-5. Verification
-6. Error Handling
-7. Current Implementation
-8. Planned Improvements
-9. Related Documentation
-
----
-
-# Overview
-
-Uploading a file to Shelby involves more than simply transferring bytes.
-
-Before an asset becomes available for download, it passes through multiple stages including registration, commitment generation, decentralized upload and on-chain verification.
-
-Shelby Studio abstracts these operations into a predictable workflow while preserving the transparency of the underlying storage process.
-
----
-
-# Objectives
-
-The Upload Pipeline is designed to:
-
-- Simplify decentralized uploads.
-- Protect storage credentials.
-- Verify completed uploads.
-- Reduce failed storage operations.
-- Prepare assets for future versioning.
-
----
-
-# Upload Lifecycle
-
-Every upload follows the same sequence.
-
-```text
-User Selects File
-        │
-        ▼
-Client Validation
-        │
-        ▼
-API Upload Request
-        │
-        ▼
-Generate Commitments
-        │
-        ▼
-Register Blob
-        │
-        ▼
-Upload Chunksets
-        │
-        ▼
-Commit Object
-        │
-        ▼
-Verify Stored Object
-        │
-        ▼
-Update Explorer
-```
-
-Each stage completes before the next begins, ensuring uploads remain reliable and verifiable.
-
----
-
-# Pipeline Architecture
+The upload architecture is divided into several stages:
 
 ```text
 Browser
-   │
-   ▼
-Storage Page
-   │
-   ▼
-Upload API Route
-   │
-   ▼
-Shelby SDK
-   │
-   ├────────► Coordination
-   │
-   └────────► RPC
-                  │
-                  ▼
-             Shelby Network
+   |
+   v
+Upload Interface
+   |
+   v
+Prepare Upload
+   |
+   v
+Stream Upload
+   |
+   v
+Finalize Upload
+   |
+   v
+Shelby Storage
 ```
 
-The browser participates directly in the Shelby upload pipeline.
+The application also exposes a general upload entry point:
 
-Next.js API routes handle preparation and coordination, while file data is transferred through the browser and final blockchain transactions are authorized by the connected Aptos wallet.
+```text
+/api/storage/upload
+```
 
----
+The storage API is implemented separately from the read-oriented Shelby Developer API.
 
-# Commitment Generation
+## Storage API Routes
 
-Before a file can be uploaded, Shelby Studio generates cryptographic commitments for the asset.
+The current storage routes are:
 
-These commitments allow Shelby to verify that uploaded data matches the object registered on-chain.
+```text
+app/api/storage/
+├── prepare-upload/route.ts
+├── stream-upload/route.ts
+├── finalize-upload/route.ts
+└── upload/route.ts
+```
 
-Commitment generation occurs entirely within the upload pipeline before any storage providers receive data.
+Each route represents a different part of the upload system.
 
----
+### Prepare Upload
 
-# Blob Registration
+**Route**
 
-Once commitments have been generated, the object is registered with Shelby.
+```text
+/api/storage/prepare-upload
+```
 
-Registration creates a pending object and assigns it a unique identifier (UID).
+The prepare stage establishes the information required before the upload data is transmitted.
 
-The object is not yet downloadable at this stage.
+Conceptually:
 
----
+```text
+Upload Request
+      |
+      v
+Prepare Upload
+      |
+      v
+Upload Configuration
+```
 
-# Chunkset Upload
+This stage exists so that the application can establish the upload context before transferring the actual data.
 
-After registration, the file is divided into chunksets and uploaded through Shelby RPC.
+### Stream Upload
 
-Storage provider acknowledgements are collected during this process.
+**Route**
 
-These acknowledgements are required before the object can be committed.
+```text
+/api/storage/stream-upload
+```
 
----
+The stream stage handles transmission of upload data.
 
-# Commit
+Conceptually:
 
-After all chunksets have been successfully uploaded, Shelby Studio commits the object.
+```text
+Prepared Upload
+      |
+      v
+Stream Data
+      |
+      v
+Storage Transfer
+```
 
-The commit operation binds the uploaded data to the registered object.
+Streaming allows the application to process the upload as data is transferred rather than requiring the entire workflow to be treated as a single browser operation.
 
-Only after this stage is complete does the object become available for retrieval.
+### Finalize Upload
 
----
+**Route**
 
-# Verification
+```text
+/api/storage/finalize-upload
+```
 
-Verification is an intentional design decision.
+The finalize stage completes the upload workflow.
 
-Rather than assuming a successful upload because the commit transaction completed, Shelby Studio queries Shelby again to confirm that the object exists and that its metadata is consistent.
+Conceptually:
 
-Only verified objects are displayed inside the application.
+```text
+Storage Transfer
+      |
+      v
+Finalize Upload
+      |
+      v
+Completed Asset
+```
 
----
+This stage represents the final application-side step after the upload data has been transferred.
 
-# Error Handling
+### Upload Entry Point
 
-The upload pipeline validates failures at multiple stages.
+**Route**
 
-Examples include:
+```text
+/api/storage/upload
+```
 
-- Invalid file selection
-- Registration failures
-- Upload interruptions
-- Commit failures
-- Verification failures
+The upload route provides the application's general storage upload entry point.
 
-These checks reduce the likelihood of incomplete or inconsistent uploads.
+It represents the higher-level upload operation while the prepare, stream, and finalize routes expose the individual stages of the pipeline.
 
----
+## Upload Lifecycle
 
-# Current Implementation
+The complete storage workflow can be represented as:
 
-The upload pipeline currently supports:
+```text
+┌───────────────────────────┐
+│        User Selects       │
+│          File             │
+└─────────────┬─────────────┘
+              |
+              v
+┌───────────────────────────┐
+│       Prepare Upload      │
+│                           │
+│ /api/storage/             │
+│ prepare-upload            │
+└─────────────┬─────────────┘
+              |
+              v
+┌───────────────────────────┐
+│       Stream Upload       │
+│                           │
+│ /api/storage/             │
+│ stream-upload             │
+└─────────────┬─────────────┘
+              |
+              v
+┌───────────────────────────┐
+│      Finalize Upload      │
+│                           │
+│ /api/storage/             │
+│ finalize-upload           │
+└─────────────┬─────────────┘
+              |
+              v
+┌───────────────────────────┐
+│       Shelby Storage      │
+└───────────────────────────┘
+```
 
-✅ File upload
+## Server-Side Storage Layer
 
-✅ Commitment generation
+The storage routes are part of the server-side application layer.
 
-✅ Blob registration
+The browser does not need to communicate directly with the underlying storage implementation for every stage of the workflow.
 
-✅ Chunkset upload
+The architecture is:
 
-✅ Object commit
+```text
+Browser
+   |
+   v
+Shelby Studio
+   |
+   +-- Storage API
+   |
+   v
+Shelby Integration
+   |
+   v
+Shelby Storage
+```
 
-✅ Verification
+This separation keeps storage-specific operations behind the application API.
 
-✅ Explorer integration
+## Upload and Developer APIs
 
-These features represent the current production upload workflow.
+Shelby Studio separates upload operations from developer read/inspection operations.
 
----
+### Storage API
 
-# Planned Improvements
+```text
+/api/storage/*
+```
 
-Future enhancements include:
+Responsible for upload workflows.
 
-- Drag-and-drop queue management
-- Batch uploads
-- Upload progress history
-- Resumable uploads
-- Automatic retries
-- Upload cancellation
-- Background synchronization
+### Developer Shelby API
 
-These improvements will build upon the existing upload architecture without changing its core workflow.
+```text
+/api/shelby/*
+```
 
----
+Responsible for operations such as:
 
-# Related Documentation
+- Listing assets
+- Inspecting assets
+- Looking up objects
+- Listing locations
+- Downloading assets
 
-- Introduction
-- Architecture
-- Storage Engine
-- Explorer
-- Engineering Decisions
+The distinction can be represented as:
 
----
+```text
+                 Shelby Studio API
+                       |
+          ┌────────────┴────────────┐
+          |                         |
+          v                         v
+    /api/storage/*             /api/shelby/*
+          |                         |
+          v                         v
+    Upload Pipeline          Developer Operations
+```
 
-## Summary
+## Upload Pipeline Components
 
-The Upload Pipeline transforms a selected file into a verified Shelby object through a structured sequence of registration, upload, commitment and verification.
+The upload workflow connects to the broader Shelby Studio application through the storage layer.
 
-By validating every stage before exposing the object to the user, Shelby Studio provides a reliable and transparent upload experience while remaining fully aligned with Shelby's decentralized storage architecture.
+The major conceptual components are:
 
----
+```text
+Upload UI
+   |
+   v
+Upload Controller
+   |
+   v
+Storage API
+   |
+   +-- Prepare
+   +-- Stream
+   +-- Finalize
+   |
+   v
+Shelby Storage
+```
+
+The exact UI component responsible for initiating an upload may evolve independently from the server-side storage routes.
+
+## Upload Errors
+
+Upload operations can fail at different stages.
+
+Potential failure points include:
+
+```text
+Prepare
+   |
+   +-- Configuration failure
+   |
+   v
+Stream
+   |
+   +-- Transfer failure
+   |
+   v
+Finalize
+   |
+   +-- Completion failure
+```
+
+Applications using the upload pipeline should surface meaningful errors to the user and avoid treating a partially completed upload as a successful upload.
+
+## Upload Completion
+
+An upload should only be considered complete after the finalization stage succeeds.
+
+The conceptual state progression is:
+
+```text
+Pending
+   |
+   v
+Prepared
+   |
+   v
+Uploading
+   |
+   v
+Transferred
+   |
+   v
+Finalized
+```
+
+The finalized state represents the completed application-side upload workflow.
+
+## Relationship to Explorer
+
+After an asset has been successfully uploaded, it can become part of the assets exposed through the Explorer and Developer API.
+
+The broader workflow is:
+
+```text
+Upload
+  |
+  v
+Shelby Storage
+  |
+  v
+Stored Asset
+  |
+  v
+Explorer
+  |
+  v
+Inspect / Search / Filter
+```
+
+This connects the write path with the read and inspection paths of Shelby Studio.
+
+## Relationship to Developer Platform
+
+The Developer Platform exposes read-oriented operations for interacting with assets after they are available through the storage integration.
+
+For example:
+
+```text
+Upload
+   |
+   v
+/api/storage/*
+   |
+   v
+Stored Asset
+   |
+   v
+/api/shelby/assets
+   |
+   +-- Inspect
+   +-- Object Lookup
+   +-- Download
+```
+
+The Developer API therefore complements rather than replaces the upload pipeline.
+
+## Storage Architecture
+
+The storage architecture can be summarized as:
+
+```text
+┌──────────────────────────────┐
+│          Shelby Studio       │
+│                              │
+│  Upload UI                   │
+│  Developer Workspace         │
+│  Explorer                    │
+└──────────────┬───────────────┘
+               |
+       ┌───────┴────────┐
+       |                |
+       v                v
+/api/storage/*     /api/shelby/*
+       |                |
+       v                v
+ Upload Pipeline    Read / Inspect
+       |                |
+       └───────┬────────┘
+               |
+               v
+       Shelby Integration
+               |
+               v
+         Shelby Storage
+```
+
+## Current Implementation
+
+The current storage API contains four route handlers:
+
+```text
+app/api/storage/prepare-upload/route.ts
+app/api/storage/stream-upload/route.ts
+app/api/storage/finalize-upload/route.ts
+app/api/storage/upload/route.ts
+```
+
+The Developer Platform contains five corresponding read-oriented Shelby routes:
+
+```text
+app/api/shelby/assets/route.ts
+app/api/shelby/asset/route.ts
+app/api/shelby/object/route.ts
+app/api/shelby/locations/route.ts
+app/api/shelby/download/route.ts
+```
+
+Together these provide the application's primary storage write and read surfaces.
+
+## Design Principles
+
+The upload pipeline follows several architectural principles:
+
+### Separation of Concerns
+
+Upload operations remain under:
+
+```text
+/api/storage/*
+```
+
+while developer inspection operations remain under:
+
+```text
+/api/shelby/*
+```
+
+### Server-Side Integration
+
+Storage-specific operations are handled through the server-side application layer.
+
+### Explicit Lifecycle
+
+The upload process is represented as distinct preparation, streaming, and finalization stages.
+
+### Inspectability
+
+Successfully stored assets can subsequently be exposed through the Explorer and Developer Platform.
+
+## Current Scope
+
+The upload pipeline currently documents:
+
+- Upload preparation
+- Upload streaming
+- Upload finalization
+- Upload entry point
+- Server-side storage integration
+- Storage API separation
+- Relationship between uploads and stored assets
+- Relationship between storage and Developer APIs
+- Upload lifecycle
+- Upload architecture
+
+The implementation should remain the source of truth for the exact behavior of individual storage routes.

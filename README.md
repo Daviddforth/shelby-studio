@@ -74,3 +74,6 @@ The primary Shelby Studio workflow is project-centric:
                              /         \
                             v           v
                         Portfolio     Explorer
+```
+
+```

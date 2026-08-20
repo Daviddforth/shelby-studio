@@ -60,6 +60,15 @@ const sections = [
     ],
   },
   {
+    title: "Developer",
+    items: [
+      {
+        title: "Developer Platform",
+        slug: "developer",
+      },
+    ],
+  },
+  {
     title: "Engineering",
     items: [
       {
