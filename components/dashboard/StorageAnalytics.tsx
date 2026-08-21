@@ -224,7 +224,7 @@ export default function StorageAnalytics() {
           </p>
 
           <p className="mt-1 text-xs text-slate-500">
-            Connect a wallet to view your Shelby storage.
+            Connect a wallet to view your real Shelby storage analytics.
           </p>
         </div>
       ) : error ? (

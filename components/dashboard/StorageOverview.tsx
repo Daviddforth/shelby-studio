@@ -76,7 +76,7 @@ export default function StorageOverview() {
           />
         ) : (
           <span className="text-sm font-medium text-slate-300">
-            {formatBytes(storageUsed)}
+            {walletConnected ? formatBytes(storageUsed) : "—"}
           </span>
         )}
       </div>
@@ -92,7 +92,7 @@ export default function StorageOverview() {
           </span>
 
           <p className="mt-1 font-medium text-white">
-            {walletConnected ? totalFiles : 0}
+            {walletConnected ? totalFiles : "—"}
           </p>
         </div>
 
@@ -104,7 +104,7 @@ export default function StorageOverview() {
           <p className="mt-1 font-medium text-white">
             {walletConnected
               ? formatBytes(storageUsed)
-              : "0 B"}
+              : "—"}
           </p>
         </div>
 
@@ -136,7 +136,7 @@ export default function StorageOverview() {
               ? "Unavailable"
               : walletConnected
                 ? "Connected"
-                : "Waiting"}
+                : "Connect wallet"}
           </p>
         </div>
       </div>

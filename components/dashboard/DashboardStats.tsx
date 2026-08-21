@@ -44,21 +44,25 @@ export default function DashboardStats() {
     {
       title: "Assets",
       value: totalFiles,
+      preview: "—",
       icon: Database,
     },
     {
       title: "Collections",
       value: collectionCount,
+      preview: "—",
       icon: FolderKanban,
     },
     {
       title: "Metadata",
       value: metadataCount,
+      preview: "—",
       icon: FileJson,
     },
     {
       title: "Storage Used",
       value: formatBytes(totalStorage),
+      preview: "—",
       icon: HardDrive,
     },
   ];
@@ -83,8 +87,14 @@ export default function DashboardStats() {
             </div>
 
             <p className="mt-2 text-xl font-semibold text-white">
-              {walletConnected ? stat.value : 0}
+              {walletConnected ? stat.value : stat.preview}
             </p>
+
+            {!walletConnected && (
+              <p className="mt-1 text-[11px] text-slate-600">
+                Connect wallet to view
+              </p>
+            )}
           </div>
         );
       })}
