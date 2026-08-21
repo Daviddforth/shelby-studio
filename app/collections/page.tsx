@@ -61,7 +61,7 @@ export default function CollectionsPage() {
         <CollectionHeader />
 
 
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px] xl:items-start">
+        <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_420px] xl:items-start">
           <div className="space-y-6">
             <CollectionInformation />
 

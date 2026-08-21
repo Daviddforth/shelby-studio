@@ -8,7 +8,7 @@ export default function Input(
   return (
     <input
       {...props}
-      className="w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none transition focus:border-blue-500"
+      className="min-h-10 w-full rounded-xl border border-slate-700 bg-slate-950 p-3 text-white outline-none transition focus:border-blue-500"
     />
   );
 }

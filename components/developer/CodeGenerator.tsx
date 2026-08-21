@@ -208,7 +208,7 @@ export default function CodeGenerator() {
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-[320px_1fr]">
+      <div className="grid min-w-0 lg:grid-cols-[320px_1fr]">
         <div className="border-b border-slate-800 p-6 lg:border-b-0 lg:border-r">
           <label className="text-xs font-medium uppercase tracking-wider text-slate-500">
             Operation

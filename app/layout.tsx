@@ -37,7 +37,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-screen bg-gray-50 text-gray-900">
+      <body className="min-h-screen overflow-x-hidden bg-gray-50 text-gray-900">
         <AptosWalletProvider>
           <WalletProvider>
             <StorageProvider>

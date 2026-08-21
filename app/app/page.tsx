@@ -75,7 +75,7 @@ export default function Home() {
 
       {/* Wallet Status */}
       <div className="max-w-7xl mx-auto px-8 pb-10">
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid min-w-0 gap-4 sm:gap-6 lg:grid-cols-3">
           <NetworkSwitcher />
 
           <ShelbyStatus />
@@ -95,7 +95,7 @@ export default function Home() {
       </div>
 
       {/* NFT Creator */}
-      <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8 px-8 pb-16">
+      <div className="mx-auto grid min-w-0 max-w-7xl gap-6 px-4 pb-12 sm:px-6 sm:pb-16 lg:grid-cols-3 lg:gap-8">
 
         <div className="lg:col-span-2">
 

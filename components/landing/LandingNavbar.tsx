@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function LandingNavbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
+      <div className="mx-auto flex min-w-0 h-20 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
         <Link
           href="/"
@@ -13,7 +13,7 @@ export default function LandingNavbar() {
         </Link>
 
         {/* Navigation */}
-        <nav className="hidden items-center gap-8 text-sm text-slate-400 md:flex">
+        <nav className="hidden items-center gap-5 text-sm text-slate-400 lg:flex">
           <a
             href="#features"
             className="transition hover:text-white"

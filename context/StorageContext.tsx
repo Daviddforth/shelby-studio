@@ -27,14 +27,16 @@ interface StorageContextType {
   >;
 
   storageUsed: number;
+
+  loading: boolean;
+
+  error: string | null;
+
+  refreshAssets: () => Promise<void>;
 }
 
 const StorageContext =
   createContext<StorageContextType | null>(null);
-
-function getStorageKey(walletAddress: string) {
-  return `shelby-storage:${walletAddress.toLowerCase()}`;
-}
 
 export function StorageProvider({
   children,
@@ -56,138 +58,108 @@ export function StorageProvider({
   const [search, setSearch] =
     useState("");
 
-  const [
-    loadedStorageKey,
-    setLoadedStorageKey,
-  ] = useState<string | null>(null);
+  const [loading, setLoading] =
+    useState(false);
 
-  /*
-   * Storage belongs ONLY to the
-   * connected wallet.
-   *
-   * Storage belongs directly to the connected wallet.
-   */
-  const currentStorageKey =
-    useMemo(() => {
-      if (!walletAddress) {
-        return null;
+  const [error, setError] =
+    useState<string | null>(null);
+
+  const refreshAssets = async () => {
+    if (!walletAddress) {
+      setAssets([]);
+      setError(null);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(
+        `/api/shelby/assets?walletAddress=${encodeURIComponent(
+          walletAddress
+        )}`,
+        {
+          cache: "no-store",
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.error ||
+            "Unable to load Shelby assets."
+        );
       }
 
-      return getStorageKey(walletAddress);
-    }, [walletAddress]);
+      setAssets(
+        Array.isArray(result.assets)
+          ? result.assets
+          : []
+      );
+    } catch (err) {
+      console.error(
+        "Failed to load Shelby assets:",
+        err
+      );
 
-  /*
-   * Load wallet storage.
-   */
+      setAssets([]);
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unable to load Shelby assets."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    setLoadedStorageKey(null);
     setSearch("");
 
-    if (!currentStorageKey) {
+    if (!walletAddress) {
       setAssets([]);
+      setError(null);
       return;
     }
 
-    try {
-      const saved =
-        localStorage.getItem(
-          currentStorageKey
-        );
+    void refreshAssets();
+  }, [walletAddress]);
 
-      if (!saved) {
-        setAssets([]);
-      } else {
-        const parsed =
-          JSON.parse(saved);
+  const storageUsed = useMemo(
+    () =>
+      assets.reduce(
+        (total, asset) =>
+          total + (Number(asset.size) || 0),
+        0
+      ),
+    [assets]
+  );
 
-        setAssets(
-          Array.isArray(parsed)
-            ? parsed
-            : []
-        );
-      }
-    } catch (error) {
-      console.error(
-        "Failed to load storage:",
-        error
-      );
-
-      setAssets([]);
-    } finally {
-      setLoadedStorageKey(
-        currentStorageKey
-      );
-    }
-  }, [currentStorageKey]);
-
-  /*
-   * Total bytes stored by the wallet.
-   */
-  const storageUsed =
-    useMemo(
-      () =>
-        assets.reduce(
-          (total, asset) =>
-            total + asset.size,
-          0
-        ),
-      [assets]
-    );
-
-  /*
-   * Persist wallet storage.
-   */
-  useEffect(() => {
-    if (
-      !currentStorageKey ||
-      loadedStorageKey !==
-        currentStorageKey
-    ) {
-      return;
-    }
-
-    try {
-      localStorage.setItem(
-        currentStorageKey,
-        JSON.stringify(assets)
-      );
-    } catch (error) {
-      console.error(
-        "Failed to save storage:",
-        error
-      );
-    }
-  }, [
-    assets,
-    currentStorageKey,
-    loadedStorageKey,
-  ]);
-
-  const visibleAssets =
-    walletAddress &&
-    loadedStorageKey ===
-      currentStorageKey
-      ? assets
-      : [];
-
-  const visibleStorageUsed =
-    walletAddress &&
-    loadedStorageKey ===
-      currentStorageKey
-      ? storageUsed
-      : 0;
+  const value = useMemo(
+    () => ({
+      assets,
+      setAssets,
+      search,
+      setSearch,
+      storageUsed,
+      loading,
+      error,
+      refreshAssets,
+    }),
+    [
+      assets,
+      search,
+      storageUsed,
+      loading,
+      error,
+    ]
+  );
 
   return (
-    <StorageContext.Provider
-      value={{
-        assets: visibleAssets,
-        setAssets,
-        search,
-        setSearch,
-        storageUsed:
-          visibleStorageUsed,
-      }}
-    >
+    <StorageContext.Provider value={value}>
       {children}
     </StorageContext.Provider>
   );

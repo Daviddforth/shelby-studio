@@ -4,7 +4,7 @@ import { FileJson, Sparkles } from "lucide-react";
 
 export default function MetadataHeader() {
   return (
-    <div className="flex flex-col gap-4 border-b border-slate-800 pb-6 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex min-w-0 flex-col gap-4 border-b border-slate-800 pb-5 sm:flex-row sm:items-center sm:justify-between sm:pb-6">
       <div className="flex min-w-0 items-center gap-3">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10">
           <FileJson size={18} className="text-blue-400" />

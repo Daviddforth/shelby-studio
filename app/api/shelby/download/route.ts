@@ -10,6 +10,36 @@ import {
 
 export const runtime = "nodejs";
 
+function getContentType(filename: string) {
+  const extension = filename.split(".").pop()?.toLowerCase();
+
+  switch (extension) {
+    case "jpg":
+    case "jpeg":
+      return "image/jpeg";
+    case "png":
+      return "image/png";
+    case "gif":
+      return "image/gif";
+    case "webp":
+      return "image/webp";
+    case "svg":
+      return "image/svg+xml";
+    case "mp4":
+      return "video/mp4";
+    case "webm":
+      return "video/webm";
+    case "mov":
+      return "video/quicktime";
+    case "json":
+      return "application/json";
+    case "txt":
+      return "text/plain";
+    default:
+      return "application/octet-stream";
+  }
+}
+
 export async function GET(request: Request) {
   try {
     const apiKey =
@@ -101,10 +131,10 @@ export async function GET(request: Request) {
 
       headers: {
         "Content-Type":
-          "application/octet-stream",
+          getContentType(filename),
 
         "Content-Disposition":
-          `attachment; filename="${filename.replace(
+          `inline; filename="${filename.replace(
             /"/g,
             ""
           )}"`,

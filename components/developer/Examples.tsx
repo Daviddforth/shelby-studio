@@ -123,7 +123,7 @@ export default function Examples() {
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-[280px_1fr]">
+      <div className="grid min-w-0 lg:grid-cols-[280px_1fr]">
         <div className="border-b border-slate-800 p-4 lg:border-b-0 lg:border-r">
           <p className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-600">
             Workflows

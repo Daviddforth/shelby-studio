@@ -78,7 +78,7 @@ export default function MetadataPage() {
         <MetadataTemplates />
 
         {/* Main Content */}
-        <div className="grid gap-8 xl:grid-cols-2">
+        <div className="grid min-w-0 gap-6 xl:grid-cols-2 xl:gap-8">
           {/* Left Column */}
           <div className="space-y-8">
             <NFTInformation />

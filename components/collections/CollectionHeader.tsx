@@ -110,7 +110,7 @@ export default function CollectionHeader() {
             Shelby Studio
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold tracking-tight text-white md:text-4xl">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl md:text-4xl">
             {profileName ? (
               <>
                 <span className="text-blue-400">

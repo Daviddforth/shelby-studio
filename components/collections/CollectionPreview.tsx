@@ -8,10 +8,57 @@ import {
   User,
 } from "lucide-react";
 
+import { useEffect, useState } from "react";
+
 import { useCollection } from "@/context/CollectionContext";
 import { useMetadata } from "@/context/MetadataContext";
+import { useWallet } from "@/context/WalletContext";
 
-export default function CollectionPreview() {
+interface ExplorerAsset {
+  uid: string;
+  name: string;
+  size: number;
+  uploadedAt: string;
+  network: string;
+  status: "Uploading" | "Stored" | "Failed";
+  blobName?: string;
+  owner?: string;
+}
+
+interface CollectionPreviewProps {
+  explorer?: boolean;
+}
+
+function isImage(filename: string) {
+  const extension =
+    filename.split(".").pop()?.toLowerCase();
+
+  return [
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "webp",
+    "svg",
+  ].includes(extension || "");
+}
+
+function getImageUrl(asset: ExplorerAsset) {
+  if (!asset.owner || !asset.blobName) {
+    return null;
+  }
+
+  const params = new URLSearchParams({
+    owner: asset.owner,
+    blobName: asset.blobName,
+  });
+
+  return `/api/shelby/download?${params.toString()}`;
+}
+
+export default function CollectionPreview({
+  explorer = false,
+}: CollectionPreviewProps) {
   const {
     collection,
     hasCollection,
@@ -23,11 +70,200 @@ export default function CollectionPreview() {
     hasMetadata,
   } = useMetadata();
 
+  const {
+    walletConnected,
+    walletAddress,
+  } = useWallet();
+
+  const [explorerImage, setExplorerImage] =
+    useState<string | null>(null);
+
+  const [explorerImageName, setExplorerImageName] =
+    useState<string>("");
+
+  const [loadingExplorerImage, setLoadingExplorerImage] =
+    useState(false);
+
   const hasAttachedMetadata =
     metadataAttached && hasMetadata;
 
+  useEffect(() => {
+    if (!explorer) {
+      return;
+    }
+
+    if (!walletConnected || !walletAddress) {
+      setExplorerImage(null);
+      setExplorerImageName("");
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadRealShelbyImage() {
+      try {
+        setLoadingExplorerImage(true);
+
+        const response = await fetch(
+          `/api/shelby/assets?walletAddress=${encodeURIComponent(walletAddress ?? "")}`,
+          {
+            method: "GET",
+            cache: "no-store",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            "Failed to load Shelby assets."
+          );
+        }
+
+        const result = await response.json();
+
+        if (
+          !result?.success ||
+          !Array.isArray(result.assets)
+        ) {
+          throw new Error(
+            "Invalid Shelby asset response."
+          );
+        }
+
+        const imageAsset = result.assets.find(
+          (asset: ExplorerAsset) =>
+            asset.status === "Stored" &&
+            asset.owner &&
+            asset.blobName &&
+            isImage(asset.blobName)
+        );
+
+        if (cancelled) {
+          return;
+        }
+
+        if (!imageAsset) {
+          setExplorerImage(null);
+          setExplorerImageName("");
+          return;
+        }
+
+        const imageUrl =
+          getImageUrl(imageAsset);
+
+        setExplorerImage(imageUrl);
+        setExplorerImageName(
+          imageAsset.blobName ||
+            imageAsset.name ||
+            "Shelby image"
+        );
+      } catch (error) {
+        if (!cancelled) {
+          console.error(
+            "Failed to load Explorer collection image:",
+            error
+          );
+
+          setExplorerImage(null);
+          setExplorerImageName("");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingExplorerImage(false);
+        }
+      }
+    }
+
+    loadRealShelbyImage();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    explorer,
+    walletConnected,
+    walletAddress,
+  ]);
+
   /*
-   * Empty state
+   * Explorer preview
+   *
+   * This uses the actual stored Shelby image.
+   * It does NOT use metadata.imagePreview.
+   */
+  if (explorer) {
+    return (
+      <section className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-xl shadow-black/10">
+        <div className="border-b border-slate-800 px-6 py-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-500/20 bg-blue-500/10">
+              <FolderKanban
+                size={19}
+                className="text-blue-400"
+              />
+            </div>
+
+            <div>
+              <h2 className="font-semibold text-white">
+                Collection Preview
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-500">
+                Preview using content stored on Shelby.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6">
+          <div className="relative aspect-[3/2] w-full overflow-hidden rounded-2xl border border-slate-800 bg-slate-950">
+            {loadingExplorerImage ? (
+              <div className="flex h-full items-center justify-center">
+                <p className="text-sm text-slate-500">
+                  Loading image from Shelby...
+                </p>
+              </div>
+            ) : explorerImage ? (
+              <img
+                src={explorerImage}
+                alt={explorerImageName}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center">
+                <ImageIcon
+                  size={38}
+                  className="text-slate-700"
+                />
+
+                <p className="mt-3 text-sm text-slate-500">
+                  No stored image found
+                </p>
+
+                <p className="mt-1 text-xs text-slate-600">
+                  Upload an image to Shelby to preview it here.
+                </p>
+              </div>
+            )}
+
+            {explorerImage && (
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-12">
+                <p className="truncate text-sm font-medium text-white">
+                  {explorerImageName}
+                </p>
+
+                <p className="mt-1 text-xs text-slate-400">
+                  Real asset from Shelby
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  /*
+   * Existing Collection Builder preview
    */
   if (!hasCollection) {
     return (
@@ -55,8 +291,6 @@ export default function CollectionPreview() {
 
   return (
     <div className="self-start overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-xl shadow-black/10">
-
-      {/* Banner */}
       <div className="relative aspect-[3/1] w-full overflow-hidden bg-slate-950">
         {collection.banner ? (
           <img
@@ -73,17 +307,11 @@ export default function CollectionPreview() {
           </div>
         )}
 
-        {/* Subtle overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-transparent to-transparent" />
       </div>
 
-      {/* Main Content */}
       <div className="p-6">
-
-        {/* Identity */}
         <div className="flex items-start gap-4">
-
-          {/* Collection Logo */}
           <div className="-mt-14 relative z-10 h-24 w-24 shrink-0 overflow-hidden rounded-2xl border-4 border-slate-900 bg-slate-800 shadow-lg">
             {collection.logo ? (
               <img
@@ -101,11 +329,11 @@ export default function CollectionPreview() {
             )}
           </div>
 
-          {/* Collection Identity */}
           <div className="min-w-0 flex-1 pt-1">
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="truncate text-xl font-bold text-white">
-                {collection.name || "Untitled Collection"}
+                {collection.name ||
+                  "Untitled Collection"}
               </h2>
 
               {collection.category && (
@@ -118,7 +346,6 @@ export default function CollectionPreview() {
             {collection.creator && (
               <div className="mt-2 flex items-center gap-1.5 text-sm text-slate-400">
                 <User size={14} />
-
                 <span className="truncate">
                   {collection.creator}
                 </span>
@@ -127,20 +354,17 @@ export default function CollectionPreview() {
           </div>
         </div>
 
-        {/* Description */}
         {collection.description && (
           <p className="mt-5 text-sm leading-6 text-slate-400">
             {collection.description}
           </p>
         )}
 
-        {/* Stats */}
         <div className="mt-6 grid grid-cols-3 overflow-hidden rounded-2xl border border-slate-800 bg-slate-950">
           <div className="border-r border-slate-800 p-4 text-center">
             <p className="text-lg font-semibold text-white">
               {hasAttachedMetadata ? 1 : 0}
             </p>
-
             <p className="mt-1 text-xs text-slate-500">
               NFTs
             </p>
@@ -150,7 +374,6 @@ export default function CollectionPreview() {
             <p className="text-lg font-semibold text-white">
               {collection.royalty}%
             </p>
-
             <p className="mt-1 text-xs text-slate-500">
               Royalty
             </p>
@@ -160,23 +383,18 @@ export default function CollectionPreview() {
             <p className="text-lg font-semibold text-white">
               {collection.visibility}
             </p>
-
             <p className="mt-1 text-xs text-slate-500">
               Visibility
             </p>
           </div>
         </div>
 
-        {/* Attached Metadata */}
         <div className="mt-6 border-t border-slate-800 pt-6">
-
           {hasAttachedMetadata ? (
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
-
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2 text-sm font-medium text-emerald-400">
                   <CheckCircle2 size={16} />
-
                   Metadata Attached
                 </div>
 
@@ -186,8 +404,6 @@ export default function CollectionPreview() {
               </div>
 
               <div className="mt-4 flex items-center gap-4">
-
-                {/* NFT Image */}
                 <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-slate-700 bg-slate-950">
                   {metadata.imagePreview ? (
                     <img
@@ -208,10 +424,10 @@ export default function CollectionPreview() {
                   )}
                 </div>
 
-                {/* NFT Information */}
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold text-white">
-                    {metadata.name || "Untitled NFT"}
+                    {metadata.name ||
+                      "Untitled NFT"}
                   </p>
 
                   <p className="mt-1 text-sm text-slate-400">
@@ -221,7 +437,6 @@ export default function CollectionPreview() {
                       : "traits"}
                   </p>
                 </div>
-
               </div>
             </div>
           ) : (
@@ -244,7 +459,6 @@ export default function CollectionPreview() {
               </div>
             </div>
           )}
-
         </div>
       </div>
     </div>

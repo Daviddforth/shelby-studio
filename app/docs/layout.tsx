@@ -7,7 +7,7 @@ export default function DocsLayout({
 }) {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      <div className="lg:flex">
+      <div className="flex min-w-0 flex-col lg:flex-row">
         <DocsSidebar />
 
         <main className="min-w-0 flex-1">

@@ -6,13 +6,13 @@ import AssetTabs from "@/components/asset-manager/AssetTabs";
 export default function AssetsPage() {
   return (
     <DashboardLayout>
-      <div className="space-y-7">
+      <div className="min-w-0 space-y-7">
         <div>
           <p className="text-xs font-medium uppercase tracking-widest text-blue-400">
             Shelby Storage
           </p>
 
-          <h1 className="mt-2 text-3xl font-bold text-white">
+          <h1 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
             Assets
           </h1>
 
