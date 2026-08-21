@@ -106,11 +106,11 @@ export default function AssetList({
       <div className="min-w-0 rounded-2xl border border-dashed border-slate-700 p-10 text-center">
         <div className="flex flex-col items-center">
           <p className="text-slate-400">
-            No assets uploaded yet.
+            No stored assets yet.
           </p>
 
           <p className="mt-2 text-sm text-slate-500">
-            Upload a file to Shelby Storage.
+            Upload files from the Storage workspace and they will appear here.
           </p>
 
           {refreshing && (

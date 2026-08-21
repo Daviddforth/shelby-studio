@@ -106,18 +106,22 @@ export default function NetworkStatus() {
           icon={<HardDrive size={16} />}
           title="Shelby Storage"
           value={
-            storageAvailable === null
-              ? "Checking"
-              : storageAvailable
-                ? "Available"
-                : "Unavailable"
+            !walletConnected
+              ? "Connect wallet"
+              : storageAvailable === null
+                ? "Checking"
+                : storageAvailable
+                  ? "Available"
+                  : "Unavailable"
           }
           state={
-            storageAvailable === null
-              ? "loading"
-              : storageAvailable
-                ? "success"
-                : "error"
+            !walletConnected
+              ? "neutral"
+              : storageAvailable === null
+                ? "loading"
+                : storageAvailable
+                  ? "success"
+                  : "error"
           }
         />
       </div>
