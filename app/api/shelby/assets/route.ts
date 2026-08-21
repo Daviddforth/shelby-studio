@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 
 import {
-  Account,
-  Ed25519PrivateKey,
+  AccountAddress,
   Network,
 } from "@aptos-labs/ts-sdk";
 
@@ -12,24 +11,12 @@ import {
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(
+  request: Request
+) {
   try {
-    const privateKey =
-      process.env.SHELBY_SIGNER_PRIVATE_KEY;
-
     const apiKey =
       process.env.SHELBY_API_KEY;
-
-    if (!privateKey) {
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            "Shelby signer is not configured.",
-        },
-        { status: 500 }
-      );
-    }
 
     if (!apiKey) {
       return NextResponse.json(
@@ -42,66 +29,107 @@ export async function GET() {
       );
     }
 
-    const signer = Account.fromPrivateKey({
-      privateKey:
-        new Ed25519PrivateKey(privateKey),
-    });
+    const url =
+      new URL(request.url);
+
+    const walletAddress =
+      url.searchParams
+        .get("walletAddress")
+        ?.trim();
+
+    if (!walletAddress) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "A wallet address is required.",
+        },
+        { status: 400 }
+      );
+    }
+
+    let owner: AccountAddress;
+
+    try {
+      owner =
+        AccountAddress.fromString(
+          walletAddress
+        );
+    } catch {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Invalid wallet address.",
+        },
+        { status: 400 }
+      );
+    }
 
     const shelbyClient =
       new ShelbyClient({
-        network: Network.SHELBYNET,
+        network:
+          Network.SHELBYNET,
+
         apiKey,
-        locationHint: "shelbynet-1",
+
+        locationHint:
+          "shelbynet-1",
       });
 
     const blobs =
-      await shelbyClient.coordination.getAccountBlobs({
-        account: signer.accountAddress,
-        pagination: {
-          limit: 100,
-          offset: 0,
-        },
-      });
+      await shelbyClient.coordination.getAccountBlobs(
+        {
+          account: owner,
 
-    const assets = blobs.map((blob) => ({
-      uid:
-        blob.uid?.toString() ?? null,
+          pagination: {
+            limit: 100,
+            offset: 0,
+          },
+        }
+      );
 
-      owner:
-        blob.owner.toString(),
+    const assets =
+      blobs.map((blob) => ({
+        uid:
+          blob.uid?.toString() ?? "",
 
-      name:
-        blob.name.toString(),
+        owner:
+          blob.owner.toString(),
 
-      blobName:
-        blob.blobNameSuffix,
+        name:
+          blob.name.toString(),
 
-      size:
-        blob.size,
+        blobName:
+          blob.blobNameSuffix,
 
-      network:
-        "Shelbynet",
+        size:
+          Number(blob.size),
 
-      location:
-        "shelbynet-1",
+        network:
+          "Shelbynet",
 
-      creationMicros:
-        blob.creationMicros,
+        status:
+          "Stored" as const,
 
-      expirationMicros:
-        blob.expirationMicros,
-
-      encryption:
-        blob.encryption ?? null,
-    }));
+        uploadedAt:
+          blob.creationMicros
+            ? new Date(
+                Number(
+                  blob.creationMicros
+                ) / 1000
+              ).toISOString()
+            : new Date().toISOString(),
+      }));
 
     return NextResponse.json({
       success: true,
 
-      network: "Shelbynet",
+      network:
+        "Shelbynet",
 
       account:
-        signer.accountAddress.toString(),
+        owner.toString(),
 
       count:
         assets.length,
@@ -110,19 +138,17 @@ export async function GET() {
     });
   } catch (error) {
     console.error(
-      "Shelby Explorer query failed:",
+      "Shelby asset sync failed:",
       error
     );
-
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Unknown Shelby Explorer error.";
 
     return NextResponse.json(
       {
         success: false,
-        error: message,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Unknown Shelby asset sync error.",
       },
       { status: 500 }
     );

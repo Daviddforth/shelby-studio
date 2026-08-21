@@ -1,9 +1,17 @@
 "use client";
 
-import { Search, Wallet } from "lucide-react";
+import {
+  Search,
+  Wallet,
+} from "lucide-react";
+
+import { useState } from "react";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ExplorerHeader from "@/components/explorer/ExplorerHeader";
+import SearchBar from "@/components/explorer/SearchBar";
+import AssetTable from "@/components/explorer/AssetTable";
+
 import { useWallet } from "@/context/WalletContext";
 
 export default function ExplorerPage() {
@@ -11,6 +19,12 @@ export default function ExplorerPage() {
     walletConnected,
     walletAddress,
   } = useWallet();
+
+  const [status, setStatus] =
+    useState("all");
+
+  const [sort, setSort] =
+    useState("newest");
 
   if (!walletConnected || !walletAddress) {
     return (
@@ -48,20 +62,61 @@ export default function ExplorerPage() {
       <div className="space-y-8">
         <ExplorerHeader />
 
-        <div className="rounded-3xl border border-slate-800 bg-slate-900 p-10 text-center">
-          <Search
-            size={32}
-            className="mx-auto text-blue-400"
+
+        <div className="space-y-4">
+          <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto]">
+            <SearchBar />
+
+            <select
+              value={status}
+              onChange={(event) =>
+                setStatus(event.target.value)
+              }
+              className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+            >
+              <option value="all">
+                All Status
+              </option>
+              <option value="Stored">
+                Stored
+              </option>
+              <option value="Failed">
+                Failed
+              </option>
+              <option value="Pending">
+                Pending
+              </option>
+            </select>
+
+            <select
+              value={sort}
+              onChange={(event) =>
+                setSort(event.target.value)
+              }
+              className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+            >
+              <option value="newest">
+                Newest
+              </option>
+              <option value="oldest">
+                Oldest
+              </option>
+              <option value="name">
+                Name
+              </option>
+              <option value="largest">
+                Largest
+              </option>
+              <option value="smallest">
+                Smallest
+              </option>
+            </select>
+          </div>
+
+          <AssetTable
+            status={status}
+            sort={sort}
           />
-
-          <h2 className="mt-4 text-xl font-semibold text-white">
-            Explorer
-          </h2>
-
-          <p className="mt-2 text-sm text-slate-400">
-            Published Shelby assets, metadata, and
-            collections will appear here.
-          </p>
         </div>
       </div>
     </DashboardLayout>

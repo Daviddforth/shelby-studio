@@ -8,8 +8,10 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { UploadedAsset } from "@/lib/services/storage";
+import { useStorage } from "@/hooks/useStorage";
+import AssetDetails from "./AssetDetails";
 
 interface Props {
   asset: UploadedAsset;
@@ -21,12 +23,117 @@ export default function AssetCard({
   const [downloading, setDownloading] =
     useState(false);
 
+  const [replacing, setReplacing] =
+    useState(false);
+
+  const [showDetails, setShowDetails] =
+    useState(false);
+
+  const replaceInputRef =
+    useRef<HTMLInputElement>(null);
+
+  const {
+    remove,
+    replace,
+    deletingUid,
+  } = useStorage();
+
+  const deleting =
+    deletingUid === asset.uid;
+
   const canDownload =
     Boolean(
       asset.owner &&
       asset.blobName &&
       asset.status === "Stored"
     );
+
+  async function handleDelete() {
+    if (deleting) {
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        `Delete "${asset.name}" from Shelby? This action cannot be undone.`
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await remove(asset.uid);
+    } catch (error) {
+      console.error(
+        "Failed to delete Shelby asset:",
+        error
+      );
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to delete Shelby asset."
+      );
+    }
+  }
+
+
+  function handleReplaceClick() {
+    if (deleting || replacing) {
+      return;
+    }
+
+    replaceInputRef.current?.click();
+  }
+
+  async function handleReplace(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const file =
+      event.target.files?.[0];
+
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        `Replace "${asset.name}" with "${file.name}"?`
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setReplacing(true);
+
+      await replace(
+        asset.uid,
+        file
+      );
+
+      alert(
+        "Asset replaced successfully."
+      );
+    } catch (error) {
+      console.error(
+        "Failed to replace Shelby asset:",
+        error
+      );
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to replace Shelby asset."
+      );
+    } finally {
+      setReplacing(false);
+    }
+  }
 
   async function handleDownload() {
     if (
@@ -107,8 +214,8 @@ export default function AssetCard({
   }
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-      <div className="flex items-start justify-between gap-4">
+    <div className="min-w-0 rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-5">
+      <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 gap-4">
           <FileText
             size={28}
@@ -147,14 +254,28 @@ export default function AssetCard({
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2 text-green-400">
+        <div className="flex w-fit shrink-0 items-center gap-2 rounded-full bg-green-500/10 px-3 py-1 text-xs font-medium text-green-400">
           <CheckCircle2 size={18} />
 
           {asset.status}
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-3">
+      <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
+        <button
+          type="button"
+          onClick={() =>
+            setShowDetails(
+              (previous) => !previous
+            )
+          }
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-800 sm:w-auto"
+        >
+          {showDetails
+            ? "Hide Details"
+            : "Details"}
+        </button>
+
         <button
           type="button"
           disabled={
@@ -162,7 +283,7 @@ export default function AssetCard({
             downloading
           }
           onClick={handleDownload}
-          className="flex items-center gap-2 rounded-xl bg-slate-800 px-4 py-2 text-sm text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-slate-800 px-4 py-2 text-sm text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
         >
           <Download size={16} />
 
@@ -171,26 +292,56 @@ export default function AssetCard({
             : "Download"}
         </button>
 
+        <input
+          ref={replaceInputRef}
+          type="file"
+          className="hidden"
+          onChange={handleReplace}
+        />
+
         <button
           type="button"
-          disabled
-          title="Replace will be connected next"
-          className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm text-white opacity-50"
+          disabled={
+            deleting ||
+            replacing
+          }
+          onClick={handleReplaceClick}
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
         >
-          <RefreshCw size={16} />
-          Replace
+          <RefreshCw
+            size={16}
+            className={
+              replacing
+                ? "animate-spin"
+                : ""
+            }
+          />
+          {replacing
+            ? "Replacing..."
+            : "Replace"}
         </button>
 
         <button
           type="button"
-          disabled
-          title="Delete will be connected next"
-          className="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm text-white opacity-50"
+          disabled={deleting}
+          onClick={handleDelete}
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
         >
           <Trash2 size={16} />
-          Delete
+          {deleting
+            ? "Deleting..."
+            : "Delete"}
         </button>
       </div>
+
+      {showDetails && (
+        <AssetDetails
+          asset={asset}
+          onClose={() =>
+            setShowDetails(false)
+          }
+        />
+      )}
     </div>
   );
 }

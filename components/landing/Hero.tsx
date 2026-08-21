@@ -10,7 +10,7 @@ export default function Hero() {
           A developer workspace for Shelby
         </div>
 
-        <h1 className="mt-8 max-w-6xl text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
+        <h1 className="mt-8 max-w-6xl text-4xl font-extrabold sm:text-5xl tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
           Build, store, explore
           <br />
           <span className="text-blue-400">
@@ -18,7 +18,7 @@ export default function Hero() {
           </span>
         </h1>
 
-        <p className="mt-8 max-w-3xl text-lg leading-8 text-slate-400 sm:text-xl">
+        <p className="mt-8 max-w-3xl text-base leading-7 sm:text-lg sm:leading-8 text-slate-400 sm:text-xl">
           Shelby Studio brings storage, digital assets, metadata,
           collections, exploration and developer tooling into one
           connected workspace built around Shelby.

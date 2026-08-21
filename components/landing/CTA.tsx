@@ -4,7 +4,7 @@ export default function CTA() {
   return (
     <section className="border-t border-slate-800">
       <div className="mx-auto max-w-6xl px-6 py-24">
-        <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 px-6 py-16 text-center md:px-12">
+        <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 px-5 py-12 text-center sm:px-6 sm:py-16 md:px-12">
           <div className="pointer-events-none absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-600/15 blur-3xl" />
 
           <div className="relative mx-auto max-w-2xl">

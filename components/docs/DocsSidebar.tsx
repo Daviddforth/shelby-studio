@@ -84,7 +84,7 @@ export default function DocsSidebar() {
 
   return (
     <aside className="w-full border-b border-slate-800 bg-slate-950/95 lg:sticky lg:top-0 lg:h-screen lg:w-72 lg:shrink-0 lg:overflow-y-auto lg:border-b-0 lg:border-r">
-      <div className="p-5 lg:p-6">
+      <div className="p-4 sm:p-5 lg:p-6">
         <Link
           href="/docs"
           className="group flex items-center gap-3"

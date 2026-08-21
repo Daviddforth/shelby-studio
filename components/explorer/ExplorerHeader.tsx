@@ -14,7 +14,7 @@ export default function ExplorerHeader() {
   } = useWallet();
 
   return (
-    <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+    <div className="mb-6 flex min-w-0 flex-col gap-4 sm:gap-6 lg:flex-row lg:items-end lg:justify-between">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-400">
           Shelby Studio

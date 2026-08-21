@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import { CheckCircle2, Wallet } from "lucide-react";
 
 import { useWallet } from "@/context/WalletContext";
-import { useStorageContext } from "@/context/StorageContext";
 
 export default function DashboardHero() {
   const {
@@ -13,10 +12,11 @@ export default function DashboardHero() {
     network,
   } = useWallet();
 
-  const { assets } = useStorageContext();
-
   const [profileName, setProfileName] =
     useState("");
+
+  const [assetCount, setAssetCount] =
+    useState(0);
 
   const loadProfile = useCallback(() => {
     if (!walletConnected || !walletAddress) {
@@ -73,7 +73,47 @@ export default function DashboardHero() {
     };
   }, [loadProfile]);
 
+  useEffect(() => {
+    if (!walletConnected || !walletAddress) {
+      setAssetCount(0);
+      return;
+    }
 
+    let cancelled = false;
+    const address = walletAddress;
+
+    async function loadAssetCount() {
+      try {
+        const response = await fetch(
+          `/api/shelby/assets?walletAddress=${encodeURIComponent(
+            address
+          )}`,
+          {
+            cache: "no-store",
+          }
+        );
+
+        const result = await response.json();
+
+        if (!cancelled && response.ok && result.success) {
+          setAssetCount(
+            Number(result.count) || 0
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Failed to load dashboard asset count:",
+          error
+        );
+      }
+    }
+
+    void loadAssetCount();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [walletConnected, walletAddress]);
 
   return (
     <section className="border-b border-slate-800 pb-7">
@@ -121,8 +161,8 @@ export default function DashboardHero() {
           )}
 
           <span className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-400">
-            {assets.length}{" "}
-            {assets.length === 1
+            {assetCount}{" "}
+            {assetCount === 1
               ? "asset"
               : "assets"}
           </span>
