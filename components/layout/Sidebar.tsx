@@ -108,7 +108,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="flex h-screen w-[220px] shrink-0 flex-col border-r border-slate-800 bg-[#020617]">
+    <aside className="hidden h-screen w-[220px] shrink-0 flex-col border-r border-slate-800 bg-[#020617] md:flex">
       {/* Shelby Studio Logo */}
       <div className="flex h-[76px] items-center border-b border-slate-800 px-5">
         <Link
