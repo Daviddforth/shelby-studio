@@ -227,17 +227,75 @@ export default function Topbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/95 backdrop-blur">
-      <div className="flex h-20 items-center justify-between px-8">
+      <div className="flex min-h-20 items-center gap-3 px-3 py-3 sm:px-6 lg:px-8">
+
+        {/* Mobile Menu */}
+        <details className="relative shrink-0 md:hidden">
+          <summary
+            className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-slate-300 transition hover:border-blue-500 hover:text-white"
+            aria-label="Open navigation"
+          >
+            <span className="text-lg">☰</span>
+          </summary>
+
+          <div className="absolute left-0 top-12 z-50 w-64 overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 p-3 shadow-2xl">
+            <p className="px-3 pb-2 pt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+              Workspace
+            </p>
+
+            <div className="space-y-1">
+              <Link href="/dashboard" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
+                Dashboard
+              </Link>
+              <Link href="/assets" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
+                Assets
+              </Link>
+              <Link href="/collections" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
+                Collections
+              </Link>
+              <Link href="/storage" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
+                Storage
+              </Link>
+              <Link href="/metadata" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
+                Metadata
+              </Link>
+              <Link href="/explorer" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
+                Explorer
+              </Link>
+            </div>
+
+            <div className="my-3 border-t border-slate-800" />
+
+            <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+              Developer
+            </p>
+
+            <div className="space-y-1">
+              <Link href="/developer" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
+                Developer
+              </Link>
+              <Link href="/ai" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
+                AI Tools
+              </Link>
+              <Link href="/docs" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
+                Documentation
+              </Link>
+              <Link href="/profile" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
+                My Profile
+              </Link>
+            </div>
+          </div>
+        </details>
 
         {/* Global Search */}
-        <div className="relative w-full max-w-lg">
+        <div className="relative min-w-0 flex-1 lg:max-w-lg">
           <form
             onSubmit={handleSubmit}
             className="relative"
           >
             <Search
               size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 sm:left-4"
             />
 
             <input
@@ -250,7 +308,7 @@ export default function Topbar() {
               onFocus={() => setSearchOpen(true)}
               placeholder="Search Shelby Studio..."
               autoComplete="off"
-              className="w-full rounded-xl border border-slate-800 bg-slate-900 py-3 pl-11 pr-11 text-slate-200 outline-none transition-all placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+              className="w-full rounded-xl border border-slate-800 bg-slate-900 py-2.5 pl-10 pr-10 text-sm text-slate-200 outline-none transition-all placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 sm:py-3 sm:pl-11 sm:pr-11"
             />
 
             {query && (
@@ -324,13 +382,13 @@ export default function Topbar() {
         </div>
 
         {/* Right Side */}
-        <div className="ml-8 flex items-center gap-4">
-          <ConnectWallet />
+        <div className="flex shrink-0 items-center gap-2 sm:ml-4 sm:gap-3 lg:ml-8 lg:gap-4">
+          <div className="max-w-[150px] sm:max-w-none"><ConnectWallet /></div>
 
           <Link
             href="/profile"
             title="Profile"
-            className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-slate-800 bg-slate-900 transition-all hover:border-blue-500 hover:bg-slate-800"
+            className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-800 bg-slate-900 transition-all hover:border-blue-500 hover:bg-slate-800 sm:h-12 sm:w-12"
           >
             {profileAvatar ? (
               <img
@@ -340,7 +398,7 @@ export default function Topbar() {
               />
             ) : (
               <UserCircle2
-                size={34}
+                size={28}
                 className="text-slate-300"
               />
             )}
