@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   BarChart3,
   File,
   FileText,
   HardDrive,
   Image as ImageIcon,
-  Loader2,
   Video,
 } from "lucide-react";
 
 import { useStorageContext } from "@/context/StorageContext";
 import { useWallet } from "@/context/WalletContext";
+import { demoAssets } from "@/components/demo/demoData";
 
 function formatBytes(bytes: number) {
   if (!Number.isFinite(bytes) || bytes <= 0) {
@@ -91,6 +91,10 @@ export default function StorageAnalytics() {
     error,
   } = useStorageContext();
 
+  const displayAssets = walletConnected
+    ? assets
+    : demoAssets;
+
   const stats = useMemo(() => {
     const categories = {
       Images: {
@@ -113,7 +117,7 @@ export default function StorageAnalytics() {
 
     let totalBytes = 0;
 
-    for (const asset of assets) {
+    for (const asset of displayAssets) {
       const size = Number(asset.size) || 0;
       const category = getCategory(asset.name);
 
@@ -125,10 +129,10 @@ export default function StorageAnalytics() {
 
     return {
       totalBytes,
-      totalFiles: assets.length,
+      totalFiles: displayAssets.length,
       categories,
     };
-  }, [assets]);
+  }, [displayAssets]);
 
   const categoryItems = [
     {
@@ -200,34 +204,26 @@ export default function StorageAnalytics() {
           </div>
 
           <p className="mt-1 text-xs text-slate-500">
-            Real storage usage from your Shelby account
+            {walletConnected
+              ? "Real storage usage from your Shelby account"
+              : "Sample storage usage for the demo workspace"}
           </p>
         </div>
 
-        {loading && (
-          <Loader2
-            size={16}
-            className="animate-spin text-slate-500"
-          />
+        {!walletConnected && (
+          <span className="rounded-full border border-blue-500/20 bg-blue-500/10 px-2.5 py-1 text-[11px] font-medium text-blue-400">
+            Demo
+          </span>
+        )}
+
+        {walletConnected && loading && (
+          <span className="text-xs text-slate-500">
+            Loading
+          </span>
         )}
       </div>
 
-      {!walletConnected ? (
-        <div className="mt-6 rounded-xl border border-dashed border-slate-800 px-5 py-10 text-center">
-          <HardDrive
-            size={24}
-            className="mx-auto text-slate-600"
-          />
-
-          <p className="mt-3 text-sm font-medium text-white">
-            Connect your wallet
-          </p>
-
-          <p className="mt-1 text-xs text-slate-500">
-            Connect a wallet to view your real Shelby storage analytics.
-          </p>
-        </div>
-      ) : error ? (
+      {walletConnected && error ? (
         <div className="mt-6 rounded-xl border border-red-900/50 bg-red-950/20 px-5 py-7 text-center">
           <p className="text-sm font-medium text-red-300">
             Unable to load storage
@@ -357,25 +353,20 @@ export default function StorageAnalytics() {
                             {value.files}{" "}
                             {value.files === 1
                               ? "file"
-                              : "files"}
+                              : "files"}{" "}
+                            · {formatBytes(value.bytes)}
                           </p>
                         </div>
                       </div>
 
-                      <div className="shrink-0 text-right">
-                        <p className="text-xs font-medium text-slate-300">
-                          {formatBytes(value.bytes)}
-                        </p>
-
-                        <p className="mt-0.5 text-[11px] text-slate-600">
-                          {percentage.toFixed(1)}%
-                        </p>
-                      </div>
+                      <span className="shrink-0 text-xs font-medium text-slate-400">
+                        {percentage.toFixed(1)}%
+                      </span>
                     </div>
 
-                    <div className="mt-2 h-1 overflow-hidden rounded-full bg-slate-800">
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-800">
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${dot}`}
+                        className={`h-full rounded-full ${dot}`}
                         style={{
                           width: `${percentage}%`,
                         }}

@@ -11,6 +11,7 @@ import { useStorageContext } from "@/context/StorageContext";
 import { useWallet } from "@/context/WalletContext";
 import { useCollection } from "@/context/CollectionContext";
 import { useMetadata } from "@/context/MetadataContext";
+import { demoAssets, demoCollection, demoMetadata } from "@/components/demo/demoData";
 
 export default function DashboardStats() {
   const { assets } = useStorageContext();
@@ -21,6 +22,11 @@ export default function DashboardStats() {
   const totalFiles = assets.length;
 
   const totalStorage = assets.reduce(
+    (sum, asset) => sum + asset.size,
+    0
+  );
+
+  const demoStorage = demoAssets.reduce(
     (sum, asset) => sum + asset.size,
     0
   );
@@ -44,25 +50,25 @@ export default function DashboardStats() {
     {
       title: "Assets",
       value: totalFiles,
-      preview: "—",
+      preview: demoAssets.length,
       icon: Database,
     },
     {
       title: "Collections",
       value: collectionCount,
-      preview: "—",
+      preview: demoCollection ? 1 : 0,
       icon: FolderKanban,
     },
     {
       title: "Metadata",
       value: metadataCount,
-      preview: "—",
+      preview: demoMetadata ? 1 : 0,
       icon: FileJson,
     },
     {
       title: "Storage Used",
       value: formatBytes(totalStorage),
-      preview: "—",
+      preview: formatBytes(demoStorage),
       icon: HardDrive,
     },
   ];
@@ -92,7 +98,7 @@ export default function DashboardStats() {
 
             {!walletConnected && (
               <p className="mt-1 text-[11px] text-slate-600">
-                Connect wallet to view
+                Demo data
               </p>
             )}
           </div>

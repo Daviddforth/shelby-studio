@@ -5,7 +5,6 @@ import {
   Circle,
   Globe,
   HardDrive,
-  Loader2,
   Wallet,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -82,23 +81,27 @@ export default function NetworkStatus() {
           value={
             walletConnected
               ? "Connected"
-              : "Not Connected"
+              : "Demo Mode"
           }
           state={
             walletConnected
               ? "success"
-              : "neutral"
+              : "demo"
           }
         />
 
         <Status
           icon={<Globe size={16} />}
           title="Network"
-          value={network}
+          value={
+            walletConnected
+              ? network
+              : network
+          }
           state={
             walletConnected
               ? "success"
-              : "neutral"
+              : "demo"
           }
         />
 
@@ -106,29 +109,33 @@ export default function NetworkStatus() {
           icon={<HardDrive size={16} />}
           title="Shelby Storage"
           value={
-            !walletConnected
-              ? "Connect wallet"
-              : storageAvailable === null
+            walletConnected
+              ? storageAvailable === null
                 ? "Checking"
                 : storageAvailable
                   ? "Available"
                   : "Unavailable"
+              : "Demo Data"
           }
           state={
-            !walletConnected
-              ? "neutral"
-              : storageAvailable === null
+            walletConnected
+              ? storageAvailable === null
                 ? "loading"
                 : storageAvailable
                   ? "success"
                   : "error"
+              : "demo"
           }
         />
       </div>
 
-      {walletConnected && walletAddress && (
+      {walletConnected && walletAddress ? (
         <p className="mt-4 truncate font-mono text-xs text-slate-600">
           {walletAddress}
+        </p>
+      ) : (
+        <p className="mt-4 text-xs text-slate-600">
+          Sample data is displayed until a wallet is connected.
         </p>
       )}
     </section>
@@ -144,7 +151,7 @@ function Status({
   icon: React.ReactNode;
   title: string;
   value: string;
-  state: "success" | "neutral" | "error" | "loading";
+  state: "success" | "neutral" | "error" | "loading" | "demo";
 }) {
   return (
     <div className="flex items-center justify-between py-3">
@@ -163,18 +170,15 @@ function Status({
           className={`text-sm font-medium ${
             state === "error"
               ? "text-red-400"
-              : "text-white"
+              : state === "demo"
+                ? "text-blue-400"
+                : "text-white"
           }`}
         >
           {value}
         </span>
 
-        {state === "loading" ? (
-          <Loader2
-            size={15}
-            className="animate-spin text-slate-500"
-          />
-        ) : state === "success" ? (
+        {state === "success" ? (
           <CheckCircle2
             size={15}
             className="text-emerald-500"
@@ -183,6 +187,11 @@ function Status({
           <Circle
             size={15}
             className="text-red-500"
+          />
+        ) : state === "demo" ? (
+          <Circle
+            size={15}
+            className="text-blue-500"
           />
         ) : (
           <Circle
