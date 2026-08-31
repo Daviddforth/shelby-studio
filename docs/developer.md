@@ -141,6 +141,7 @@ The current operations are:
 | Object Lookup  | GET    | `/api/shelby/object`     |
 | Download Asset | GET    | `/api/shelby/download`   |
 | List Locations | GET    | `/api/shelby/locations`  |
+| Delete Asset   | POST   | `/api/shelby/delete`     |
 
 The Playground supports request parameters where required and displays returned JSON responses directly inside the developer workspace.
 
@@ -433,6 +434,85 @@ GET /api/shelby/download?blobName=example/file.json&owner=0x...
 
 The browser receives the file and the API Playground triggers a browser download.
 
+#### Delete Asset
+
+**Endpoint**
+
+```text
+POST /api/shelby/delete
+```
+
+**Request Body**
+
+The request requires a JSON body containing:
+
+```json
+{
+  "blobName": "example/file.json"
+}
+```
+
+**Purpose**
+
+Deletes an existing Shelby blob.
+
+The supplied blob name is validated using:
+
+`BlobNameSchema`
+
+The deletion is performed server-side using:
+
+`ShelbyBlobClient.deleteObject()`
+
+The operation requires the server-side Shelby credentials:
+
+- `SHELBY_API_KEY`
+- `SHELBY_SIGNER_PRIVATE_KEY`
+
+The server creates the deletion transaction and waits for the transaction to be finalized on Aptos.
+
+**Example**
+
+```ts
+const response = await fetch("/api/shelby/delete", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    blobName: "example/file.json",
+  }),
+});
+
+const data = await response.json();
+
+console.log(data);
+```
+
+**Successful Response**
+
+```json
+{
+  "success": true,
+  "network": "Shelbynet",
+  "location": "shelbynet-1",
+  "blobName": "example/file.json",
+  "transaction": "0x..."
+}
+```
+
+The `transaction` field contains the finalized deletion transaction hash.
+
+**Errors**
+
+A missing `blobName` returns HTTP 400.
+
+Missing server-side Shelby credentials return HTTP 500.
+
+If the deletion transaction fails, the API returns HTTP 500.
+
+Because deletion modifies Shelby storage and submits a blockchain transaction, it should be treated as a write operation rather than a read-only API request.
+
 #### List Locations
 
 **Endpoint**
@@ -623,6 +703,26 @@ Required values:
 - `owner`
 
 The server consumes the returned readable stream and returns the file to the browser.
+
+### SDK Operation: Delete Asset
+
+```text
+ShelbyBlobClient.deleteObject()
+```
+
+**Purpose:**
+
+Delete a Shelby blob and submit the corresponding blockchain transaction.
+
+The operation requires:
+
+- `blobName`
+- Server-side Shelby API credentials
+- Server-side signer credentials
+
+The server waits for the deletion transaction to be finalized before returning a successful response.
+
+The browser does not receive the private signer credential.
 
 ### SDK Operation: List Locations
 
@@ -944,13 +1044,14 @@ Experimental playground:
 
 ## Developer API Summary
 
-The current developer API consists of five Shelby routes:
+The current developer API consists of six Shelby routes:
 
 - `/api/shelby/assets`
 - `/api/shelby/asset`
 - `/api/shelby/object`
 - `/api/shelby/download`
 - `/api/shelby/locations`
+- `/api/shelby/delete`
 
 And four storage routes:
 

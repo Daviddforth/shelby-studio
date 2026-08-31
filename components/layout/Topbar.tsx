@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -228,6 +229,31 @@ export default function Topbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/95 backdrop-blur">
       <div className="flex min-h-20 items-center gap-3 px-3 py-3 sm:px-6 lg:px-8">
+
+        {/* Shelby Studio Brand */}
+        <Link
+          href="/dashboard"
+          className="hidden shrink-0 items-center gap-3 md:flex"
+          aria-label="Shelby Studio Dashboard"
+        >
+          <Image
+            src="/branding/shelby-studio-logo.png"
+            alt="Shelby Studio"
+            width={40}
+            height={40}
+            priority
+            className="h-10 w-10 rounded-xl object-cover"
+          />
+
+          <div className="hidden lg:block">
+            <p className="text-sm font-bold tracking-tight text-white">
+              Shelby Studio
+            </p>
+            <p className="text-[9px] font-medium uppercase tracking-[0.12em] text-slate-500">
+              Digital Asset Workspace
+            </p>
+          </div>
+        </Link>
 
         {/* Mobile Menu */}
         <details className="relative shrink-0 md:hidden">

@@ -3,8 +3,7 @@ import Link from "next/link";
 export default function LandingNavbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-800/60 bg-slate-950/80 backdrop-blur">
-      <div className="mx-auto flex min-w-0 h-20 max-w-7xl items-center justify-between px-6">
-        {/* Logo */}
+      <div className="mx-auto flex h-20 min-w-0 max-w-7xl items-center justify-between px-6">
         <Link
           href="/"
           className="text-xl font-bold tracking-tight text-white"
@@ -12,7 +11,6 @@ export default function LandingNavbar() {
           Shelby Studio
         </Link>
 
-        {/* Navigation */}
         <nav className="hidden items-center gap-5 text-sm text-slate-400 lg:flex">
           <a
             href="#features"
@@ -29,18 +27,34 @@ export default function LandingNavbar() {
           </a>
 
           <Link
+            href="/contact"
+            className="transition hover:text-white"
+          >
+            Contact
+          </Link>
+
+          <a
+            href="https://x.com/ShelbyStudioHQ"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition hover:text-white"
+          >
+            X
+          </a>
+
+          <a
             href="https://github.com/Daviddforth/shelby-studio"
             target="_blank"
+            rel="noopener noreferrer"
             className="transition hover:text-white"
           >
             GitHub
-          </Link>
+          </a>
         </nav>
 
-        {/* CTA */}
         <Link
           href="/dashboard"
-          className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+          className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500"
         >
           Launch Workspace →
         </Link>

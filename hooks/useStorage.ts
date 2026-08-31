@@ -29,6 +29,26 @@ import {
 import { useStorageContext } from "@/context/StorageContext";
 import { useWallet } from "@/context/WalletContext";
 
+type AssetHistoryAction =
+  | "upload"
+  | "replace"
+  | "delete";
+
+interface AssetHistoryItem {
+  id: string;
+  action: AssetHistoryAction;
+  assetName: string;
+  assetUid?: string;
+  blobName?: string;
+  transactionHash?: string;
+  timestamp: string;
+}
+
+const HISTORY_PREFIX =
+  "shelby-studio-asset-history:";
+
+const MAX_HISTORY_ITEMS = 100;
+
 export function useStorage() {
   const aptos =
     new Aptos(
@@ -56,13 +76,6 @@ export function useStorage() {
     setAssets,
   } = useStorageContext();
 
-  /*
-   * Connected Aptos wallet.
-   *
-   * This wallet will become the Shelby
-   * blob owner and will pay the gas for
-   * registration + final commit.
-   */
   const {
     walletAddress,
     walletConnected,
@@ -70,6 +83,97 @@ export function useStorage() {
     signAndSubmitTransaction,
     signMessage,
   } = useWallet();
+
+  function recordHistory(
+    item: Omit<
+      AssetHistoryItem,
+      "id" | "timestamp"
+    >
+  ) {
+    if (!walletAddress) {
+      return;
+    }
+
+    try {
+      const storageKey =
+        `${HISTORY_PREFIX}${walletAddress}`;
+
+      const existing =
+        localStorage.getItem(
+          storageKey
+        );
+
+      let history: AssetHistoryItem[] =
+        [];
+
+      if (existing) {
+        try {
+          const parsed =
+            JSON.parse(existing);
+
+          if (Array.isArray(parsed)) {
+            history =
+              parsed.filter(
+                (
+                  entry
+                ): entry is AssetHistoryItem =>
+                  Boolean(
+                    entry &&
+                    typeof entry ===
+                      "object" &&
+                    typeof entry.id ===
+                      "string" &&
+                    typeof entry.action ===
+                      "string" &&
+                    typeof entry.assetName ===
+                      "string" &&
+                    typeof entry.timestamp ===
+                      "string"
+                  )
+              );
+          }
+        } catch {
+          history = [];
+        }
+      }
+
+      const nextItem: AssetHistoryItem = {
+        ...item,
+
+        id:
+          `${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2, 10)}`,
+
+        timestamp:
+          new Date().toISOString(),
+      };
+
+      const nextHistory = [
+        nextItem,
+        ...history,
+      ].slice(
+        0,
+        MAX_HISTORY_ITEMS
+      );
+
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify(nextHistory)
+      );
+    } catch (error) {
+      /*
+       * History is supplementary UI state.
+       *
+       * Never allow a localStorage failure
+       * to break a successful Shelby operation.
+       */
+      console.warn(
+        "Failed to record asset history:",
+        error
+      );
+    }
+  }
 
   async function upload(
     file: File
@@ -111,13 +215,6 @@ export function useStorage() {
     });
 
     try {
-      /*
-       * ALL file sizes use the same
-       * browser-direct Shelby pipeline.
-       *
-       * MB and GB file bytes never pass
-       * through the Next.js server.
-       */
       const asset =
         await uploadDirectlyToShelby({
           file,
@@ -156,14 +253,27 @@ export function useStorage() {
           },
         });
 
-      /*
-       * Only add the asset after the
-       * entire Shelby pipeline succeeds.
-       */
       setAssets((previous) => [
         asset,
         ...previous,
       ]);
+
+      recordHistory({
+        action: "upload",
+
+        assetName:
+          asset.name || file.name,
+
+        assetUid:
+          asset.uid,
+
+        blobName:
+          asset.blobName,
+
+        transactionHash:
+          asset.commitTransaction ||
+          asset.registrationTransaction,
+      });
 
       setProgress({
         phase: "complete",
@@ -226,13 +336,6 @@ export function useStorage() {
     setDeletingUid(uid);
 
     try {
-      /*
-       * Delete the actual Shelby object
-       * using the connected wallet.
-       *
-       * The connected wallet is the blob owner,
-       * signer and gas payer.
-       */
       const result =
         await deleteShelbyAsset({
           blobName:
@@ -252,18 +355,28 @@ export function useStorage() {
             },
         });
 
-      /*
-       * Shelby confirmed the deletion.
-       *
-       * Only now remove the asset from the
-       * Asset Manager's local state.
-       */
       setAssets((previous) =>
         previous.filter(
           (item) =>
             item.uid !== uid
         )
       );
+
+      recordHistory({
+        action: "delete",
+
+        assetName:
+          asset.name,
+
+        assetUid:
+          asset.uid,
+
+        blobName:
+          asset.blobName,
+
+        transactionHash:
+          result.transactionHash,
+      });
 
       console.log(
         "Shelby asset deleted:",
@@ -286,9 +399,10 @@ export function useStorage() {
     uid: string,
     file: File
   ): Promise<UploadedAsset> {
-    const oldAsset = assets.find(
-      (item) => item.uid === uid
-    );
+    const oldAsset =
+      assets.find(
+        (item) => item.uid === uid
+      );
 
     if (!oldAsset) {
       throw new Error(
@@ -331,16 +445,6 @@ export function useStorage() {
     setLoading(true);
 
     try {
-      /*
-       * Upload the replacement as a new Shelby object.
-       *
-       * The existing upload pipeline handles:
-       * - commitments
-       * - registration
-       * - storage-provider upload
-       * - final commit
-       * - wallet signing
-       */
       const newAsset =
         await uploadDirectlyToShelby({
           file,
@@ -355,11 +459,6 @@ export function useStorage() {
           signMessage,
         });
 
-      /*
-       * Delete the old Shelby object only after
-       * the replacement has been successfully
-       * uploaded and committed.
-       */
       const deleteResult =
         await deleteShelbyAsset({
           blobName:
@@ -371,13 +470,11 @@ export function useStorage() {
 
           waitForTransaction:
             (args) =>
-              aptos.waitForTransaction(args),
+              aptos.waitForTransaction(
+                args
+              ),
         });
 
-      /*
-       * Replace the old local asset with the
-       * newly uploaded asset.
-       */
       setAssets((previous) =>
         previous.map((item) =>
           item.uid === uid
@@ -386,18 +483,42 @@ export function useStorage() {
         )
       );
 
+      recordHistory({
+        action: "replace",
+
+        assetName:
+          newAsset.name ||
+          file.name,
+
+        assetUid:
+          newAsset.uid,
+
+        blobName:
+          newAsset.blobName,
+
+        transactionHash:
+          newAsset.commitTransaction ||
+          newAsset.registrationTransaction ||
+          deleteResult.transactionHash,
+      });
+
       console.log(
         "Shelby asset replaced:",
         {
           oldUid: uid,
+
           oldBlobName:
             oldAsset.blobName,
+
           newUid:
             newAsset.uid,
+
           newBlobName:
             newAsset.blobName,
+
           deleteTransaction:
             deleteResult.transactionHash,
+
           commitTransaction:
             newAsset.commitTransaction,
         }
@@ -405,12 +526,6 @@ export function useStorage() {
 
       return newAsset;
     } catch (error) {
-      /*
-       * If the new upload succeeded but the
-       * old deletion failed, keep the old
-       * local asset visible rather than
-       * pretending the replacement completed.
-       */
       console.error(
         "Shelby asset replacement failed:",
         error
@@ -479,17 +594,26 @@ export function useStorage() {
     }
   }
 
+  const { storageUsed } = useStorageContext();
+
   return {
     assets,
+    storageUsed,
 
     loading,
+
     deletingUid,
+
     uploadMode,
+
     progress,
 
     upload,
+
     remove,
+
     replace,
+
     refreshAssets,
   };
 }

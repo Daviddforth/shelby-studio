@@ -116,7 +116,7 @@ export default function Sidebar() {
           className="flex items-center gap-3"
         >
           <Image
-            src="/shelby-logo.jpg"
+            src="/branding/shelby-studio-logo.png"
             alt="Shelby Studio"
             width={38}
             height={38}

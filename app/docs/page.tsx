@@ -22,6 +22,13 @@ const cards = [
     icon: BookOpen,
   },
   {
+    title: "Quick Start",
+    description:
+      "Go from your first Shelby Studio API request to integrating Shelby storage into your application.",
+    href: "/docs/quick-start",
+    icon: Code2,
+  },
+  {
     title: "Philosophy",
     description:
       "Understand the principles that guide the design and development of Shelby Studio.",
@@ -82,6 +89,13 @@ const cards = [
     description:
       "Explore the technical decisions and boundaries behind the Shelby Studio implementation.",
     href: "/docs/engineering-decisions",
+    icon: Settings2,
+  },
+  {
+    title: "Limitations & Roadmap",
+    description:
+      "See what Shelby Studio supports today, its current limitations, and where the platform is heading.",
+    href: "/docs/limitations-roadmap",
     icon: Settings2,
   },
   {

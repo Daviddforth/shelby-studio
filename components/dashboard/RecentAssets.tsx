@@ -7,6 +7,7 @@ import {
   FileJson,
   Video,
   ArrowRight,
+  Upload,
 } from "lucide-react";
 
 import { useStorageContext } from "@/context/StorageContext";
@@ -61,14 +62,27 @@ export default function RecentAssets() {
       </div>
 
       {assets.length === 0 ? (
-        <div className="mt-5 rounded-xl border border-dashed border-slate-800 px-5 py-8 text-center">
-          <p className="text-sm font-medium text-white">
-            No assets uploaded yet
+        <div className="mt-5 rounded-xl border border-dashed border-slate-800 bg-slate-950/40 px-5 py-9 text-center">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400">
+            <Upload size={18} />
+          </div>
+
+          <p className="mt-4 text-sm font-medium text-white">
+            Your storage is ready
           </p>
 
-          <p className="mt-1 text-xs text-slate-500">
-            Upload your first file from Storage.
+          <p className="mx-auto mt-2 max-w-sm text-xs leading-5 text-slate-500">
+            Files you upload to Shelby will appear here,
+            along with their storage status.
           </p>
+
+          <Link
+            href="/storage"
+            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-blue-500 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-blue-400"
+          >
+            Upload an asset
+            <ArrowRight size={14} />
+          </Link>
         </div>
       ) : (
         <div className="mt-5 divide-y divide-slate-800">

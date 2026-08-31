@@ -1,6 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import {
+  Database,
+  Files,
+  HardDrive,
+} from "lucide-react";
+
 import { useStorage } from "@/hooks/useStorage";
 import { useWallet } from "@/context/WalletContext";
 
@@ -14,12 +20,44 @@ const tabs = [
   "History",
 ];
 
+function formatStorage(bytes: number) {
+  if (bytes === 0) {
+    return "0 B";
+  }
+
+  const units = [
+    "B",
+    "KB",
+    "MB",
+    "GB",
+    "TB",
+  ];
+
+  const index = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1
+  );
+
+  const value =
+    bytes / Math.pow(1024, index);
+
+  return `${value.toFixed(index === 0 ? 0 : 2)} ${units[index]}`;
+}
+
 export default function AssetTabs() {
-  const [activeTab, setActiveTab] = useState("Overview");
+  const [activeTab, setActiveTab] =
+    useState("Overview");
 
   const { walletConnected } = useWallet();
 
   const { assets } = useStorage();
+
+  const storageUsed = useMemo(() => {
+    return assets.reduce(
+      (total, asset) => total + (asset.size || 0),
+      0
+    );
+  }, [assets]);
 
   return (
     <div className="min-w-0 overflow-hidden rounded-3xl border border-slate-800 bg-slate-900">
@@ -45,36 +83,116 @@ export default function AssetTabs() {
       <div className="min-w-0 p-4 sm:p-6">
         {activeTab === "Overview" && (
           walletConnected ? (
-            <div className="grid gap-4 md:grid-cols-2">
-              <Info
-                label="Owner"
-                value="Connected Wallet"
-              />
+            <div className="space-y-6">
+              {/* Overview information */}
+              <div className="grid gap-4 md:grid-cols-2">
+                <Info
+                  label="Owner"
+                  value="Connected Wallet"
+                />
 
-              <Info
-                label="Network"
-                value="Shelbynet"
-              />
+                <Info
+                  label="Network"
+                  value="Shelbynet"
+                />
 
-              <Info
-                label="Storage"
-                value="Shelby Ready"
-              />
+                <Info
+                  label="Storage"
+                  value="Shelby Ready"
+                />
 
-              <Info
-                label="Verification"
-                value="Verified"
-              />
+                <Info
+                  label="Verification"
+                  value="Verified"
+                />
 
-              <Info
-                label="Assets"
-                value={`${assets.length}`}
-              />
+                <Info
+                  label="Assets"
+                  value={`${assets.length}`}
+                />
 
-              <Info
-                label="Status"
-                value="Connected"
-              />
+                <Info
+                  label="Status"
+                  value="Connected"
+                />
+              </div>
+
+              {/* Storage usage */}
+              <div className="rounded-2xl border border-slate-800 bg-slate-950 p-5 sm:p-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10">
+                      <HardDrive
+                        size={19}
+                        className="text-blue-400"
+                      />
+                    </div>
+
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-white">
+                        Storage Used
+                      </p>
+
+                      <p className="mt-1 text-xs leading-5 text-slate-500">
+                        Total size of assets currently
+                        returned for this wallet.
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="text-xl font-bold text-white sm:text-right">
+                    {formatStorage(storageUsed)}
+                  </p>
+                </div>
+
+                <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-800">
+                  <div
+                    className="h-full rounded-full bg-blue-500"
+                    style={{
+                      width:
+                        storageUsed > 0
+                          ? "100%"
+                          : "0%",
+                    }}
+                  />
+                </div>
+
+                <div className="mt-3 flex flex-col gap-1 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+                  <span>
+                    {assets.length}{" "}
+                    {assets.length === 1
+                      ? "asset"
+                      : "assets"}
+                  </span>
+
+                  <span>
+                    Current stored data
+                  </span>
+                </div>
+              </div>
+
+              {/* Storage explanation */}
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+                <div className="flex items-start gap-3">
+                  <Database
+                    size={17}
+                    className="mt-0.5 shrink-0 text-slate-500"
+                  />
+
+                  <div>
+                    <p className="text-sm font-medium text-slate-300">
+                      Storage information
+                    </p>
+
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      This value represents the combined
+                      size of the assets currently available
+                      to this wallet. It is not an account
+                      quota or maximum storage limit.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/40 p-8 text-center">
@@ -83,9 +201,9 @@ export default function AssetTabs() {
               </p>
 
               <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-                Your Shelby assets, collections, metadata, and
-                storage information will appear here after
-                connecting your Aptos wallet.
+                Your Shelby assets, collections, metadata,
+                and storage information will appear here
+                after connecting your Aptos wallet.
               </p>
 
               <div className="mx-auto mt-6 grid max-w-2xl gap-3 text-left sm:grid-cols-3">
@@ -96,7 +214,7 @@ export default function AssetTabs() {
 
                 <PreviewItem
                   title="Track Storage"
-                  description="View storage usage and files associated with your wallet."
+                  description="View the current total size of files associated with your wallet."
                 />
 
                 <PreviewItem
@@ -175,8 +293,9 @@ export default function AssetTabs() {
               </h2>
 
               <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-                Create, validate, import, and manage your NFT
-                metadata from the dedicated Metadata workspace.
+                Create, validate, import, and manage your
+                NFT metadata from the dedicated Metadata
+                workspace.
               </p>
 
               <a

@@ -4,6 +4,7 @@ import {
   CalendarDays,
   Copy,
   Download,
+  ExternalLink,
   File,
   Hash,
   HardDrive,
@@ -27,10 +28,16 @@ function formatSize(bytes: number) {
   }
 
   if (bytes < 1024 * 1024 * 1024) {
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    return `${(
+      bytes /
+      (1024 * 1024)
+    ).toFixed(1)} MB`;
   }
 
-  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+  return `${(
+    bytes /
+    (1024 * 1024 * 1024)
+  ).toFixed(2)} GB`;
 }
 
 function formatDate(date: string) {
@@ -40,34 +47,63 @@ function formatDate(date: string) {
     return "Unknown";
   }
 
-  return parsed.toLocaleString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return parsed.toLocaleString(
+    undefined,
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
 }
 
-function shorten(value: string, start = 12, end = 10) {
-  if (value.length <= start + end + 3) {
+function shorten(
+  value: string,
+  start = 12,
+  end = 10
+) {
+  if (
+    value.length <=
+    start + end + 3
+  ) {
     return value;
   }
 
-  return `${value.slice(0, start)}...${value.slice(-end)}`;
+  return `${value.slice(
+    0,
+    start
+  )}...${value.slice(-end)}`;
+}
+
+function getShelbyExplorerUrl(
+  asset: UploadedAsset
+) {
+  if (!asset.owner) {
+    return null;
+  }
+
+  return `https://explorer.shelby.xyz/shelbynet/account/${encodeURIComponent(
+    asset.owner
+  )}`;
 }
 
 export default function AssetDetails({
   asset,
   onClose,
 }: Props) {
-  async function copyValue(value?: string) {
+  async function copyValue(
+    value?: string
+  ) {
     if (!value) {
       return;
     }
 
     try {
-      await navigator.clipboard.writeText(value);
+      await navigator.clipboard.writeText(
+        value
+      );
     } catch (error) {
       console.error(
         "Failed to copy value:",
@@ -76,15 +112,34 @@ export default function AssetDetails({
     }
   }
 
-  function handleDownload() {
-    if (!asset.owner || !asset.blobName) {
+  function handleShelbyExplorer() {
+    const url =
+      getShelbyExplorerUrl(asset);
+
+    if (!url) {
       return;
     }
 
-    const params = new URLSearchParams({
-      owner: asset.owner,
-      blobName: asset.blobName,
-    });
+    window.open(
+      url,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }
+
+  function handleDownload() {
+    if (
+      !asset.owner ||
+      !asset.blobName
+    ) {
+      return;
+    }
+
+    const params =
+      new URLSearchParams({
+        owner: asset.owner,
+        blobName: asset.blobName,
+      });
 
     window.location.href =
       `/api/shelby/download?${params.toString()}`;
@@ -93,15 +148,21 @@ export default function AssetDetails({
   const canDownload =
     Boolean(
       asset.owner &&
-      asset.blobName &&
-      asset.status === "Stored"
+        asset.blobName &&
+        asset.status === "Stored"
     );
+
+  const canOpenExplorer =
+    Boolean(asset.owner);
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) {
+        if (
+          event.target ===
+          event.currentTarget
+        ) {
           onClose();
         }
       }}
@@ -146,7 +207,9 @@ export default function AssetDetails({
               </div>
 
               <p className="mt-2 text-sm font-medium text-white">
-                {formatSize(asset.size)}
+                {formatSize(
+                  asset.size
+                )}
               </p>
             </div>
 
@@ -168,7 +231,9 @@ export default function AssetDetails({
               </div>
 
               <p className="mt-2 text-sm font-medium text-white">
-                {formatDate(asset.uploadedAt)}
+                {formatDate(
+                  asset.uploadedAt
+                )}
               </p>
             </div>
 
@@ -196,7 +261,9 @@ export default function AssetDetails({
                   <button
                     type="button"
                     onClick={() =>
-                      copyValue(asset.uid)
+                      copyValue(
+                        asset.uid
+                      )
                     }
                     className="text-slate-500 transition hover:text-blue-400"
                     title="Copy UID"
@@ -207,7 +274,8 @@ export default function AssetDetails({
               </div>
 
               <div className="rounded-xl border border-slate-800 bg-slate-900 p-3 font-mono text-xs text-slate-300">
-                {asset.uid || "Not available"}
+                {asset.uid ||
+                  "Not available"}
               </div>
             </div>
 
@@ -221,7 +289,9 @@ export default function AssetDetails({
                   <button
                     type="button"
                     onClick={() =>
-                      copyValue(asset.owner)
+                      copyValue(
+                        asset.owner
+                      )
                     }
                     className="text-slate-500 transition hover:text-blue-400"
                     title="Copy owner address"
@@ -236,7 +306,9 @@ export default function AssetDetails({
                 className="rounded-xl border border-slate-800 bg-slate-900 p-3 font-mono text-xs text-slate-300"
               >
                 {asset.owner
-                  ? shorten(asset.owner)
+                  ? shorten(
+                      asset.owner
+                    )
                   : "Not available"}
               </div>
             </div>
@@ -251,7 +323,9 @@ export default function AssetDetails({
                   <button
                     type="button"
                     onClick={() =>
-                      copyValue(asset.blobName)
+                      copyValue(
+                        asset.blobName
+                      )
                     }
                     className="text-slate-500 transition hover:text-blue-400"
                     title="Copy blob name"
@@ -272,7 +346,7 @@ export default function AssetDetails({
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 border-t border-slate-800 bg-slate-950/80 p-5">
+        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-slate-800 bg-slate-950/80 p-5">
           <button
             type="button"
             onClick={onClose}
@@ -283,11 +357,33 @@ export default function AssetDetails({
 
           <button
             type="button"
-            onClick={handleDownload}
-            disabled={!canDownload}
+            onClick={
+              handleShelbyExplorer
+            }
+            disabled={
+              !canOpenExplorer
+            }
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-300 transition hover:border-blue-500 hover:bg-blue-500/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <ExternalLink
+              size={16}
+            />
+            Shelby Explorer
+          </button>
+
+          <button
+            type="button"
+            onClick={
+              handleDownload
+            }
+            disabled={
+              !canDownload
+            }
             className="inline-flex items-center gap-2 rounded-xl border border-blue-500/40 bg-blue-500/10 px-4 py-2.5 text-sm font-medium text-blue-400 transition hover:bg-blue-500/20 hover:text-blue-300 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            <Download size={16} />
+            <Download
+              size={16}
+            />
             Download
           </button>
         </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import {
   Download,
+  ExternalLink,
   File,
   FileArchive,
   FileCode2,
@@ -92,12 +93,29 @@ function getFileType(fileName: string) {
 function isImageFile(fileName: string) {
   const extension = getExtension(fileName);
 
-  return ["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(
-    extension
-  );
+  return [
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "webp",
+    "svg",
+  ].includes(extension);
 }
 
-function getImageUrl(asset: UploadedAsset) {
+function isVideoFile(fileName: string) {
+  const extension = getExtension(fileName);
+
+  return [
+    "mp4",
+    "mov",
+    "avi",
+    "mkv",
+    "webm",
+  ].includes(extension);
+}
+
+function getShelbyDownloadUrl(asset: UploadedAsset) {
   if (!asset.owner || !asset.blobName) {
     return null;
   }
@@ -108,6 +126,16 @@ function getImageUrl(asset: UploadedAsset) {
   });
 
   return `/api/shelby/download?${params.toString()}`;
+}
+
+function getShelbyExplorerUrl(asset: UploadedAsset) {
+  if (!asset.owner) {
+    return null;
+  }
+
+  return `https://explorer.shelby.xyz/shelbynet/account/${encodeURIComponent(
+    asset.owner
+  )}`;
 }
 
 function getFileIcon(fileName: string) {
@@ -200,11 +228,40 @@ export default function AssetRow({
   const fileName = getFileName(asset);
   const fileType = getFileType(fileName);
   const FileIcon = getFileIcon(fileName);
-    const imageUrl = isImageFile(fileName) ? getImageUrl(asset) : null;
-    const videoUrl = getFileType(fileName) === "Video" ? getImageUrl(asset) : null;
+
+  const downloadUrl =
+    getShelbyDownloadUrl(asset);
+
+  const imageUrl =
+    isImageFile(fileName)
+      ? downloadUrl
+      : null;
+
+  const videoUrl =
+    isVideoFile(fileName)
+      ? downloadUrl
+      : null;
+
+  function handleShelbyExplorer() {
+    const url =
+      getShelbyExplorerUrl(asset);
+
+    if (!url) {
+      console.error(
+        "Cannot open Shelby Explorer: owner is missing."
+      );
+      return;
+    }
+
+    window.open(
+      url,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }
 
   function handleDownload() {
-    if (!asset.owner || !asset.blobName) {
+    if (!downloadUrl) {
       console.error(
         "Cannot download asset: owner or blobName is missing."
       );
@@ -212,13 +269,8 @@ export default function AssetRow({
       return;
     }
 
-    const params = new URLSearchParams({
-      owner: asset.owner,
-      blobName: asset.blobName,
-    });
-
     window.location.href =
-      `/api/shelby/download?${params.toString()}`;
+      downloadUrl;
   }
 
   const canDownload = Boolean(
@@ -227,30 +279,34 @@ export default function AssetRow({
       asset.status === "Stored"
   );
 
+  const canOpenExplorer = Boolean(
+    asset.owner
+  );
+
   return (
     <>
       <div className="group rounded-2xl border border-slate-800 bg-slate-900 p-4 transition hover:border-blue-500/30 hover:bg-slate-900/80">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-blue-500/10 text-blue-400">
-                {imageUrl ? (
-                  <img
-                    src={imageUrl}
-                    alt={fileName}
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                  />
-                ) : videoUrl ? (
-                  <video
-                    src={videoUrl}
-                    className="h-full w-full object-cover"
-                    muted
-                    playsInline
-                    preload="metadata"
-                  />
-                ) : (
-                  <FileIcon size={19} />
-                )}
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt={fileName}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              ) : videoUrl ? (
+                <video
+                  src={videoUrl}
+                  className="h-full w-full object-cover"
+                  muted
+                  playsInline
+                  preload="metadata"
+                />
+              ) : (
+                <FileIcon size={19} />
+              )}
             </div>
 
             <div className="min-w-0">
@@ -270,26 +326,32 @@ export default function AssetRow({
                   •
                 </span>
 
-                <span>{fileType}</span>
-
-                <span className="text-slate-700">
-                  •
+                <span>
+                  {fileType}
                 </span>
-
-                <span>{asset.network}</span>
 
                 <span className="text-slate-700">
                   •
                 </span>
 
                 <span>
-                  {formatDate(asset.uploadedAt)}
+                  {asset.network}
+                </span>
+
+                <span className="text-slate-700">
+                  •
+                </span>
+
+                <span>
+                  {formatDate(
+                    asset.uploadedAt
+                  )}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
             <span
               className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
                 asset.status === "Stored"
@@ -314,8 +376,33 @@ export default function AssetRow({
 
             <button
               type="button"
-              onClick={handleDownload}
-              disabled={!canDownload}
+              onClick={
+                handleShelbyExplorer
+              }
+              disabled={
+                !canOpenExplorer
+              }
+              title={
+                canOpenExplorer
+                  ? "View account on Shelby Explorer"
+                  : "Owner address unavailable"
+              }
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-2 text-xs font-medium text-slate-300 transition hover:border-blue-500 hover:bg-blue-500/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ExternalLink
+                size={14}
+              />
+              Shelby Explorer
+            </button>
+
+            <button
+              type="button"
+              onClick={
+                handleDownload
+              }
+              disabled={
+                !canDownload
+              }
               title={
                 canDownload
                   ? "Download asset"
@@ -323,7 +410,9 @@ export default function AssetRow({
               }
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-2 text-xs font-medium text-slate-300 transition hover:border-blue-500 hover:bg-blue-500/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <Download size={14} />
+              <Download
+                size={14}
+              />
               Download
             </button>
           </div>

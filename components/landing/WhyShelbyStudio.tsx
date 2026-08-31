@@ -3,25 +3,25 @@ const reasons = [
     number: "01",
     title: "Developer First",
     description:
-      "Built around real development workflows so builders can spend less time managing fragmented infrastructure and more time creating.",
+      "Designed around the practical workflow of builders working with storage, assets and application infrastructure.",
   },
   {
     number: "02",
-    title: "One Connected Workspace",
+    title: "Operational Visibility",
     description:
-      "Storage, assets, metadata, collections, exploration and developer tooling work together in one environment.",
+      "Inspect important storage and development operations instead of treating decentralized infrastructure as a black box.",
   },
   {
     number: "03",
-    title: "Transparent Infrastructure",
+    title: "Project Oriented",
     description:
-      "Shelby Studio exposes important storage and development operations instead of treating decentralized infrastructure as a black box.",
+      "Keep assets, metadata, collections and development resources connected around the work your application is actually doing.",
   },
   {
     number: "04",
     title: "Built for Shelby",
     description:
-      "Purpose-built around Shelby storage and the Shelby ecosystem, with workflows designed specifically for applications building on the network.",
+      "Purpose-built around Shelby workflows rather than adapting a generic file manager or NFT dashboard.",
   },
 ];
 
@@ -36,12 +36,13 @@ export default function WhyShelbyStudio() {
             </p>
 
             <h2 className="mt-4 text-3xl font-bold tracking-tight text-white md:text-4xl">
-              Built to simplify building on Shelby.
+              A workspace built around the work.
             </h2>
 
             <p className="mt-5 max-w-md text-base leading-7 text-slate-400">
-              Shelby Studio brings the tools developers use
-              throughout their workflow into one focused environment.
+              Shelby Studio focuses on the layer between Shelby
+              infrastructure and the applications, creators and
+              teams building with it.
             </p>
           </div>
 
