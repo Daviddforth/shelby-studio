@@ -408,7 +408,7 @@ export default function Topbar() {
         </div>
 
         {/* Right Side */}
-        <div className="flex shrink-0 items-center gap-2 sm:ml-4 sm:gap-3 lg:ml-8 lg:gap-4">
+        <div className="flex shrink-0 items-center gap-2 sm:ml-4 sm:gap-3 lg:ml-auto lg:gap-4">
           <div className="max-w-[150px] sm:max-w-none"><ConnectWallet /></div>
 
           <Link
