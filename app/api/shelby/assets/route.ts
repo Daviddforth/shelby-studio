@@ -42,7 +42,7 @@ export async function GET(
         {
           success: false,
           error:
-            "A wallet address is required.",
+            "A Shelby account address is required.",
         },
         { status: 400 }
       );
@@ -60,7 +60,7 @@ export async function GET(
         {
           success: false,
           error:
-            "Invalid wallet address.",
+            "Invalid Shelby account address.",
         },
         { status: 400 }
       );
