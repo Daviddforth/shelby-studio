@@ -12,14 +12,14 @@ import StorageAnalytics from "@/components/dashboard/StorageAnalytics";
 export default function DashboardPage() {
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-5 sm:space-y-6">
         <DashboardHero />
 
         <DashboardStats />
 
         <QuickActions />
 
-        <div className="grid min-w-0 gap-5 xl:grid-cols-[1.5fr_1fr]">
+        <div className="grid min-w-0 gap-4 sm:gap-5 xl:grid-cols-[1.5fr_1fr]">
           <StorageOverview />
           <NetworkStatus />
         </div>

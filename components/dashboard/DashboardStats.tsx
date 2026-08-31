@@ -81,7 +81,7 @@ export default function DashboardStats() {
         return (
           <div
             key={stat.title}
-            className={`px-4 py-5 ${
+            className={`px-3 py-4 sm:px-4 sm:py-5 ${
               index > 0 ? "border-l border-slate-800" : ""
             }`}
           >
