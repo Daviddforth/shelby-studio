@@ -576,7 +576,5 @@ For information about Shelby itself, visit:
 ## Links
 
 - GitHub: https://github.com/Daviddforth/shelby-studio
-- Shelby: https://shelby.xyz/
-- Shelby Documentation: https://docs.shelby.xyz/
 - Shelby Studio: https://shelbystudio.xyz/
 - X: https://x.com/ShelbyStudioHQ
