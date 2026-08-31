@@ -7,6 +7,7 @@ import {
 
 import { useStorageContext } from "@/context/StorageContext";
 import { useWallet } from "@/context/WalletContext";
+import { demoAssets } from "@/components/demo/demoData";
 
 function formatBytes(bytes: number) {
   if (!Number.isFinite(bytes) || bytes <= 0) {
@@ -48,6 +49,13 @@ export default function StorageOverview() {
 
   const totalFiles = assets.length;
 
+  const demoStorageUsed = demoAssets.reduce(
+    (sum, asset) => sum + asset.size,
+    0
+  );
+
+  const demoTotalFiles = demoAssets.length;
+
   return (
     <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
       <div className="flex items-start justify-between gap-4">
@@ -76,7 +84,9 @@ export default function StorageOverview() {
           />
         ) : (
           <span className="text-sm font-medium text-slate-300">
-            {walletConnected ? formatBytes(storageUsed) : "—"}
+            {walletConnected
+              ? formatBytes(storageUsed)
+              : formatBytes(demoStorageUsed)}
           </span>
         )}
       </div>
@@ -92,7 +102,7 @@ export default function StorageOverview() {
           </span>
 
           <p className="mt-1 font-medium text-white">
-            {walletConnected ? totalFiles : "—"}
+            {walletConnected ? totalFiles : demoTotalFiles}
           </p>
         </div>
 
@@ -104,7 +114,7 @@ export default function StorageOverview() {
           <p className="mt-1 font-medium text-white">
             {walletConnected
               ? formatBytes(storageUsed)
-              : "—"}
+              : formatBytes(demoStorageUsed)}
           </p>
         </div>
 
@@ -136,7 +146,7 @@ export default function StorageOverview() {
               ? "Unavailable"
               : walletConnected
                 ? "Connected"
-                : "Connect wallet"}
+                : "Demo"}
           </p>
         </div>
       </div>
