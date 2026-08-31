@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 "use client";
 
 import {
@@ -16,8 +17,8 @@ export default function RecentActivity() {
   if (!walletConnected) {
     return (
       <EmptyState
-        title="No activity yet"
-        description="Connect your wallet to start using your Shelby Studio workspace."
+        title="Workspace activity starts here"
+        description="Connect your wallet to begin using Shelby Studio. Uploads and other workspace activity will appear here as you use the product."
       />
     );
   }
@@ -25,8 +26,16 @@ export default function RecentActivity() {
   if (assets.length === 0) {
     return (
       <EmptyState
-        title="No activity yet"
-        description="Your latest workspace activity will appear here after you upload your first asset."
+        title="No storage activity yet"
+        description="Your recent uploads and storage events will appear here once you start storing assets with Shelby."
+        action={
+          <a
+            href="/storage"
+            className="mt-5 inline-flex items-center rounded-lg bg-blue-500 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-blue-400"
+          >
+            Go to Storage
+          </a>
+        }
       />
     );
   }
@@ -89,9 +98,11 @@ export default function RecentActivity() {
 function EmptyState({
   title,
   description,
+  action,
 }: {
   title: string;
   description: string;
+  action?: ReactNode;
 }) {
   return (
     <section className="flex min-h-[240px] items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/60 p-6 text-center">
@@ -108,6 +119,8 @@ function EmptyState({
         <p className="mt-2 text-sm leading-6 text-slate-500">
           {description}
         </p>
+
+        {action}
       </div>
     </section>
   );

@@ -12,6 +12,7 @@ import MarkdownDocument from "@/components/docs/MarkdownDocument";
 
 const allowedDocs = [
   "introduction",
+  "quick-start",
   "philosophy",
   "architecture",
   "storage-engine",
@@ -21,6 +22,7 @@ const allowedDocs = [
   "collections",
   "dashboard",
   "engineering-decisions",
+  "limitations-roadmap",
 "developer",
 ] as const;
 
@@ -29,6 +31,7 @@ const docTitles: Record<
   string
 > = {
   introduction: "Introduction",
+  "quick-start": "Quick Start",
   philosophy: "Philosophy",
   architecture: "Architecture",
   "storage-engine": "Storage Engine",
@@ -39,6 +42,8 @@ const docTitles: Record<
   dashboard: "Dashboard",
   "engineering-decisions":
     "Engineering Decisions",
+  "limitations-roadmap":
+    "Limitations & Roadmap",
 developer: "Developer Platform",
 };
 

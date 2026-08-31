@@ -15,6 +15,16 @@ export interface MetadataAttribute {
   value: string;
 }
 
+export interface MetadataStorageRecord {
+  uid: string;
+  name: string;
+  blobName: string;
+  size: number;
+  uploadedAt: string;
+  network: string;
+  owner: string;
+}
+
 export interface Metadata {
   name: string;
   description: string;
@@ -24,6 +34,7 @@ export interface Metadata {
   animation_url: string;
   external_url: string;
   attributes: MetadataAttribute[];
+  storage: MetadataStorageRecord | null;
 }
 
 interface MetadataContextType {
@@ -47,6 +58,7 @@ const defaultMetadata: Metadata = {
   animation_url: "",
   external_url: "",
   attributes: [],
+  storage: null,
 };
 
 const MetadataContext =

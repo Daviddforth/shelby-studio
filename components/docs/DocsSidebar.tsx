@@ -16,6 +16,10 @@ const sections = [
         slug: "introduction",
       },
       {
+        title: "Quick Start",
+        slug: "quick-start",
+      },
+      {
         title: "Philosophy",
         slug: "philosophy",
       },
@@ -75,6 +79,10 @@ const sections = [
         title: "Engineering Decisions",
         slug: "engineering-decisions",
       },
+        {
+          title: "Limitations & Roadmap",
+          slug: "limitations-roadmap",
+        },
     ],
   },
 ];

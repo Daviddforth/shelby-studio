@@ -25,6 +25,10 @@ export const metadata: Metadata = {
   title: "Shelby Studio",
   description:
     "The all-in-one workspace for managing Shelby NFTs, digital assets, storage, and metadata.",
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({

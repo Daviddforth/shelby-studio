@@ -6,11 +6,17 @@ import {
   Trash2,
   RefreshCw,
   CheckCircle2,
+  Image as ImageIcon,
+  ArrowRight,
 } from "lucide-react";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+
 import type { UploadedAsset } from "@/lib/services/storage";
 import { useStorage } from "@/hooks/useStorage";
+import { useMetadata } from "@/context/MetadataContext";
+
 import AssetDetails from "./AssetDetails";
 
 interface Props {
@@ -20,6 +26,8 @@ interface Props {
 export default function AssetCard({
   asset,
 }: Props) {
+  const router = useRouter();
+
   const [downloading, setDownloading] =
     useState(false);
 
@@ -38,6 +46,10 @@ export default function AssetCard({
     deletingUid,
   } = useStorage();
 
+  const {
+    setMetadata,
+  } = useMetadata();
+
   const deleting =
     deletingUid === asset.uid;
 
@@ -47,6 +59,42 @@ export default function AssetCard({
       asset.blobName &&
       asset.status === "Stored"
     );
+
+  const canUseForMetadata =
+    Boolean(
+      asset.owner &&
+      asset.blobName &&
+      asset.status === "Stored"
+    );
+
+  function handleUseForMetadata() {
+    if (!canUseForMetadata) {
+      alert(
+        "This asset does not have the Shelby information required for metadata."
+      );
+
+      return;
+    }
+
+    /*
+     * Store the Shelby blob reference in the
+     * metadata image field.
+     *
+     * imagePreview remains empty because this
+     * asset was selected from Shelby Storage,
+     * rather than uploaded directly from the browser.
+     */
+    setMetadata((previous) => ({
+      ...previous,
+
+      image:
+        asset.blobName || "",
+
+      imagePreview: "",
+    }));
+
+    router.push("/metadata");
+  }
 
   async function handleDelete() {
     if (deleting) {
@@ -77,7 +125,6 @@ export default function AssetCard({
       );
     }
   }
-
 
   function handleReplaceClick() {
     if (deleting || replacing) {
@@ -292,12 +339,16 @@ export default function AssetCard({
             : "Download"}
         </button>
 
-        <input
-          ref={replaceInputRef}
-          type="file"
-          className="hidden"
-          onChange={handleReplace}
-        />
+        <button
+          type="button"
+          disabled={!canUseForMetadata}
+          onClick={handleUseForMetadata}
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
+        >
+          <ImageIcon size={16} />
+          Use for Metadata
+          <ArrowRight size={15} />
+        </button>
 
         <button
           type="button"
@@ -306,7 +357,7 @@ export default function AssetCard({
             replacing
           }
           onClick={handleReplaceClick}
-          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-950 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
         >
           <RefreshCw
             size={16}
@@ -316,6 +367,7 @@ export default function AssetCard({
                 : ""
             }
           />
+
           {replacing
             ? "Replacing..."
             : "Replace"}
@@ -325,13 +377,21 @@ export default function AssetCard({
           type="button"
           disabled={deleting}
           onClick={handleDelete}
-          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-2 text-sm text-red-400 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
         >
           <Trash2 size={16} />
+
           {deleting
             ? "Deleting..."
             : "Delete"}
         </button>
+
+        <input
+          ref={replaceInputRef}
+          type="file"
+          className="hidden"
+          onChange={handleReplace}
+        />
       </div>
 
       {showDetails && (

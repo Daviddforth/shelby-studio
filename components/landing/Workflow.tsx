@@ -1,33 +1,33 @@
 const steps = [
   {
     number: "01",
-    title: "Connect to Shelby",
+    title: "Connect",
     description:
-      "Configure your Shelby environment and establish the storage and application workflow your project needs.",
+      "Connect your wallet and establish the Shelby environment for your project.",
   },
   {
     number: "02",
-    title: "Upload & Store",
+    title: "Store",
     description:
-      "Upload digital assets and store them through Shelby while keeping your project organized in one workspace.",
+      "Upload digital assets and manage Shelby-backed storage from your workspace.",
   },
   {
     number: "03",
-    title: "Create Metadata",
+    title: "Structure",
     description:
-      "Build structured metadata, manage attributes and prepare assets for NFT and application workflows.",
+      "Create metadata, attributes and collections around the assets your application needs.",
   },
   {
     number: "04",
-    title: "Explore & Inspect",
+    title: "Inspect",
     description:
-      "Use the Explorer and developer tools to inspect assets, locations, objects and supported API responses.",
+      "Explore assets, storage information and supported Shelby data through the Explorer.",
   },
   {
     number: "05",
-    title: "Build & Integrate",
+    title: "Integrate",
     description:
-      "Use SDK resources, generated examples and API operations as building blocks for applications powered by Shelby.",
+      "Use APIs, SDK resources and generated examples to take your Shelby workflow into your application.",
   },
 ];
 
@@ -40,17 +40,16 @@ export default function Workflow() {
       <div className="mx-auto max-w-6xl px-6 py-24">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-400">
-            Developer Workflow
+            Quick Start
           </p>
 
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-white md:text-4xl">
-            From storage to integration.
+            From your first asset to your application.
           </h2>
 
           <p className="mt-5 text-base leading-7 text-slate-400">
-            Shelby Studio gives developers a practical path from
-            storing assets to inspecting data and integrating Shelby
-            into applications.
+            A practical workflow for teams building applications,
+            collections and digital experiences with Shelby.
           </p>
         </div>
 
