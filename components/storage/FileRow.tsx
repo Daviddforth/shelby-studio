@@ -31,16 +31,16 @@ export default function FileRow({
       : FileText;
 
   return (
-    <div className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950 p-4 hover:border-blue-500 transition">
+    <div className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-950 p-4 transition hover:border-blue-500 sm:flex-row sm:items-center sm:justify-between">
 
-      <div className="flex items-center gap-4">
+      <div className="flex min-w-0 items-center gap-4">
 
         <div className="rounded-xl bg-slate-800 p-3">
           <Icon className="text-blue-400" size={24} />
         </div>
 
-        <div>
-          <h3 className="font-semibold text-white">
+        <div className="min-w-0">
+          <h3 className="truncate font-semibold text-white">
             {name}
           </h3>
 
@@ -51,7 +51,7 @@ export default function FileRow({
 
       </div>
 
-      <div className="flex items-center gap-5">
+      <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:gap-5">
 
         <div className="flex items-center gap-2 text-green-400">
           <CheckCircle2 size={18} />

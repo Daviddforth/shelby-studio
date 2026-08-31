@@ -63,7 +63,7 @@ export default function NetworkStatus() {
   }, [walletConnected, walletAddress]);
 
   return (
-    <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-6">
       <div>
         <h2 className="text-base font-semibold text-white">
           Network

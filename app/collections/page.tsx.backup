@@ -78,8 +78,8 @@ export default function CollectionsPage() {
       <div className="space-y-8">
         <CollectionHeader />
 
-        <div className="grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:gap-8">
-          <div className="min-w-0 space-y-8">
+        <div className="grid min-w-0 gap-6 xl:grid-cols-2 xl:gap-8">
+          <div className="space-y-8">
             <CollectionInformation />
 
             <CollectionBranding />
@@ -87,7 +87,7 @@ export default function CollectionsPage() {
             <CollectionActions />
           </div>
 
-          <div className="min-w-0 space-y-8">
+          <div className="space-y-8">
             <CollectionPreview />
           </div>
         </div>
