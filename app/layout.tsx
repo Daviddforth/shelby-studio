@@ -10,6 +10,7 @@ import { MetadataProvider } from "../context/MetadataContext";
 import { CollectionProvider } from "../context/CollectionContext";
 import { ActivityProvider } from "../context/ActivityContext";
 import ShelbyProvider from "../context/ShelbyProvider";
+import InteractiveWatermark from "../components/ui/InteractiveWatermark";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,7 +50,10 @@ export default function RootLayout({
                 <CollectionProvider>
                   <ActivityProvider>
                     <ShelbyProvider>
-                      {children}
+                      <InteractiveWatermark />
+                      <div className="relative z-10">
+                        {children}
+                      </div>
                     </ShelbyProvider>
                   </ActivityProvider>
                 </CollectionProvider>
