@@ -196,8 +196,6 @@ export async function streamUploadToShelby({
 
         size: file.size,
 
-        expirationMicros,
-
         config: provider.config,
       }
     );

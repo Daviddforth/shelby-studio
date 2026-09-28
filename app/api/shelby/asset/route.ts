@@ -94,7 +94,7 @@ export async function GET(
      */
     const metadata =
       await shelbyClient.coordination
-        .getFullObjectMetadata({
+        .getObjectBlobMetadata({
           account:
             signer.accountAddress,
           name: blobName,
@@ -124,28 +124,25 @@ export async function GET(
           null,
 
         owner:
-          metadata.owner.toString(),
-
-        name:
-          metadata.name.toString(),
-
-        blobName:
-          metadata.blobNameSuffix,
-
-        size:
-          metadata.size,
+          metadata.blob.owner.toString(),
 
         creationMicros:
-          metadata.creationMicros,
-
-        expirationMicros:
-          metadata.expirationMicros,
+          metadata.blob.creationMicros,
 
         sliceAddress:
-          metadata.sliceAddress.toString(),
+          metadata.blob.sliceAddress.toString(),
 
-        encryption:
-          metadata.encryption ?? null,
+        state:
+          metadata.blob.state,
+
+        content:
+          metadata.blob.content,
+
+        payment:
+          metadata.blob.payment,
+
+        acknowledgments:
+          metadata.blob.acknowledgments,
       },
     });
   } catch (error) {

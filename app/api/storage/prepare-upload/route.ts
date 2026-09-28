@@ -234,8 +234,6 @@ export async function POST(
 
           blobMerkleRoot,
 
-          expirationMicros,
-
           numChunksets:
             totalChunksets,
 

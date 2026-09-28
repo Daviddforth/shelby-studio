@@ -133,7 +133,6 @@ export async function POST(
       blobData,
       signer,
       blobName,
-      expirationMicros,
     });
 
     /*
