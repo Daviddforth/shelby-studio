@@ -11,38 +11,31 @@ import {
 
 export const runtime = "nodejs";
 
-export async function GET(
-  request: Request
-) {
+export async function GET(request: Request) {
   try {
-    const apiKey =
-      process.env.SHELBY_API_KEY;
+    const apiKey = process.env.SHELBY_API_KEY;
 
     if (!apiKey) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            "Shelby API key is not configured.",
+          error: "Shelby API key is not configured.",
         },
         { status: 500 }
       );
     }
 
-    const url =
-      new URL(request.url);
+    const url = new URL(request.url);
 
-    const walletAddress =
-      url.searchParams
-        .get("walletAddress")
-        ?.trim();
+    const walletAddress = url.searchParams
+      .get("walletAddress")
+      ?.trim();
 
     if (!walletAddress) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            "A Shelby account address is required.",
+          error: "A Shelby account address is required.",
         },
         { status: 400 }
       );
@@ -51,88 +44,70 @@ export async function GET(
     let owner: AccountAddress;
 
     try {
-      owner =
-        AccountAddress.fromString(
-          walletAddress
-        );
+      owner = AccountAddress.fromString(walletAddress);
     } catch {
       return NextResponse.json(
         {
           success: false,
-          error:
-            "Invalid Shelby account address.",
+          error: "Invalid Shelby account address.",
         },
         { status: 400 }
       );
     }
 
-    const shelbyClient =
-      new ShelbyClient({
-        network:
-          Network.SHELBYNET,
+    const shelbyClient = new ShelbyClient({
+      network: Network.SHELBYNET,
+      apiKey,
+      locationHint: "shelbynet-1",
+    });
 
-        apiKey,
-
-        locationHint:
-          "shelbynet-1",
+    const objects =
+      await shelbyClient.index.listObjectsByPrefix({
+        owner,
+        prefix: "",
+        limit: 100,
       });
 
-    const blobs =
-      await shelbyClient.coordination.getAccountBlobs(
-        {
-          account: owner,
+    const assets = objects.map((object) => {
+      const uid =
+        object.content.kind === "blob"
+          ? object.content.blobUid
+          : object.content.multipartUid;
 
-          pagination: {
-            limit: 100,
-            offset: 0,
-          },
-        }
-      );
+      return {
+        uid: uid.toString(),
 
-    const assets =
-      blobs.map((blob) => ({
-        uid:
-          blob.uid?.toString() ?? "",
+        owner: object.owner.toString(),
 
-        owner:
-          blob.owner.toString(),
+        name: object.key,
 
-        name:
-          blob.name.toString(),
+        size: object.plaintextSize,
 
-        blobName:
-          blob.blobNameSuffix,
+        storedSize: object.storedSize,
 
-        size:
-          Number(blob.size),
+        network: "Shelbynet",
 
-        network:
-          "Shelbynet",
+        status: "Stored" as const,
 
-        status:
-          "Stored" as const,
+        location: object.locationName,
 
         uploadedAt:
-          blob.creationMicros
+          object.committedAtMicros
             ? new Date(
-                Number(
-                  blob.creationMicros
-                ) / 1000
+                Number(object.committedAtMicros) / 1000
               ).toISOString()
             : new Date().toISOString(),
-      }));
+      };
+    });
 
     return NextResponse.json({
       success: true,
 
-      network:
-        "Shelbynet",
+      network: "Shelbynet",
 
-      account:
-        owner.toString(),
+      account: owner.toString(),
 
-      count:
-        assets.length,
+      count: assets.length,
 
       assets,
     });

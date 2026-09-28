@@ -64,7 +64,7 @@ export async function GET(request: Request) {
       BlobNameSchema.parse(blobName);
 
     const metadata =
-      await client.coordination.getFullObjectMetadata({
+      await client.coordination.getObjectBlobMetadata({
         account: signer.accountAddress,
         name: parsedBlobName,
       });
@@ -93,28 +93,25 @@ export async function GET(request: Request) {
           metadata.uid?.toString() ?? null,
 
         owner:
-          metadata.owner.toString(),
-
-        name:
-          metadata.name.toString(),
-
-        blobName:
-          metadata.blobNameSuffix,
-
-        size:
-          metadata.size,
+          metadata.blob.owner.toString(),
 
         creationMicros:
-          metadata.creationMicros,
-
-        expirationMicros:
-          metadata.expirationMicros,
-
-        encryption:
-          metadata.encryption ?? null,
+          metadata.blob.creationMicros,
 
         sliceAddress:
-          metadata.sliceAddress.toString(),
+          metadata.blob.sliceAddress.toString(),
+
+        state:
+          metadata.blob.state,
+
+        content:
+          metadata.blob.content,
+
+        payment:
+          metadata.blob.payment,
+
+        acknowledgments:
+          metadata.blob.acknowledgments,
       },
     });
   } catch (error) {

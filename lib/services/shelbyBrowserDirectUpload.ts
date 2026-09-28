@@ -617,7 +617,7 @@ export async function uploadDirectlyToShelby({
       .functionArguments ?? [];
 
   const rawMerkleRoot =
-    rawFunctionArguments[4];
+    rawFunctionArguments[3];
 
   let walletMerkleRoot:
     Uint8Array;
@@ -662,13 +662,13 @@ export async function uploadDirectlyToShelby({
     functionArguments: [
       ...rawFunctionArguments.slice(
         0,
-        4
+        3
       ),
 
       walletMerkleRoot,
 
       ...rawFunctionArguments.slice(
-        5
+        4
       ),
     ],
 
