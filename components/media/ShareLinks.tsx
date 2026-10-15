@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 
 import { Check, Copy, ExternalLink } from "lucide-react";
 
+import { useOrigin } from "@/components/media/useOrigin";
+
 import {
   buildEmbedCode,
-  getSiteOrigin,
   mediaPagePath,
   mediaStreamPath,
   type MediaKind,
@@ -18,23 +19,13 @@ interface Props {
   kind: MediaKind;
 }
 
-// The origin never changes while the page is open, so there is nothing to subscribe to.
-function subscribeToNothing() {
-  return () => {};
-}
-
 /**
  * Copyable public link, embed code and direct file link for one hosted
  * media file. Absolute URLs are built from the browser origin so the same
  * component works in local development and in production.
  */
 export default function ShareLinks({ owner, blobName, kind }: Props) {
-  // Browser origin on the client, configured site origin during server render.
-  const origin = useSyncExternalStore(
-    subscribeToNothing,
-    () => window.location.origin,
-    () => getSiteOrigin()
-  );
+  const origin = useOrigin();
 
   const [copied, setCopied] = useState<string | null>(null);
 

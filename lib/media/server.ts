@@ -42,6 +42,55 @@ export function createServerShelbyClient(): ShelbyClient {
   });
 }
 
+export interface OwnerMediaItem {
+  blobName: string;
+  size: number;
+  committedAtMicros: number;
+  media: MediaType;
+}
+
+/**
+ * Lists the hostable media (video, audio, images) stored under one owner
+ * address, newest first. Used by the public creator page.
+ */
+export async function listOwnerMedia(
+  ownerInput: string,
+  client: ShelbyClient = createServerShelbyClient()
+): Promise<{ owner: string; items: OwnerMediaItem[] }> {
+  let owner: AccountAddress;
+
+  try {
+    owner = AccountAddress.fromString(ownerInput);
+  } catch {
+    throw new MediaLookupError("Invalid owner address.", 400);
+  }
+
+  const objects = await client.index.listObjectsByPrefix({
+    owner,
+    prefix: "",
+    limit: 100,
+  });
+
+  const items: OwnerMediaItem[] = [];
+
+  for (const object of objects) {
+    const media = getMediaType(object.key);
+
+    if (!media) continue;
+
+    items.push({
+      blobName: object.key,
+      size: object.plaintextSize,
+      committedAtMicros: object.committedAtMicros,
+      media,
+    });
+  }
+
+  items.sort((a, b) => b.committedAtMicros - a.committedAtMicros);
+
+  return { owner: owner.toString(), items };
+}
+
 /**
  * Resolves a public media request (owner address + blob name) to a stored,
  * hostable object. Throws MediaLookupError with an HTTP status when the
