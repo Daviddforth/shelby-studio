@@ -15,6 +15,7 @@ import {
   BookOpen,
   Bot,
   UserCircle2,
+  Clapperboard,
 } from "lucide-react";
 
 const navigation = [
@@ -22,6 +23,11 @@ const navigation = [
     name: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    name: "Media",
+    href: "/media",
+    icon: Clapperboard,
   },
   {
     name: "Assets",
