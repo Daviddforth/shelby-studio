@@ -1,0 +1,172 @@
+import type { Metadata } from "next";
+
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { connection } from "next/server";
+
+import MediaPlayer from "@/components/media/MediaPlayer";
+import ShareLinks from "@/components/media/ShareLinks";
+
+import {
+  MediaLookupError,
+  resolveMedia,
+  type ResolvedMedia,
+} from "@/lib/media/server";
+
+import {
+  getFileName,
+  getSiteOrigin,
+  mediaStreamPath,
+} from "@/lib/media/types";
+
+type PageProps = {
+  params: Promise<{
+    owner: string;
+    name: string[];
+  }>;
+};
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+
+  if (bytes < 1024 * 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  }
+
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+}
+
+function shortAddress(address: string) {
+  return address.length > 14
+    ? `${address.slice(0, 8)}…${address.slice(-6)}`
+    : address;
+}
+
+async function loadMedia(
+  params: PageProps["params"]
+): Promise<ResolvedMedia | null> {
+  const { owner, name } = await params;
+
+  try {
+    return await resolveMedia(owner, name.join("/"));
+  } catch (error) {
+    if (error instanceof MediaLookupError && error.status < 500) {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  await connection();
+
+  let media: ResolvedMedia | null = null;
+
+  try {
+    media = await loadMedia(params);
+  } catch {
+    media = null;
+  }
+
+  if (!media) {
+    return {
+      title: "Media not found | Shelby Studio",
+      robots: { index: false },
+    };
+  }
+
+  const title = getFileName(media.blobName);
+
+  const description = `${title} hosted on Shelby via Shelby Studio.`;
+
+  const streamUrl = `${getSiteOrigin()}${mediaStreamPath(
+    media.owner,
+    media.blobName
+  )}`;
+
+  return {
+    metadataBase: new URL(getSiteOrigin()),
+    title: `${title} | Shelby Studio`,
+    description,
+    openGraph: {
+      title,
+      description,
+      siteName: "Shelby Studio",
+      ...(media.media.kind === "image"
+        ? { images: [{ url: streamUrl }] }
+        : {}),
+      ...(media.media.kind === "video"
+        ? { videos: [{ url: streamUrl, type: media.media.mime }] }
+        : {}),
+      ...(media.media.kind === "audio"
+        ? { audio: [{ url: streamUrl, type: media.media.mime }] }
+        : {}),
+    },
+  };
+}
+
+export default async function PublicMediaPage({ params }: PageProps) {
+  await connection();
+
+  const media = await loadMedia(params);
+
+  if (!media) {
+    notFound();
+  }
+
+  const title = getFileName(media.blobName);
+
+  const src = mediaStreamPath(media.owner, media.blobName);
+
+  return (
+    <main className="min-h-screen bg-slate-950 text-slate-100">
+      <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
+        <header className="mb-6 flex items-center justify-between">
+          <Link
+            href="/"
+            className="text-sm font-semibold tracking-tight text-white"
+          >
+            Shelby Studio
+          </Link>
+
+          <Link
+            href="/dashboard"
+            className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-300 transition hover:bg-slate-800 hover:text-white"
+          >
+            Host your own media
+          </Link>
+        </header>
+
+        <MediaPlayer kind={media.media.kind} src={src} title={title} />
+
+        <section className="mt-6">
+          <h1 className="break-all text-xl font-semibold text-white">
+            {title}
+          </h1>
+
+          <p className="mt-2 text-sm text-slate-400">
+            {formatBytes(media.size)} · Stored on Shelby · Shared by{" "}
+            <span className="font-mono">{shortAddress(media.owner)}</span>
+          </p>
+        </section>
+
+        <section className="mt-8">
+          <h2 className="mb-3 text-sm font-medium text-slate-300">
+            Share or embed
+          </h2>
+
+          <ShareLinks
+            owner={media.owner}
+            blobName={media.blobName}
+            kind={media.media.kind}
+          />
+        </section>
+      </div>
+    </main>
+  );
+}

@@ -10,6 +10,10 @@ import { useState } from "react";
 
 import type { UploadedAsset } from "@/lib/services/storage";
 
+import ShareLinks from "@/components/media/ShareLinks";
+
+import { getMediaType } from "@/lib/media/types";
+
 interface Props {
   asset: UploadedAsset;
   onClose: () => void;
@@ -62,6 +66,13 @@ export default function AssetDetails({
       );
     }
   }
+
+  const shareBlobName = asset.blobName || asset.name;
+
+  const shareMedia =
+    asset.status === "Stored" && asset.owner
+      ? getMediaType(shareBlobName)
+      : null;
 
   return (
     <div className="mt-4 rounded-2xl border border-slate-700 bg-slate-950/60 p-4 sm:p-5">
@@ -168,6 +179,24 @@ export default function AssetDetails({
           value="Not reported"
         />
       </div>
+
+      {shareMedia && asset.owner && (
+        <div className="mt-5 border-t border-slate-800 pt-5">
+          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">
+            Share &amp; embed
+          </p>
+
+          <p className="mb-3 text-xs text-slate-500">
+            Anyone with these links can view this file.
+          </p>
+
+          <ShareLinks
+            owner={asset.owner}
+            blobName={shareBlobName}
+            kind={shareMedia.kind}
+          />
+        </div>
+      )}
 
       {(asset.registrationTransaction ||
         asset.commitTransaction) && (
