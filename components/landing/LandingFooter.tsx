@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function LandingFooter() {
@@ -8,8 +9,15 @@ export default function LandingFooter() {
           <div>
             <Link
               href="/"
-              className="text-base font-semibold tracking-tight text-white"
+              className="flex items-center gap-2.5 text-base font-semibold tracking-tight text-white"
             >
+              <Image
+                src="/branding/shelby-studio-logo.png"
+                alt=""
+                width={28}
+                height={28}
+                className="h-7 w-7 rounded-lg"
+              />
               Shelby Studio
             </Link>
 

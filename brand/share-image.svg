@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  
+  <defs>
+    <linearGradient id="obgl" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1330"/><stop offset="1" stop-color="#04060E"/>
+    </linearGradient>
+    <radialGradient id="or1" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#3B82F6" stop-opacity="0.42"/><stop offset="1" stop-color="#3B82F6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="or2" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#8B5CF6" stop-opacity="0.36"/><stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="or3" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#22D3EE" stop-opacity="0.26"/><stop offset="1" stop-color="#22D3EE" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="ogrid" width="56" height="56" patternUnits="userSpaceOnUse">
+      <path d="M56 0 H0 V56" fill="none" stroke="#FFFFFF" stroke-opacity="0.045" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#obgl)"/>
+  <rect width="1200" height="630" fill="url(#ogrid)"/>
+  <circle cx="936" cy="189" r="598.5" fill="url(#or1)"/>
+  <circle cx="240" cy="661.5" r="535.5" fill="url(#or2)"/>
+  <circle cx="624" cy="-63" r="378" fill="url(#or3)"/>
+  <defs>
+    <linearGradient id="ohead" gradientUnits="userSpaceOnUse" x1="70" y1="0" x2="470" y2="0">
+      <stop offset="0" stop-color="#22D3EE"/><stop offset="0.6" stop-color="#60A5FA"/><stop offset="1" stop-color="#A78BFA"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(70 60) scale(0.14)">
+  <defs>
+    <linearGradient id="otbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101A3A"/>
+      <stop offset="1" stop-color="#060914"/>
+    </linearGradient>
+    <radialGradient id="otglow" cx="0.28" cy="0.2" r="0.85">
+      <stop offset="0" stop-color="#3B82F6" stop-opacity="0.38"/>
+      <stop offset="1" stop-color="#3B82F6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#otbg)"/>
+  <rect width="512" height="512" rx="112" fill="url(#otglow)"/>
+  <rect x="1.5" y="1.5" width="509" height="509" rx="110.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.09" stroke-width="3"/>
+  <g transform="translate(256 256) scale(1) translate(-256 -256)">
+  <defs>
+    <linearGradient id="otg" gradientUnits="userSpaceOnUse" x1="140" y1="120" x2="372" y2="392">
+      <stop offset="0" stop-color="#22D3EE"/>
+      <stop offset="0.55" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <filter id="otblur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <path d="M 340 144 H 220 A 56 56 0 0 0 220 256 H 292 A 56 56 0 0 1 292 368 H 172" fill="none" stroke="url(#otg)" stroke-width="48" stroke-linecap="round" stroke-linejoin="round" opacity="0.55" filter="url(#otblur)"/>
+  <path d="M 340 144 H 220 A 56 56 0 0 0 220 256 H 292 A 56 56 0 0 1 292 368 H 172" fill="none" stroke="url(#otg)" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 280 180 L 280 220 L 318 200 Z" fill="#FFFFFF" fill-opacity="0.95" stroke="#FFFFFF" stroke-opacity="0.95" stroke-width="6" stroke-linejoin="round"/></g></g>
+  <text x="152" y="110" font-family="Inter, 'DejaVu Sans', Arial, sans-serif" font-size="34" font-weight="800" fill="#FFFFFF" letter-spacing="-0.5">Shelby Studio</text>
+
+  <text x="70" y="318" font-family="Inter, 'DejaVu Sans', Arial, sans-serif" font-size="78" font-weight="800" fill="#FFFFFF" letter-spacing="-2.4">Host your media</text>
+  <text x="70" y="406" font-family="Inter, 'DejaVu Sans', Arial, sans-serif" font-size="78" font-weight="800" fill="#FFFFFF" letter-spacing="-2.4">on <tspan fill="url(#ohead)">Shelby.</tspan></text>
+  <text x="72" y="462" font-family="Inter, 'DejaVu Sans', Arial, sans-serif" font-size="28" font-weight="500" fill="#9DB0D6">Video, audio and images with embeddable links.</text>
+
+  
+  <g transform="translate(70 500)">
+    <rect width="232.5" height="40" rx="20" fill="#22D3EE" fill-opacity="0.12" stroke="#22D3EE" stroke-opacity="0.5" stroke-width="1.5"/>
+    <circle cx="22" cy="20" r="5" fill="#22D3EE"/>
+    <text x="38" y="26.5" font-family="Inter, 'DejaVu Sans', Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="1.6" fill="#BDF4FF">BUILT ON SHELBY</text>
+  </g>
+
+  <g transform="translate(690 120) scale(0.78)">
+  <defs>
+    <linearGradient id="ocvid" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8B5CF6"/><stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="ocimg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22D3EE"/><stop offset="0.6" stop-color="#3B82F6"/><stop offset="1" stop-color="#C084FC"/>
+    </linearGradient>
+    <linearGradient id="ocart" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22D3EE"/><stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <linearGradient id="ocwave" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22D3EE"/><stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <filter id="ocsh" x="-30%" y="-30%" width="160%" height="170%">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>
+  </defs>
+
+  <!-- Image card (back, top right) -->
+  <g transform="rotate(7 495 105)">
+    <rect x="400" y="22" width="190" height="190" rx="24" fill="#000" opacity="0.55" filter="url(#ocsh)" transform="translate(0 14)"/>
+    <rect x="400" y="10" width="190" height="190" rx="24" fill="url(#ocimg)"/>
+    <circle cx="540" cy="62" r="19" fill="#FFFFFF" fill-opacity="0.85"/>
+    <path d="M400 170 L452 110 L494 154 L528 124 L590 184 L590 176 Q590 200 566 200 L424 200 Q400 200 400 176 Z" fill="#0B1230" fill-opacity="0.45"/>
+    <rect x="400" y="10" width="190" height="190" rx="24" fill="none" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="2"/>
+  </g>
+
+  <!-- Video card (left) -->
+  <g transform="rotate(-6 180 145)">
+    <rect x="0" y="54" width="360" height="210" rx="26" fill="#000" opacity="0.6" filter="url(#ocsh)" transform="translate(0 16)"/>
+    <rect x="0" y="40" width="360" height="210" rx="26" fill="url(#ocvid)"/>
+    <circle cx="290" cy="96" r="30" fill="#FFFFFF" fill-opacity="0.22"/>
+    <path d="M0 210 L90 140 L160 190 L230 130 L360 224 L360 224 Q360 250 334 250 L26 250 Q0 250 0 224 Z" fill="#0B1230" fill-opacity="0.38"/>
+    <circle cx="180" cy="135" r="40" fill="#FFFFFF" fill-opacity="0.95"/>
+    <path d="M169 114 L169 156 L204 135 Z" fill="#4F46E5"/>
+    <rect x="26" y="222" width="308" height="7" rx="3.5" fill="#FFFFFF" fill-opacity="0.28"/>
+    <rect x="26" y="222" width="132" height="7" rx="3.5" fill="#FFFFFF"/>
+    <circle cx="158" cy="225.5" r="7" fill="#FFFFFF"/>
+    <rect x="0" y="40" width="360" height="210" rx="26" fill="none" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="2"/>
+  </g>
+
+  <!-- Audio card (front, bottom) -->
+  <g transform="rotate(4 310 290)">
+    <rect x="150" y="244" width="340" height="124" rx="24" fill="#000" opacity="0.65" filter="url(#ocsh)" transform="translate(0 16)"/>
+    <rect x="150" y="238" width="340" height="124" rx="24" fill="#0E1631"/>
+    <rect x="150" y="238" width="340" height="124" rx="24" fill="none" stroke="#22D3EE" stroke-opacity="0.35" stroke-width="2"/>
+    <rect x="170" y="256" width="62" height="62" rx="16" fill="url(#ocart)"/>
+    <path d="M192 275 L192 299 L213 287 Z" fill="#FFFFFF" fill-opacity="0.95"/>
+    <rect x="252" y="260" width="150" height="13" rx="6.5" fill="#FFFFFF" fill-opacity="0.88"/>
+    <rect x="252" y="284" width="96" height="10" rx="5" fill="#FFFFFF" fill-opacity="0.34"/>
+    <g transform="translate(0 4)"><rect x="252.0" y="316.0" width="3.4" height="8.0" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="257.6" y="308.0" width="3.4" height="24.0" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="263.2" y="305.6" width="3.4" height="28.9" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="268.8" y="309.3" width="3.4" height="21.4" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="274.4" y="314.6" width="3.4" height="10.8" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="280.0" y="315.9" width="3.4" height="8.2" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="285.6" y="312.8" width="3.4" height="14.5" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="291.2" y="308.8" width="3.4" height="22.4" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="296.8" y="309.5" width="3.4" height="21.0" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="302.4" y="315.8" width="3.4" height="8.4" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="308.0" y="307.5" width="3.4" height="25.1" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="313.6" y="303.6" width="3.4" height="32.8" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="319.2" y="306.7" width="3.4" height="26.6" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="324.8" y="313.4" width="3.4" height="13.2" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="330.4" y="314.3" width="3.4" height="11.5" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="336.0" y="315.3" width="3.4" height="9.4" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="341.6" y="312.9" width="3.4" height="14.2" rx="1.7" fill="url(#ocwave)" fill-opacity="1"/><rect x="347.2" y="311.7" width="3.4" height="16.5" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="352.8" y="315.7" width="3.4" height="8.7" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="358.4" y="308.0" width="3.4" height="24.1" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="364.0" y="303.2" width="3.4" height="33.7" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="369.6" y="305.3" width="3.4" height="29.4" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="375.2" y="312.6" width="3.4" height="14.8" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="380.8" y="312.7" width="3.4" height="14.6" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="386.4" y="311.4" width="3.4" height="17.3" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="392.0" y="314.7" width="3.4" height="10.6" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="397.6" y="314.4" width="3.4" height="11.2" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="403.2" y="315.7" width="3.4" height="8.6" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="408.8" y="309.5" width="3.4" height="21.0" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="414.4" y="304.3" width="3.4" height="31.4" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="420.0" y="305.2" width="3.4" height="29.6" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="425.6" y="312.3" width="3.4" height="15.3" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="431.2" y="311.5" width="3.4" height="17.1" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="436.8" y="307.9" width="3.4" height="24.1" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="442.4" y="310.4" width="3.4" height="19.1" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="448.0" y="314.9" width="3.4" height="10.2" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="453.6" y="315.9" width="3.4" height="8.3" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="459.2" y="311.9" width="3.4" height="16.2" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="464.8" y="306.9" width="3.4" height="26.3" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/><rect x="470.4" y="306.4" width="3.4" height="27.1" rx="1.7" fill="#FFFFFF" fill-opacity="0.18"/></g>
+  </g></g>
+
+  <text x="1130" y="590" text-anchor="end" font-family="Inter, 'DejaVu Sans', Arial, sans-serif" font-size="22" font-weight="600" fill="#7F93BD" letter-spacing="0.5">shelbystudio.xyz</text>
+</svg>

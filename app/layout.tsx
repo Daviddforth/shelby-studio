@@ -23,6 +23,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.shelbystudio.xyz"
+  ),
   title: "Shelby Studio",
   description:
     "The all-in-one workspace for managing Shelby NFTs, digital assets, storage, and metadata.",

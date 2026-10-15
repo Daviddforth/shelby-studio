@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="mbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101A3A"/>
+      <stop offset="1" stop-color="#060914"/>
+    </linearGradient>
+    <radialGradient id="mglow" cx="0.28" cy="0.2" r="0.85">
+      <stop offset="0" stop-color="#3B82F6" stop-opacity="0.38"/>
+      <stop offset="1" stop-color="#3B82F6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#mbg)"/>
+  <rect width="512" height="512" rx="112" fill="url(#mglow)"/>
+  <rect x="1.5" y="1.5" width="509" height="509" rx="110.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.09" stroke-width="3"/>
+  <g transform="translate(256 256) scale(1) translate(-256 -256)">
+  <defs>
+    <linearGradient id="mg" gradientUnits="userSpaceOnUse" x1="140" y1="120" x2="372" y2="392">
+      <stop offset="0" stop-color="#22D3EE"/>
+      <stop offset="0.55" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <filter id="mblur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <path d="M 340 144 H 220 A 56 56 0 0 0 220 256 H 292 A 56 56 0 0 1 292 368 H 172" fill="none" stroke="url(#mg)" stroke-width="48" stroke-linecap="round" stroke-linejoin="round" opacity="0.55" filter="url(#mblur)"/>
+  <path d="M 340 144 H 220 A 56 56 0 0 0 220 256 H 292 A 56 56 0 0 1 292 368 H 172" fill="none" stroke="url(#mg)" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 280 180 L 280 220 L 318 200 Z" fill="#FFFFFF" fill-opacity="0.95" stroke="#FFFFFF" stroke-opacity="0.95" stroke-width="6" stroke-linejoin="round"/></g></svg>
