@@ -141,3 +141,22 @@ export async function resolveMedia(
     media,
   };
 }
+
+/**
+ * Returns the cover's blob name only if it still exists as an image under
+ * this owner (a cover can be deleted after it was chosen), otherwise null.
+ */
+export async function existingCover(
+  owner: string,
+  coverBlob: string | null | undefined
+): Promise<string | null> {
+  if (!coverBlob) return null;
+
+  try {
+    const cover = await resolveMedia(owner, coverBlob);
+
+    return cover.media.kind === "image" ? cover.blobName : null;
+  } catch {
+    return null;
+  }
+}

@@ -7,15 +7,35 @@ interface Props {
   blobName: string;
   kind: MediaKind;
   title: string;
+  /** Blob name of the creator's chosen cover image, if any. */
+  coverBlob?: string | null;
 }
 
 /**
- * Square-ish preview tile for a hosted file: the image itself, the first
- * frame of a video, or an icon for audio. Safe to use from server and
- * client components.
+ * Square-ish preview tile for a hosted file: the creator's cover when set,
+ * otherwise the image itself, the first frame of a video, or an icon for
+ * audio. Safe to use from server and client components.
  */
-export default function MediaThumb({ owner, blobName, kind, title }: Props) {
+export default function MediaThumb({
+  owner,
+  blobName,
+  kind,
+  title,
+  coverBlob,
+}: Props) {
   const src = mediaStreamPath(owner, blobName);
+
+  if (kind !== "image" && coverBlob) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={mediaStreamPath(owner, coverBlob)}
+        alt={title}
+        loading="lazy"
+        className="h-full w-full object-cover"
+      />
+    );
+  }
 
   if (kind === "image") {
     return (

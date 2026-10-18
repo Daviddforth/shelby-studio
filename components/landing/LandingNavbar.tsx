@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function LandingNavbar() {
@@ -6,8 +7,16 @@ export default function LandingNavbar() {
       <div className="mx-auto flex h-20 min-w-0 max-w-7xl items-center justify-between px-6">
         <Link
           href="/"
-          className="text-xl font-bold tracking-tight text-white"
+          className="flex items-center gap-3 text-xl font-bold tracking-tight text-white"
         >
+          <Image
+            src="/branding/shelby-studio-logo.png"
+            alt=""
+            width={36}
+            height={36}
+            priority
+            className="h-9 w-9 rounded-xl"
+          />
           Shelby Studio
         </Link>
 

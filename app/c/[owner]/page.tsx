@@ -6,13 +6,15 @@ import { connection } from "next/server";
 
 import MediaThumb from "@/components/media/MediaThumb";
 
+import { getDetailsForOwner } from "@/lib/media/db";
+
 import {
   MediaLookupError,
   listOwnerMedia,
   type OwnerMediaItem,
 } from "@/lib/media/server";
 
-import { getFileName, mediaPagePath } from "@/lib/media/types";
+import { displayTitle, mediaPagePath } from "@/lib/media/types";
 
 type PageProps = {
   params: Promise<{
@@ -74,7 +76,27 @@ export default async function CreatorPage({ params }: PageProps) {
     notFound();
   }
 
-  const counts = creator.items.reduce(
+  const details = await getDetailsForOwner(creator.owner);
+
+  // Images chosen as another file's cover are part of that file's page,
+  // so they are not listed as separate items.
+  const imageNames = new Set(
+    creator.items
+      .filter((item) => item.media.kind === "image")
+      .map((item) => item.blobName)
+  );
+
+  const coverBlobs = new Set(
+    Object.values(details)
+      .map((entry) => entry.coverBlob)
+      .filter((blob): blob is string => Boolean(blob) && imageNames.has(blob as string))
+  );
+
+  const items = creator.items.filter(
+    (item) => !coverBlobs.has(item.blobName)
+  );
+
+  const counts = items.reduce(
     (total, item: OwnerMediaItem) => {
       total[item.media.kind] += 1;
       return total;
@@ -111,20 +133,22 @@ export default async function CreatorPage({ params }: PageProps) {
           </h1>
 
           <p className="mt-2 text-sm text-slate-400">
-            {creator.items.length === 0
+            {items.length === 0
               ? "No public media yet."
               : `${counts.video} video · ${counts.audio} audio · ${counts.image} images, hosted on Shelby`}
           </p>
         </section>
 
-        {creator.items.length === 0 ? (
+        {items.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/40 p-10 text-center text-sm text-slate-500">
             This creator has not uploaded any video, audio or images yet.
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {creator.items.map((item) => {
-              const title = getFileName(item.blobName);
+            {items.map((item) => {
+              const itemDetails = details[item.blobName];
+
+              const title = displayTitle(item.blobName, itemDetails);
 
               return (
                 <Link
@@ -138,6 +162,11 @@ export default async function CreatorPage({ params }: PageProps) {
                       blobName={item.blobName}
                       kind={item.media.kind}
                       title={title}
+                      coverBlob={
+                        itemDetails?.coverBlob && imageNames.has(itemDetails.coverBlob)
+                          ? itemDetails.coverBlob
+                          : null
+                      }
                     />
                   </div>
 

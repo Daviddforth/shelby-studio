@@ -4,6 +4,8 @@ interface Props {
   kind: MediaKind;
   src: string;
   title: string;
+  /** Cover picture URL: video poster, or the artwork shown above audio. */
+  poster?: string;
   /** Fill the available height (used by the embed page). */
   fill?: boolean;
 }
@@ -13,7 +15,13 @@ interface Props {
  * seeking through the Range-enabled streaming route, so no client JavaScript
  * is needed here.
  */
-export default function MediaPlayer({ kind, src, title, fill = false }: Props) {
+export default function MediaPlayer({
+  kind,
+  src,
+  title,
+  poster,
+  fill = false,
+}: Props) {
   if (kind === "video") {
     return (
       <video
@@ -21,6 +29,7 @@ export default function MediaPlayer({ kind, src, title, fill = false }: Props) {
         playsInline
         preload="metadata"
         src={src}
+        poster={poster}
         title={title}
         className={
           fill
@@ -33,13 +42,24 @@ export default function MediaPlayer({ kind, src, title, fill = false }: Props) {
 
   if (kind === "audio") {
     return (
-      <audio
-        controls
-        preload="metadata"
-        src={src}
-        title={title}
-        className="w-full"
-      />
+      <div className="w-full">
+        {poster && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={poster}
+            alt={title}
+            className="mb-4 aspect-square w-full max-w-xs rounded-2xl object-cover"
+          />
+        )}
+
+        <audio
+          controls
+          preload="metadata"
+          src={src}
+          title={title}
+          className="w-full"
+        />
+      </div>
     );
   }
 

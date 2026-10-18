@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   Check,
-  Code2,
   ExternalLink,
   Link2,
   RefreshCw,
@@ -12,17 +11,23 @@ import {
 } from "lucide-react";
 
 import AssetUploader from "@/components/asset-manager/AssetUploader";
-import MediaThumb from "@/components/media/MediaThumb";
+import EditMediaDialog from "@/components/media/EditMediaDialog";
+import MediaCard from "@/components/media/MediaCard";
 import { useOrigin } from "@/components/media/useOrigin";
 
 import { useWallet } from "@/context/WalletContext";
 import { useStorage } from "@/hooks/useStorage";
 
+import { signSaveRequest } from "@/lib/media/clientSign";
+
 import {
   buildEmbedCode,
+  displayTitle,
   getFileName,
   getMediaType,
   mediaPagePath,
+  type MediaDetails,
+  type MediaDetailsMap,
   type MediaKind,
 } from "@/lib/media/types";
 
@@ -68,9 +73,23 @@ const PHASE_LABELS: Record<string, string> = {
 export default function MediaLibrary() {
   const origin = useOrigin();
 
-  const { walletAddress, walletConnected } = useWallet();
+  const { walletAddress, walletConnected, account, signMessage } = useWallet();
 
-  const { assets, upload, loading, progress, refreshAssets } = useStorage();
+  const {
+    assets,
+    upload,
+    remove,
+    deletingUid,
+    loading,
+    progress,
+    refreshAssets,
+  } = useStorage();
+
+  const [details, setDetails] = useState<MediaDetailsMap>({});
+
+  const [editing, setEditing] = useState<LibraryItem | null>(null);
+
+  const [confirmingUid, setConfirmingUid] = useState<string | null>(null);
 
   const [filter, setFilter] = useState<Filter>("all");
 
@@ -102,6 +121,49 @@ export default function MediaLibrary() {
 
     return result;
   }, [assets, walletAddress]);
+
+  // Titles, descriptions and covers live in the database, keyed by wallet.
+  useEffect(() => {
+    if (!walletAddress) return;
+
+    let cancelled = false;
+
+    fetch(`/api/media-details?owner=${encodeURIComponent(walletAddress)}`, {
+      cache: "no-store",
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        if (!cancelled && result?.success) setDetails(result.details ?? {});
+      })
+      .catch(() => {
+        // Details are optional; the library still works without them.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [walletAddress]);
+
+  const imageNames = useMemo(
+    () =>
+      new Set(
+        items.filter((item) => item.kind === "image").map((item) => item.blobName)
+      ),
+    [items]
+  );
+
+  // Images used as another file's cover (and still exist).
+  const coverNames = useMemo(() => {
+    const used = new Set<string>();
+
+    for (const entry of Object.values(details)) {
+      if (entry.coverBlob && imageNames.has(entry.coverBlob)) {
+        used.add(entry.coverBlob);
+      }
+    }
+
+    return used;
+  }, [details, imageNames]);
 
   const visible =
     filter === "all" ? items : items.filter((item) => item.kind === filter);
@@ -147,6 +209,75 @@ export default function MediaLibrary() {
       setMessage({
         type: "error",
         text: error instanceof Error ? error.message : "Upload failed.",
+      });
+    }
+  }
+
+  async function saveDetails(item: LibraryItem, next: MediaDetails) {
+    const request = await signSaveRequest({
+      signMessage,
+      account,
+      owner: item.owner,
+      blobName: item.blobName,
+      details: next,
+    });
+
+    const response = await fetch("/api/media-details", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    const result = await response.json().catch(() => null);
+
+    if (!response.ok || !result?.success) {
+      throw new Error(result?.error || "Could not save details.");
+    }
+
+    setDetails((previous) => ({ ...previous, [item.blobName]: result.details }));
+
+    setMessage({ type: "success", text: "Details saved." });
+  }
+
+  async function uploadCover(file: File): Promise<string> {
+    const asset = await upload(file);
+
+    return asset.blobName || asset.name;
+  }
+
+  async function handleDelete(item: LibraryItem) {
+    setMessage(null);
+
+    try {
+      await remove(item.asset.uid);
+
+      setConfirmingUid(null);
+
+      setDetails((previous) => {
+        const next = { ...previous };
+
+        delete next[item.blobName];
+
+        return next;
+      });
+
+      // Tidy the saved details; the server first confirms the file is gone.
+      fetch("/api/media-details/cleanup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ owner: item.owner, blobName: item.blobName }),
+      }).catch(() => {});
+
+      setMessage({
+        type: "success",
+        text: `${displayTitle(item.blobName, details[item.blobName])} was deleted.`,
+      });
+    } catch (error) {
+      setConfirmingUid(null);
+
+      setMessage({
+        type: "error",
+        text: error instanceof Error ? error.message : "Could not delete this file.",
       });
     }
   }
@@ -317,7 +448,20 @@ export default function MediaLibrary() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {visible.map((item) => {
-              const title = getFileName(item.blobName);
+              const itemDetails = details[item.blobName];
+
+              const title = displayTitle(item.blobName, itemDetails);
+
+              const cover =
+                itemDetails?.coverBlob && imageNames.has(itemDetails.coverBlob)
+                  ? itemDetails.coverBlob
+                  : null;
+
+              const isCover = coverNames.has(item.blobName);
+
+              const confirming = confirmingUid === item.asset.uid;
+
+              const deleting = deletingUid === item.asset.uid;
 
               const pagePath = mediaPagePath(item.owner, item.blobName);
 
@@ -331,79 +475,50 @@ export default function MediaLibrary() {
               );
 
               return (
-                <div
+                <MediaCard
                   key={item.asset.uid || item.blobName}
-                  className="min-w-0 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900"
-                >
-                  <a
-                    href={pagePath}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block aspect-video overflow-hidden bg-slate-950"
-                  >
-                    <MediaThumb
-                      owner={item.owner}
-                      blobName={item.blobName}
-                      kind={item.kind}
-                      title={title}
-                    />
-                  </a>
-
-                  <div className="space-y-3 p-4">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-white">
-                        {title}
-                      </p>
-
-                      <p className="mt-1 text-xs capitalize text-slate-500">
-                        {item.kind} · {formatBytes(item.asset.size || 0)}
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => copy(`link-${item.blobName}`, pageUrl)}
-                        className="flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-700 text-xs text-slate-200 transition hover:bg-slate-800"
-                      >
-                        {copied === `link-${item.blobName}` ? (
-                          <Check size={13} />
-                        ) : (
-                          <Link2 size={13} />
-                        )}
-                        {copied === `link-${item.blobName}` ? "Copied" : "Link"}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => copy(`embed-${item.blobName}`, embedCode)}
-                        className="flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-700 text-xs text-slate-200 transition hover:bg-slate-800"
-                      >
-                        {copied === `embed-${item.blobName}` ? (
-                          <Check size={13} />
-                        ) : (
-                          <Code2 size={13} />
-                        )}
-                        {copied === `embed-${item.blobName}` ? "Copied" : "Embed"}
-                      </button>
-
-                      <a
-                        href={pagePath}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex min-h-9 items-center justify-center gap-1.5 rounded-lg bg-blue-600 text-xs font-medium text-white transition hover:bg-blue-500"
-                      >
-                        <ExternalLink size={13} />
-                        Open
-                      </a>
-                    </div>
-                  </div>
-                </div>
+                  owner={item.owner}
+                  blobName={item.blobName}
+                  kind={item.kind}
+                  title={title}
+                  fileName={itemDetails?.title ? getFileName(item.blobName) : null}
+                  sizeLabel={formatBytes(item.asset.size || 0)}
+                  isCover={isCover}
+                  coverBlob={cover}
+                  pagePath={pagePath}
+                  pageUrl={pageUrl}
+                  embedCode={embedCode}
+                  copiedKey={copied}
+                  onCopy={copy}
+                  confirmingDelete={confirming}
+                  deleting={deleting}
+                  deleteLocked={Boolean(deletingUid)}
+                  onEdit={() => setEditing(item)}
+                  onAskDelete={() => setConfirmingUid(item.asset.uid)}
+                  onConfirmDelete={() => handleDelete(item)}
+                  onCancelDelete={() => setConfirmingUid(null)}
+                />
               );
             })}
           </div>
         )}
       </div>
+
+      {editing && (
+        <EditMediaDialog
+          key={editing.blobName}
+          owner={editing.owner}
+          blobName={editing.blobName}
+          kind={editing.kind}
+          initial={details[editing.blobName] ?? null}
+          covers={items
+            .filter((item) => item.kind === "image" && item.blobName !== editing.blobName)
+            .map((item) => ({ blobName: item.blobName }))}
+          onUploadCover={uploadCover}
+          onSave={(next) => saveDetails(editing, next)}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </div>
   );
 }
