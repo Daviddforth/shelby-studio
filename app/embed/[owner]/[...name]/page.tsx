@@ -5,13 +5,16 @@ import { connection } from "next/server";
 
 import MediaPlayer from "@/components/media/MediaPlayer";
 
+import { getDetailsForOwner } from "@/lib/media/db";
+
 import {
   MediaLookupError,
+  existingCover,
   resolveMedia,
   type ResolvedMedia,
 } from "@/lib/media/server";
 
-import { getFileName, mediaStreamPath } from "@/lib/media/types";
+import { displayTitle, mediaStreamPath } from "@/lib/media/types";
 
 type PageProps = {
   params: Promise<{
@@ -51,9 +54,15 @@ export default async function EmbedMediaPage({ params }: PageProps) {
     notFound();
   }
 
-  const title = getFileName(media.blobName);
+  const details = (await getDetailsForOwner(media.owner))[media.blobName];
+
+  const title = displayTitle(media.blobName, details);
 
   const src = mediaStreamPath(media.owner, media.blobName);
+
+  const cover = await existingCover(media.owner, details?.coverBlob);
+
+  const poster = cover ? mediaStreamPath(media.owner, cover) : undefined;
 
   // Covers the app shell so the player fills the whole iframe.
   return (
@@ -70,6 +79,7 @@ export default async function EmbedMediaPage({ params }: PageProps) {
             kind={media.media.kind}
             src={src}
             title={title}
+            poster={poster}
             fill
           />
         )}

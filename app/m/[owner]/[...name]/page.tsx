@@ -7,16 +7,21 @@ import { connection } from "next/server";
 import MediaPlayer from "@/components/media/MediaPlayer";
 import ShareLinks from "@/components/media/ShareLinks";
 
+import { getDetailsForOwner } from "@/lib/media/db";
+
 import {
   MediaLookupError,
+  existingCover,
   resolveMedia,
   type ResolvedMedia,
 } from "@/lib/media/server";
 
 import {
-  getFileName,
+  displayTitle,
   getSiteOrigin,
   mediaStreamPath,
+  summarize,
+  type MediaDetails,
 } from "@/lib/media/types";
 
 type PageProps = {
@@ -60,6 +65,12 @@ async function loadMedia(
   }
 }
 
+async function loadDetails(media: ResolvedMedia): Promise<MediaDetails | null> {
+  const all = await getDetailsForOwner(media.owner);
+
+  return all[media.blobName] ?? null;
+}
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
@@ -80,14 +91,24 @@ export async function generateMetadata({
     };
   }
 
-  const title = getFileName(media.blobName);
+  const details = await loadDetails(media);
 
-  const description = `${title} hosted on Shelby via Shelby Studio.`;
+  const title = displayTitle(media.blobName, details);
+
+  const description = details?.description
+    ? summarize(details.description)
+    : `${title} hosted on Shelby via Shelby Studio.`;
 
   const streamUrl = `${getSiteOrigin()}${mediaStreamPath(
     media.owner,
     media.blobName
   )}`;
+
+  const cover = await existingCover(media.owner, details?.coverBlob);
+
+  const coverUrl = cover
+    ? `${getSiteOrigin()}${mediaStreamPath(media.owner, cover)}`
+    : null;
 
   return {
     metadataBase: new URL(getSiteOrigin()),
@@ -99,7 +120,9 @@ export async function generateMetadata({
       siteName: "Shelby Studio",
       ...(media.media.kind === "image"
         ? { images: [{ url: streamUrl }] }
-        : {}),
+        : coverUrl
+          ? { images: [{ url: coverUrl }] }
+          : {}),
       ...(media.media.kind === "video"
         ? { videos: [{ url: streamUrl, type: media.media.mime }] }
         : {}),
@@ -119,9 +142,15 @@ export default async function PublicMediaPage({ params }: PageProps) {
     notFound();
   }
 
-  const title = getFileName(media.blobName);
+  const details = await loadDetails(media);
+
+  const title = displayTitle(media.blobName, details);
 
   const src = mediaStreamPath(media.owner, media.blobName);
+
+  const cover = await existingCover(media.owner, details?.coverBlob);
+
+  const poster = cover ? mediaStreamPath(media.owner, cover) : undefined;
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">
@@ -142,7 +171,12 @@ export default async function PublicMediaPage({ params }: PageProps) {
           </Link>
         </header>
 
-        <MediaPlayer kind={media.media.kind} src={src} title={title} />
+        <MediaPlayer
+          kind={media.media.kind}
+          src={src}
+          title={title}
+          poster={poster}
+        />
 
         <section className="mt-6">
           <h1 className="break-all text-xl font-semibold text-white">
@@ -151,8 +185,19 @@ export default async function PublicMediaPage({ params }: PageProps) {
 
           <p className="mt-2 text-sm text-slate-400">
             {formatBytes(media.size)} · Stored on Shelby · Shared by{" "}
-            <span className="font-mono">{shortAddress(media.owner)}</span>
+            <Link
+              href={`/c/${media.owner}`}
+              className="font-mono underline-offset-2 hover:text-white hover:underline"
+            >
+              {shortAddress(media.owner)}
+            </Link>
           </p>
+
+          {details?.description && (
+            <p className="mt-5 max-w-3xl whitespace-pre-wrap break-words text-sm leading-6 text-slate-300">
+              {details.description}
+            </p>
+          )}
         </section>
 
         <section className="mt-8">
