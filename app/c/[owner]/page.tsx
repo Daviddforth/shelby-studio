@@ -4,6 +4,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
+import { getLiveStatus } from "@/lib/live/server";
+import { liveWatchPath, OFFLINE } from "@/lib/live/types";
+
 import MediaThumb from "@/components/media/MediaThumb";
 
 import { getDetailsForOwner } from "@/lib/media/db";
@@ -78,6 +81,9 @@ export default async function CreatorPage({ params }: PageProps) {
 
   const details = await getDetailsForOwner(creator.owner);
 
+  // A missing or unreachable live service must never break the creator page.
+  const live = await getLiveStatus(creator.owner).catch(() => OFFLINE);
+
   // Images chosen as another file's cover are part of that file's page,
   // so they are not listed as separate items.
   const imageNames = new Set(
@@ -122,6 +128,26 @@ export default async function CreatorPage({ params }: PageProps) {
             Host your own media
           </Link>
         </header>
+
+        {live.live && (
+          <Link
+            href={liveWatchPath(creator.owner)}
+            className="mb-6 flex items-center gap-3 rounded-2xl border border-red-500/40 bg-red-500/10 p-4 transition hover:bg-red-500/15"
+          >
+            <span className="flex shrink-0 items-center gap-1.5 rounded-md bg-red-600 px-2 py-1 text-xs font-bold uppercase text-white">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+              Live now
+            </span>
+
+            <span className="min-w-0 flex-1 truncate text-sm font-medium text-white">
+              {live.title || "Live stream"}
+            </span>
+
+            <span className="shrink-0 text-xs text-slate-300">
+              Watch · {live.viewers}
+            </span>
+          </Link>
+        )}
 
         <section className="mb-8">
           <p className="text-xs font-medium uppercase tracking-widest text-blue-400">
