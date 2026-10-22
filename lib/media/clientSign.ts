@@ -1,3 +1,4 @@
+import { buildLiveMessage, type StartLiveRequest } from "../live/types";
 import {
   buildSaveMessage,
   canonicalDetails,
@@ -115,6 +116,57 @@ export async function signSaveRequest({
     title: details.title,
     description: details.description,
     coverBlob: details.coverBlob,
+    issuedAt,
+    publicKey,
+    signature: bytesToBase64(bytes),
+    fullMessage:
+      typeof signed?.fullMessage === "string"
+        ? signed.fullMessage
+        : `APTOS\nmessage: ${message}\nnonce: ${nonce}`,
+  };
+}
+
+/** Asks the wallet to sign "go live as me with this title". Nothing goes on-chain. */
+export async function signLiveRequest({
+  signMessage,
+  account,
+  owner,
+  title,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  signMessage: (input: any) => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  account: any;
+  owner: string;
+  title: string;
+}): Promise<StartLiveRequest> {
+  if (typeof signMessage !== "function") {
+    throw new Error("Your wallet does not support message signing.");
+  }
+
+  const publicKey = publicKeyToHex(account?.publicKey);
+
+  if (!publicKey) {
+    throw new Error("Your wallet did not share its public key.");
+  }
+
+  const issuedAt = new Date().toISOString();
+
+  const message = buildLiveMessage(owner, title, issuedAt);
+
+  const nonce = bytesToHex(crypto.getRandomValues(new Uint8Array(8))).slice(2);
+
+  const signed = await signMessage({ message, nonce });
+
+  const bytes = signatureToBytes(signed?.signature);
+
+  if (!bytes) {
+    throw new Error("Your wallet did not return a signature.");
+  }
+
+  return {
+    owner,
+    title,
     issuedAt,
     publicKey,
     signature: bytesToBase64(bytes),

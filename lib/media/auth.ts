@@ -74,45 +74,50 @@ function keyControlsAddress(key: Ed25519PublicKey, owner: string): boolean {
   return target === legacy || target === single;
 }
 
+/** What a wallet sends to prove it signed one specific message. */
+export interface WalletProof {
+  owner: string;
+  issuedAt: string;
+  publicKey: string;
+  /** Base64 signature bytes. */
+  signature: string;
+  fullMessage: string;
+}
+
 /**
- * Verifies that the owner's wallet signed this exact save request.
+ * Verifies that the owner's wallet signed exactly `expectedMessage`.
  *
- * Checks, in order: the request is fresh, the signed text contains our
- * expected message (which binds the file and a hash of the new details),
- * the key really controls the owner address, and the signature is valid.
+ * Checks, in order: the request is fresh, the signed text contains the
+ * expected message, the key really controls the owner address, and the
+ * signature is valid. Used for every wallet-signed action (saving details,
+ * going live), so each action gets the same protection.
  */
-export async function verifySaveRequest(
-  request: SaveDetailsRequest,
-  now: number = Date.now()
+export async function verifyWalletMessage(
+  proof: WalletProof,
+  expectedMessage: string,
+  now: number = Date.now(),
+  maxAgeMs: number = SIGNATURE_MAX_AGE_MS
 ): Promise<void> {
-  const issued = Date.parse(request.issuedAt);
+  const issued = Date.parse(proof.issuedAt);
 
   if (
     !Number.isFinite(issued) ||
-    now - issued > SIGNATURE_MAX_AGE_MS ||
+    now - issued > maxAgeMs ||
     issued - now > 60_000
   ) {
     throw new SignatureError(
-      "The signed request has expired. Please try saving again."
+      "The signed request has expired. Please try again."
     );
   }
 
-  const hash = await sha256Hex(
-    canonicalDetails(request.owner, request.blobName, {
-      title: request.title,
-      description: request.description,
-      coverBlob: request.coverBlob,
-    })
-  );
-
-  const expected = buildSaveMessage(request.blobName, hash, request.issuedAt);
-
   if (
-    typeof request.fullMessage !== "string" ||
-    !request.fullMessage.includes(expected)
+    typeof proof.fullMessage !== "string" ||
+    !proof.fullMessage.includes(expectedMessage)
   ) {
     throw new SignatureError("The signed message does not match this request.");
   }
+
+  const request = proof;
 
   let key: Ed25519PublicKey;
   let signature: Ed25519Signature;
@@ -145,4 +150,27 @@ export async function verifySaveRequest(
   if (!valid) {
     throw new SignatureError("The wallet signature is not valid.");
   }
+}
+
+/**
+ * Verifies that the owner's wallet signed this exact "save details" request:
+ * the signed text binds the file and a hash of the new details.
+ */
+export async function verifySaveRequest(
+  request: SaveDetailsRequest,
+  now: number = Date.now()
+): Promise<void> {
+  const hash = await sha256Hex(
+    canonicalDetails(request.owner, request.blobName, {
+      title: request.title,
+      description: request.description,
+      coverBlob: request.coverBlob,
+    })
+  );
+
+  await verifyWalletMessage(
+    request,
+    buildSaveMessage(request.blobName, hash, request.issuedAt),
+    now
+  );
 }

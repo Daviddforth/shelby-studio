@@ -16,6 +16,7 @@ import {
   Bot,
   UserCircle2,
   Clapperboard,
+  Radio,
 } from "lucide-react";
 
 const navigation = [
@@ -28,6 +29,11 @@ const navigation = [
     name: "Media",
     href: "/media",
     icon: Clapperboard,
+  },
+  {
+    name: "Go Live",
+    href: "/live",
+    icon: Radio,
   },
   {
     name: "Assets",
