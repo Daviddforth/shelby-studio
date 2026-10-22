@@ -122,7 +122,7 @@ export default async function CreatorPage({ params }: PageProps) {
           </Link>
 
           <Link
-            href="/media"
+            href="/library"
             className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-300 transition hover:bg-slate-800 hover:text-white"
           >
             Host your own media

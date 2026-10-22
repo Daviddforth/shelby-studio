@@ -1,21 +1,38 @@
 "use client";
 
 import Link from "next/link";
+
+import { useWallet } from "@/context/WalletContext";
 import {
   UploadCloud,
+  Radio,
+  UserCircle2,
   FolderPlus,
-  FileJson,
-  Search,
   BookOpen,
 } from "lucide-react";
 
 const actions = [
   {
-    title: "Upload Asset",
-    description: "Store files on Shelby",
-    href: "/storage",
+    title: "Go Live",
+    description: "Stream and share a link",
+    href: "/live",
+    icon: Radio,
+    iconClass: "bg-red-500/15 text-red-400",
+  },
+  {
+    title: "Upload to Library",
+    description: "Video, audio and images",
+    href: "/library",
     icon: UploadCloud,
     iconClass: "bg-blue-500/15 text-blue-400",
+  },
+  {
+    title: "Share Your Page",
+    description: "Your public creator page",
+    href: "/library",
+    icon: UserCircle2,
+    iconClass: "bg-emerald-500/15 text-emerald-400",
+    isMyPage: true,
   },
   {
     title: "Create Collection",
@@ -23,20 +40,6 @@ const actions = [
     href: "/collections",
     icon: FolderPlus,
     iconClass: "bg-violet-500/15 text-violet-400",
-  },
-  {
-    title: "Generate Metadata",
-    description: "Create NFT metadata",
-    href: "/metadata",
-    icon: FileJson,
-    iconClass: "bg-emerald-500/15 text-emerald-400",
-  },
-  {
-    title: "Asset Explorer",
-    description: "Browse stored assets",
-    href: "/explorer",
-    icon: Search,
-    iconClass: "bg-blue-500/15 text-blue-400",
   },
   {
     title: "Documentation",
@@ -48,6 +51,8 @@ const actions = [
 ];
 
 export default function QuickActions() {
+  const { walletConnected, walletAddress } = useWallet();
+
   return (
     <section>
       <div className="mb-4">
@@ -67,7 +72,11 @@ export default function QuickActions() {
           return (
             <Link
               key={action.title}
-              href={action.href}
+              href={
+                "isMyPage" in action && walletConnected && walletAddress
+                  ? `/c/${walletAddress}`
+                  : action.href
+              }
               className="group flex min-w-0 items-center gap-2.5 rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-2.5 sm:gap-3 sm:px-4 sm:py-3 transition-all hover:-translate-y-0.5 hover:border-slate-700 hover:bg-slate-900"
             >
               <div
