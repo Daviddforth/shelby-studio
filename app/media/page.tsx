@@ -1,5 +1,9 @@
 "use client";
 
+import Link from "next/link";
+
+import { Radio } from "lucide-react";
+
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import MediaLibrary from "@/components/media/MediaLibrary";
 
@@ -22,6 +26,26 @@ export default function MediaPage() {
             creator page.
           </p>
         </div>
+
+        <Link
+          href="/live"
+          className="flex items-center gap-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 transition hover:bg-red-500/15"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-600 text-white">
+            <Radio size={18} />
+          </span>
+
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold text-white">
+              Go live
+            </span>
+
+            <span className="block text-xs text-slate-400">
+              Stream from your camera or screen and send people a link to watch
+              and chat.
+            </span>
+          </span>
+        </Link>
 
         <MediaLibrary />
       </div>

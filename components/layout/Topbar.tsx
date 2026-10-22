@@ -19,8 +19,10 @@ import {
   FileJson,
   FolderKanban,
   Images,
+  Clapperboard,
   Info,
   LayoutDashboard,
+  Radio,
   Search,
   TerminalSquare,
   UserCircle2,
@@ -31,6 +33,20 @@ import ConnectWallet from "../wallet/ConnectWallet";
 import { useWallet } from "@/context/WalletContext";
 
 const searchablePages = [
+  {
+    title: "Go Live",
+    description: "Start a live stream and share the link",
+    href: "/live",
+    keywords: ["live", "stream", "broadcast", "go live", "video"],
+    icon: Radio,
+  },
+  {
+    title: "Media",
+    description: "Host videos, audio and images with share links",
+    href: "/media",
+    keywords: ["video", "audio", "image", "host", "embed", "creator"],
+    icon: Clapperboard,
+  },
   {
     title: "Dashboard",
     description: "Shelby Studio workspace overview",
@@ -273,6 +289,12 @@ export default function Topbar() {
               <Link href="/dashboard" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
                 Dashboard
               </Link>
+              <Link href="/live" className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-red-400 hover:bg-slate-900">
+                Go Live
+              </Link>
+              <Link href="/media" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
+                Media
+              </Link>
               <Link href="/assets" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
                 Assets
               </Link>
@@ -409,6 +431,15 @@ export default function Topbar() {
 
         {/* Right Side */}
         <div className="flex shrink-0 items-center gap-2 sm:ml-4 sm:gap-3 lg:ml-auto lg:gap-4">
+          <Link
+            href="/live"
+            title="Go live"
+            className="flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-red-600 px-3 text-sm font-semibold text-white transition hover:bg-red-500 sm:h-12 sm:px-4"
+          >
+            <Radio size={17} />
+            <span className="hidden sm:inline">Go live</span>
+          </Link>
+
           <div className="max-w-[150px] sm:max-w-none"><ConnectWallet /></div>
 
           <Link
