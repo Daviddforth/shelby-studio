@@ -82,7 +82,7 @@ export default function UploadPanel() {
   function getPhaseLabel() {
     switch (progress?.phase) {
       case "preparing":
-        return "Preparing file";
+        return "Preparing file (one-time check before sending)";
 
       case "registering":
         return "Registering on Shelby";
