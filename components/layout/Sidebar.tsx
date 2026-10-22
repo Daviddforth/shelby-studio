@@ -4,100 +4,33 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import {
-  LayoutDashboard,
-  Images,
-  Database,
-  FileJson,
-  FolderKanban,
-  Search,
-  Code2,
-  BookOpen,
-  Bot,
-  UserCircle2,
-  Clapperboard,
-  Radio,
-} from "lucide-react";
+import { UserCircle2 } from "lucide-react";
 
-const navigation = [
-  {
-    name: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    name: "Media",
-    href: "/media",
-    icon: Clapperboard,
-  },
-  {
-    name: "Go Live",
-    href: "/live",
-    icon: Radio,
-  },
-  {
-    name: "Assets",
-    href: "/assets",
-    icon: Images,
-  },
-  {
-    name: "Collections",
-    href: "/collections",
-    icon: FolderKanban,
-  },
-  {
-    name: "Storage",
-    href: "/storage",
-    icon: Database,
-  },
-  {
-    name: "Metadata",
-    href: "/metadata",
-    icon: FileJson,
-  },
-  {
-    name: "Explorer",
-    href: "/explorer",
-    icon: Search,
-  },
-];
+import { useWallet } from "@/context/WalletContext";
 
-const developerNavigation = [
-  {
-    name: "Developer",
-    href: "/developer",
-    icon: Code2,
-  },
-  {
-    name: "AI Tools",
-    href: "/ai",
-    icon: Bot,
-  },
-  {
-    name: "Documentation",
-    href: "/docs",
-    icon: BookOpen,
-  },
-];
+import { navSections, type NavItem } from "./navigation";
 
 export default function Sidebar() {
   const pathname = usePathname();
 
-  function renderItem(
-    item:
-      | (typeof navigation)[number]
-      | (typeof developerNavigation)[number]
-  ) {
+  const { walletConnected, walletAddress } = useWallet();
+
+  function renderItem(item: NavItem) {
     const Icon = item.icon;
 
-    const active =
-      pathname === item.href ||
-      pathname.startsWith(`${item.href}/`);
+    const href =
+      item.isMyPage && walletConnected && walletAddress
+        ? `/c/${walletAddress}`
+        : item.href;
+
+    const active = item.isMyPage
+      ? pathname.startsWith("/c/")
+      : pathname === href || pathname.startsWith(`${href}/`);
 
     return (
       <Link
         key={item.name}
-        href={item.href}
+        href={href}
         className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
           active
             ? "bg-blue-600 text-white shadow-lg shadow-blue-600/10"
@@ -150,23 +83,17 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 py-5">
-        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-          Workspace
-        </p>
+        {navSections.map((section, index) => (
+          <div key={section.title}>
+            {index > 0 && <div className="my-5 border-t border-slate-800" />}
 
-        <div className="space-y-1">
-          {navigation.map(renderItem)}
-        </div>
+            <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+              {section.title}
+            </p>
 
-        <div className="my-6 border-t border-slate-800" />
-
-        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-          Developer
-        </p>
-
-        <div className="space-y-1">
-          {developerNavigation.map(renderItem)}
-        </div>
+            <div className="space-y-1">{section.items.map(renderItem)}</div>
+          </div>
+        ))}
       </nav>
 
       {/* Profile */}

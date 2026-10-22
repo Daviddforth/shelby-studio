@@ -30,7 +30,7 @@ export default function RecentActivity() {
         description="Your recent uploads and storage events will appear here once you start storing assets with Shelby."
         action={
           <a
-            href="/storage"
+            href="/library"
             className="mt-5 inline-flex items-center rounded-lg bg-blue-500 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-blue-400"
           >
             Go to Storage

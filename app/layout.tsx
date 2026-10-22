@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Sora } from "next/font/google";
 import "./globals.css";
 
 import AptosWalletProvider from "../components/wallet/AptosWalletProvider";
@@ -14,6 +14,12 @@ import InteractiveWatermark from "../components/ui/InteractiveWatermark";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+// Headings use Sora (techy, rounded); body text stays Geist.
+const sora = Sora({
+  variable: "--font-sora",
   subsets: ["latin"],
 });
 
@@ -43,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${sora.variable} h-full antialiased`}
     >
       <body className="min-h-screen overflow-x-hidden bg-gray-50 text-gray-900">
         <AptosWalletProvider>

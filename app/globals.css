@@ -41,7 +41,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -176,4 +176,26 @@ body {
   html {
     @apply font-sans;
   }
+}
+/*
+ * Shelby Studio look: the logo is electric blue into indigo, so primary
+ * buttons use the same gradient instead of a flat blue.
+ */
+.bg-blue-600 {
+  background-image: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+}
+
+.bg-blue-600:hover,
+.hover\:bg-blue-500:hover,
+.hover\:bg-blue-700:hover {
+  filter: brightness(1.1);
+}
+
+/* Cleaner headings: tighter tracking and balanced wrapping. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-sora), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
 }

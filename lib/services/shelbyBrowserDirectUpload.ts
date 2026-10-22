@@ -11,6 +11,7 @@ import {
 } from "@aptos-labs/ts-sdk";
 
 import { aptos } from "@/lib/aptos";
+import { runPool } from "@/lib/services/runPool";
 
 import type {
   LargeUploadProgress,
@@ -487,10 +488,47 @@ export async function uploadDirectlyToShelby({
   const provider =
     await createDefaultErasureCodingProvider();
 
+  // Count bytes as Shelby reads the file so the progress bar moves
+  // during this first step instead of sitting at 0% on large files.
+  let bytesRead = 0;
+  let lastReported = -1;
+
+  const countedStream = file
+    .stream()
+    .pipeThrough(
+      new TransformStream<
+        Uint8Array,
+        Uint8Array
+      >({
+        transform(chunk, controller) {
+          bytesRead += chunk.byteLength;
+
+          const percentage =
+            calculatePercentage(
+              bytesRead,
+              file.size
+            );
+
+          if (percentage !== lastReported) {
+            lastReported = percentage;
+
+            onProgress?.({
+              phase: "preparing",
+              uploadedBytes: bytesRead,
+              totalBytes: file.size,
+              percentage,
+            });
+          }
+
+          controller.enqueue(chunk);
+        },
+      })
+    );
+
   const commitments =
     await generateCommitments(
       provider,
-      file.stream()
+      countedStream
     );
 
   if (
@@ -1035,15 +1073,16 @@ export async function uploadDirectlyToShelby({
   /*
    * STEP 4
    *
-   * Upload each chunkset DIRECTLY
-   * from browser to Shelby.
+   * Upload chunksets DIRECTLY from the browser
+   * to Shelby, several at a time. Each chunkset
+   * is independent, so sending a few in parallel
+   * keeps the connection full instead of waiting
+   * for one round trip per piece. A failed piece
+   * is retried before the whole upload gives up.
    */
-  for (
-    let chunksetIndex = 0;
-    chunksetIndex <
-    totalChunksets;
-    chunksetIndex++
-  ) {
+  const uploadChunkset = async (
+    chunksetIndex: number
+  ) => {
     const start =
       chunksetIndex *
       chunksetSize;
@@ -1198,7 +1237,26 @@ export async function uploadDirectlyToShelby({
 
       totalChunksets,
     });
-  }
+  };
+
+  await runPool(
+    totalChunksets,
+    4,
+    uploadChunkset,
+    {
+      // Timeouts (408) happen when a slow connection is split too many ways.
+      // runPool slows down after each one, so give it room to recover.
+      attempts: 6,
+      pauseMs: 1500,
+      // Rejections like bad auth will not fix themselves; network blips and 5xx will.
+      isRetryable: (error) =>
+        !/\((400|401|403|404|409|422)\)/.test(
+          error instanceof Error
+            ? error.message
+            : ""
+        ),
+    }
+  );
 
   const spAcks =
     Array.from(

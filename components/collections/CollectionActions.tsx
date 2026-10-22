@@ -5,7 +5,6 @@ import { useState } from "react";
 import {
   Download,
   RotateCcw,
-  Save,
   Rocket,
 } from "lucide-react";
 
@@ -87,18 +86,11 @@ export default function CollectionActions() {
         </h2>
 
         <p className="mt-1 text-sm text-slate-500">
-          Save, export or publish your collection.
+          Your draft saves automatically on this device. Export it or publish it to Shelby.
         </p>
       </div>
 
-      <div className="grid gap-3 p-6 sm:grid-cols-2">
-        <button
-          type="button"
-          className="flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm font-medium text-slate-200 transition hover:border-blue-500 hover:text-white"
-        >
-          <Save size={17} />
-          Save Draft
-        </button>
+      <div className="grid gap-3 p-6 sm:grid-cols-3">
 
         <button
           type="button"

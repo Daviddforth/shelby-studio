@@ -29,6 +29,7 @@ import {
   X,
 } from "lucide-react";
 
+import { navSections } from "./navigation";
 import ConnectWallet from "../wallet/ConnectWallet";
 import { useWallet } from "@/context/WalletContext";
 
@@ -41,9 +42,9 @@ const searchablePages = [
     icon: Radio,
   },
   {
-    title: "Media",
-    description: "Host videos, audio and images with share links",
-    href: "/media",
+    title: "Library",
+    description: "Upload and share videos, audio and images",
+    href: "/library",
     keywords: ["video", "audio", "image", "host", "embed", "creator"],
     icon: Clapperboard,
   },
@@ -281,57 +282,40 @@ export default function Topbar() {
           </summary>
 
           <div className="absolute left-0 top-12 z-50 w-64 overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 p-3 shadow-2xl">
-            <p className="px-3 pb-2 pt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-              Workspace
-            </p>
+            {navSections.map((section) => (
+              <div key={section.title} className="mb-3">
+                <p className="px-3 pb-2 pt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
+                  {section.title}
+                </p>
 
-            <div className="space-y-1">
-              <Link href="/dashboard" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
-                Dashboard
-              </Link>
-              <Link href="/live" className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-red-400 hover:bg-slate-900">
-                Go Live
-              </Link>
-              <Link href="/media" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
-                Media
-              </Link>
-              <Link href="/assets" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
-                Assets
-              </Link>
-              <Link href="/collections" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
-                Collections
-              </Link>
-              <Link href="/storage" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
-                Storage
-              </Link>
-              <Link href="/metadata" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
-                Metadata
-              </Link>
-              <Link href="/explorer" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
-                Explorer
-              </Link>
-            </div>
+                <div className="space-y-1">
+                  {section.items.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={
+                        item.isMyPage && walletConnected && walletAddress
+                          ? `/c/${walletAddress}`
+                          : item.href
+                      }
+                      className={`block rounded-xl px-3 py-2.5 text-sm hover:bg-slate-900 ${
+                        item.name === "Go Live"
+                          ? "font-semibold text-red-400"
+                          : "text-slate-300 hover:text-white"
+                      }`}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
 
-            <div className="my-3 border-t border-slate-800" />
-
-            <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
-              Developer
-            </p>
-
-            <div className="space-y-1">
-              <Link href="/developer" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
-                Developer
-              </Link>
-              <Link href="/ai" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
-                AI Tools
-              </Link>
-              <Link href="/docs" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
-                Documentation
-              </Link>
-              <Link href="/profile" className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white">
-                My Profile
-              </Link>
-            </div>
+            <Link
+              href="/profile"
+              className="block rounded-xl px-3 py-2.5 text-sm text-slate-300 hover:bg-slate-900 hover:text-white"
+            >
+              My Profile
+            </Link>
           </div>
         </details>
 
