@@ -1241,10 +1241,13 @@ export async function uploadDirectlyToShelby({
 
   await runPool(
     totalChunksets,
-    6,
+    4,
     uploadChunkset,
     {
-      attempts: 3,
+      // Timeouts (408) happen when a slow connection is split too many ways.
+      // runPool slows down after each one, so give it room to recover.
+      attempts: 6,
+      pauseMs: 1500,
       // Rejections like bad auth will not fix themselves; network blips and 5xx will.
       isRetryable: (error) =>
         !/\((400|401|403|404|409|422)\)/.test(
