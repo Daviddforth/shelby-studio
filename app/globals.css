@@ -193,7 +193,9 @@ body {
 
 /* Cleaner headings: tighter tracking and balanced wrapping. */
 h1,
-h2 {
+h2,
+h3 {
+  font-family: var(--font-sora), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   letter-spacing: -0.02em;
   text-wrap: balance;
 }
