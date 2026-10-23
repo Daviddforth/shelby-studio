@@ -17,7 +17,7 @@ export default function AssetsPage() {
           </h1>
 
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
-            Every file stored on Shelby with your wallet. Add new ones from the Library or Raw Storage.
+            Every file stored on Shelby with your wallet. Add new ones from the Upload page.
           </p>
         </div>
 

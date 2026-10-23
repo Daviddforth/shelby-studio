@@ -10,7 +10,7 @@ Without a wallet it shows clearly labeled demo data. With a wallet connected it 
 |---|---|
 | **Hero** | A welcome, your profile name if you saved one, and your network. |
 | **Statistics** | Assets and storage used for your wallet, and whether you have a collection draft and a metadata draft in this browser (shown as 1 or 0). |
-| **Quick Actions** | Go Live, Upload to Library, Share Your Page, Create Collection and Documentation. |
+| **Quick Actions** | Upload, Go Live, Library, Share Your Page and Create Collection. |
 | **Storage overview** | Files and total size for your wallet. |
 | **Network status** | Wallet and network connection. |
 | **Storage analytics** | A breakdown of what you store. |
@@ -22,9 +22,9 @@ Without a wallet it shows clearly labeled demo data. With a wallet connected it 
 The side menu is shared by the whole app, and the phone menu uses the same list.
 
 ```text
-Create        Home, Library, Go Live, My Page
+Create        Home, Upload, Library, Go Live, My Page
 NFT Tools     Collections, Metadata, Assets
-More          Raw Storage, Explorer, Developer, Documentation
+More          Explorer, Developer, Documentation
 ```
 
 The top bar has a red **Go live** button, search, the wallet button and your profile.

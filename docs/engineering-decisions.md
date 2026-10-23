@@ -24,7 +24,7 @@ The application is organized around these areas:
 - **Library** (`/library`) — upload video, audio, and images; edit titles, descriptions, and covers; share links
 - **Public pages** — `/m/<owner>/<file>` (media page), `/embed/<owner>/<file>` (embeddable player), `/c/<owner>` (creator page)
 - **Go Live** (`/live`, `/live/<owner>`) — live streaming and viewing through LiveKit
-- **Raw Storage** (`/storage`) — upload, inspect, and delete files on Shelby
+- **Upload** (`/storage`) — upload any file to Shelby, with progress and storage statistics
 - **Assets** (`/assets`) and **Explorer** (`/explorer`) — browse and inspect the connected wallet's stored assets
 - **Collections** and **Metadata** — NFT collection and metadata tools
 - **Developer** and **Docs** — developer tools and documentation pages
@@ -189,7 +189,7 @@ Specialized workflows live under `lib/services/`. This keeps protocol-specific l
 
 ## 13. Browser-Direct Parallel Upload
 
-Uploads from Library and Raw Storage go from the browser directly to the Shelby RPC:
+Uploads from the Upload page go from the browser directly to the Shelby RPC:
 
 ```
 Browser

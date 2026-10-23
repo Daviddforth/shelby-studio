@@ -12,7 +12,7 @@ This page lists what works today, what does not, and what is planned. Nothing he
 | Streaming with seek support (HTTP range) | Available |
 | Go Live with chat (needs LiveKit) | Available |
 | LIVE NOW banner on the creator page | Available |
-| Raw Storage for any file type | Available |
+| Upload page for any file type | Available |
 | Assets view with real counts | Available |
 | Explorer: look up files by wallet address | Available |
 | Collection Builder and Metadata generator | Available |
@@ -29,7 +29,7 @@ This page lists what works today, what does not, and what is planned. Nothing he
 
 ### Library
 
-- Only the listed video, audio and image formats get public pages. Other files can be stored in Raw Storage.
+- Only the listed video, audio and image formats get public pages. Other files can be uploaded on the Upload page but get no public page.
 - There is no transcoding. A file plays only if the viewer's browser supports its format.
 - Without a configured database, titles and covers cannot be saved.
 

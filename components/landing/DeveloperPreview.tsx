@@ -14,7 +14,7 @@ export default function DeveloperPreview() {
           </h2>
 
           <p className="mt-5 max-w-md text-base leading-7 text-slate-400">
-            Shelby Studio isn't only a dashboard. Explore supported
+            Shelby Studio isn&apos;t only a dashboard. Explore supported
             APIs, SDK resources and operations while developing
             applications powered by Shelby.
           </p>
@@ -40,9 +40,7 @@ export default function DeveloperPreview() {
 
           <div className="p-5">
             <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 font-mono text-xs leading-6">
-              <p className="text-slate-500">
-                // Shelby Studio API
-              </p>
+              <p className="text-slate-500">{"// Shelby Studio API"}</p>
 
               <p className="mt-2">
                 <span className="text-blue-400">
@@ -79,9 +77,7 @@ export default function DeveloperPreview() {
 
               <div className="my-4 border-t border-slate-800" />
 
-              <p className="text-slate-500">
-                // Response
-              </p>
+              <p className="text-slate-500">{"// Response"}</p>
 
               <p className="mt-2 text-emerald-400">
                 {"{"}

@@ -136,7 +136,7 @@ The actual output depends on what you entered.
 
 - **Collections** (`/collections`) has its own draft. The two drafts are not linked on the current pages.
 - **Assets** (`/assets`) lists the files stored with your wallet, including stored `metadata.json` files.
-- **Raw Storage** and **Library** are the other places to upload files.
+- Files are uploaded on the **Upload** page. Videos, audio and images then appear in the **Library**.
 
 ## Limitations
 

@@ -37,13 +37,13 @@ export default function StoragePage() {
             </div>
 
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-white md:text-4xl">
-              Storage Manager
+              Upload
             </h1>
 
             <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
               {walletConnected
-                ? "Manage your assets, upload files, monitor storage usage, and prepare your digital assets for Shelby."
-                : "Explore how Shelby Studio manages assets and storage before connecting your wallet."}
+                ? "Upload any file to Shelby. Videos, audio and images also appear in your Library with a share link and embed code."
+                : "Explore how uploading to Shelby works before connecting your wallet."}
             </p>
 
             {!walletConnected && (

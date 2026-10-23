@@ -8,18 +8,18 @@ This page takes you from a new wallet to a hosted video, a shareable page and a 
 
 Open the app and click **Connect Wallet** in the top bar. Use an Aptos-compatible wallet such as Petra. Your wallet address becomes your creator identity.
 
-### 2. Upload to your Library
+### 2. Upload
 
-1. Open **Library** in the side menu.
+1. Open **Upload** in the side menu.
 2. Drag a video, audio file or image into the upload box, or click it to choose a file.
 3. Approve the wallet prompts. Uploading registers the file on Shelby and then commits it, so the wallet asks twice and pays a small gas fee.
-4. Wait for the progress bar to finish. Large files take longer: the time is mostly your upload speed.
+4. Wait for the progress bar to finish. Large files take longer: the time is mostly your upload speed. When it is done, click **View in Library**.
 
 Supported formats are listed in [Library](/docs/library).
 
 ### 3. Add details and share
 
-On any file in your Library:
+Open **Library**. On any file:
 
 - **Edit details** sets a title, a description and an optional cover picture. Saving asks your wallet for a free signature, so nobody else can change them.
 - **Link** copies the public page for that file.

@@ -43,7 +43,7 @@ const searchablePages = [
   },
   {
     title: "Library",
-    description: "Upload and share videos, audio and images",
+    description: "Share links and embed codes for your videos, audio and images",
     href: "/library",
     keywords: ["video", "audio", "image", "host", "embed", "creator"],
     icon: Clapperboard,
@@ -63,8 +63,8 @@ const searchablePages = [
     icon: Images,
   },
   {
-    title: "Storage",
-    description: "Upload and manage Shelby Storage assets",
+    title: "Upload",
+    description: "Upload any file to Shelby",
     href: "/storage",
     keywords: ["upload", "files", "shelby storage", "blob"],
     icon: Database,
@@ -267,7 +267,7 @@ export default function Topbar() {
               Shelby Studio
             </p>
             <p className="text-[9px] font-medium uppercase tracking-[0.12em] text-slate-500">
-              Digital Asset Workspace
+              Creator Workspace
             </p>
           </div>
         </Link>
