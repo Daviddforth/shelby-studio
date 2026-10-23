@@ -30,7 +30,28 @@ const sections = [
     ],
   },
   {
-    title: "Core Platform",
+    title: "Creator Tools",
+    items: [
+      {
+        title: "Library",
+        slug: "library",
+      },
+      {
+        title: "Go Live",
+        slug: "live-streaming",
+      },
+      {
+        title: "Public Pages & Embeds",
+        slug: "public-pages-embeds",
+      },
+      {
+        title: "Dashboard",
+        slug: "dashboard",
+      },
+    ],
+  },
+  {
+    title: "Storage",
     items: [
       {
         title: "Storage Engine",
@@ -45,8 +66,8 @@ const sections = [
         slug: "explorer",
       },
       {
-        title: "Dashboard",
-        slug: "dashboard",
+        title: "Assets",
+        slug: "assets",
       },
     ],
   },
@@ -70,6 +91,10 @@ const sections = [
         title: "Developer Platform",
         slug: "developer",
       },
+      {
+        title: "Self-Hosting Setup",
+        slug: "self-hosting",
+      },
     ],
   },
   {
@@ -79,10 +104,10 @@ const sections = [
         title: "Engineering Decisions",
         slug: "engineering-decisions",
       },
-        {
-          title: "Limitations & Roadmap",
-          slug: "limitations-roadmap",
-        },
+      {
+        title: "Limitations & Roadmap",
+        slug: "limitations-roadmap",
+      },
     ],
   },
 ];

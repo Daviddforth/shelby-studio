@@ -15,36 +15,44 @@ const allowedDocs = [
   "quick-start",
   "philosophy",
   "architecture",
+  "library",
+  "live-streaming",
+  "public-pages-embeds",
   "storage-engine",
   "upload-pipeline",
   "explorer",
+  "dashboard",
+  "assets",
   "metadata",
   "collections",
-  "dashboard",
+  "developer",
+  "self-hosting",
   "engineering-decisions",
   "limitations-roadmap",
-"developer",
 ] as const;
 
 const docTitles: Record<
   (typeof allowedDocs)[number],
   string
 > = {
-  introduction: "Introduction",
+  "introduction": "Introduction",
   "quick-start": "Quick Start",
-  philosophy: "Philosophy",
-  architecture: "Architecture",
+  "philosophy": "Philosophy",
+  "architecture": "Architecture",
+  "library": "Library",
+  "live-streaming": "Go Live",
+  "public-pages-embeds": "Public Pages & Embeds",
   "storage-engine": "Storage Engine",
   "upload-pipeline": "Upload Pipeline",
-  explorer: "Explorer",
-  metadata: "Metadata",
-  collections: "Collections",
-  dashboard: "Dashboard",
-  "engineering-decisions":
-    "Engineering Decisions",
-  "limitations-roadmap":
-    "Limitations & Roadmap",
-developer: "Developer Platform",
+  "explorer": "Explorer",
+  "dashboard": "Dashboard",
+  "assets": "Assets",
+  "metadata": "Metadata",
+  "collections": "Collections",
+  "developer": "Developer Platform",
+  "self-hosting": "Self-Hosting Setup",
+  "engineering-decisions": "Engineering Decisions",
+  "limitations-roadmap": "Limitations & Roadmap",
 };
 
 interface Props {

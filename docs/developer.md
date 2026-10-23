@@ -141,7 +141,6 @@ The current operations are:
 | Object Lookup  | GET    | `/api/shelby/object`     |
 | Download Asset | GET    | `/api/shelby/download`   |
 | List Locations | GET    | `/api/shelby/locations`  |
-| Delete Asset   | POST   | `/api/shelby/delete`     |
 
 The Playground supports request parameters where required and displays returned JSON responses directly inside the developer workspace.
 
@@ -434,84 +433,15 @@ GET /api/shelby/download?blobName=example/file.json&owner=0x...
 
 The browser receives the file and the API Playground triggers a browser download.
 
-#### Delete Asset
-
-**Endpoint**
+#### Delete Asset (disabled)
 
 ```text
 POST /api/shelby/delete
 ```
 
-**Request Body**
+This route is disabled and always returns `410 Gone`. It used to delete files with the server's own signer key and had no login, so anyone could have called it.
 
-The request requires a JSON body containing:
-
-```json
-{
-  "blobName": "example/file.json"
-}
-```
-
-**Purpose**
-
-Deletes an existing Shelby blob.
-
-The supplied blob name is validated using:
-
-`BlobNameSchema`
-
-The deletion is performed server-side using:
-
-`ShelbyBlobClient.deleteObject()`
-
-The operation requires the server-side Shelby credentials:
-
-- `SHELBY_API_KEY`
-- `SHELBY_SIGNER_PRIVATE_KEY`
-
-The server creates the deletion transaction and waits for the transaction to be finalized on Aptos.
-
-**Example**
-
-```ts
-const response = await fetch("/api/shelby/delete", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    blobName: "example/file.json",
-  }),
-});
-
-const data = await response.json();
-
-console.log(data);
-```
-
-**Successful Response**
-
-```json
-{
-  "success": true,
-  "network": "Shelbynet",
-  "location": "shelbynet-1",
-  "blobName": "example/file.json",
-  "transaction": "0x..."
-}
-```
-
-The `transaction` field contains the finalized deletion transaction hash.
-
-**Errors**
-
-A missing `blobName` returns HTTP 400.
-
-Missing server-side Shelby credentials return HTTP 500.
-
-If the deletion transaction fails, the API returns HTTP 500.
-
-Because deletion modifies Shelby storage and submits a blockchain transaction, it should be treated as a write operation rather than a read-only API request.
+Deleting is now a transaction that the file owner's wallet signs in the browser (`lib/services/shelbyDelete.ts`). Only the wallet that owns a file can delete it. See [Library](/docs/library).
 
 #### List Locations
 
@@ -585,9 +515,9 @@ Current storage routes:
 | Route                          | Purpose             |
 | ------------------------------- | -------------------- |
 | `/api/storage/prepare-upload`   | Prepare an upload    |
-| `/api/storage/stream-upload`    | Stream upload data   |
+| `/api/storage/stream-upload`    | Disabled (410). Was a server-signed large upload |
 | `/api/storage/finalize-upload`  | Finalize an upload   |
-| `/api/storage/upload`           | Upload entry point   |
+| `/api/storage/upload`           | Disabled (410). Was a server-signed upload |
 
 These routes are part of the application's storage pipeline.
 
@@ -613,7 +543,7 @@ Shelby Storage
 Finalize Upload
 ```
 
-The `/api/storage/upload` route acts as an upload entry point.
+The `/api/storage/upload` and `/api/storage/stream-upload` routes are disabled and return `410 Gone`. They signed with the server's own key and accepted requests from anyone. Real uploads go from the browser straight to Shelby and are signed by the user's wallet, with `prepare-upload` and `finalize-upload` only building the transaction payloads.
 
 The developer API focuses primarily on inspection and integration, while the storage API handles the application's upload workflow.
 
@@ -1044,16 +974,16 @@ Experimental playground:
 
 ## Developer API Summary
 
-The current developer API consists of six Shelby routes:
+The current developer API consists of five active Shelby routes (plus the disabled delete route):
 
 - `/api/shelby/assets`
 - `/api/shelby/asset`
 - `/api/shelby/object`
 - `/api/shelby/download`
 - `/api/shelby/locations`
-- `/api/shelby/delete`
+- `/api/shelby/delete` (disabled, returns 410)
 
-And four storage routes:
+And four storage routes, two of them disabled (410):
 
 - `/api/storage/prepare-upload`
 - `/api/storage/stream-upload`

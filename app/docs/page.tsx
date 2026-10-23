@@ -9,101 +9,139 @@ import {
   Layers3,
   LayoutDashboard,
   Network,
+  Radio,
   Search,
   Settings2,
+  Video,
+  Globe,
 } from "lucide-react";
 
 const cards = [
   {
     title: "Introduction",
     description:
-      "Learn what Shelby Studio is and what the platform is designed to accomplish.",
+      "What Shelby Studio is, what you can do with it, and how the pieces fit together.",
     href: "/docs/introduction",
     icon: BookOpen,
   },
   {
     title: "Quick Start",
     description:
-      "Go from your first Shelby Studio API request to integrating Shelby storage into your application.",
+      "Go from a new wallet to a hosted video, a share link and a live stream.",
     href: "/docs/quick-start",
     icon: Code2,
   },
   {
     title: "Philosophy",
     description:
-      "Understand the principles that guide the design and development of Shelby Studio.",
+      "The principles behind how Shelby Studio is designed.",
     href: "/docs/philosophy",
     icon: Layers3,
   },
   {
     title: "Architecture",
     description:
-      "Understand the architecture and major systems that power Shelby Studio.",
+      "The systems that power Shelby Studio: Shelby, Postgres, LiveKit and the wallet.",
     href: "/docs/architecture",
     icon: Network,
   },
   {
+    title: "Library",
+    description:
+      "Upload video, audio and images, add details, and copy share links and embed codes.",
+    href: "/docs/library",
+    icon: Video,
+  },
+  {
+    title: "Go Live",
+    description:
+      "Stream from your browser, share one link, and chat with viewers.",
+    href: "/docs/live-streaming",
+    icon: Radio,
+  },
+  {
+    title: "Public Pages & Embeds",
+    description:
+      "Public media pages, creator pages, embed codes and how files are served.",
+    href: "/docs/public-pages-embeds",
+    icon: Globe,
+  },
+  {
     title: "Storage Engine",
     description:
-      "Explore Shelby storage integration, asset lifecycle, uploads and downloads.",
+      "Shelby storage integration, asset lifecycle and wallet-signed transactions.",
     href: "/docs/storage-engine",
     icon: Database,
   },
   {
     title: "Upload Pipeline",
     description:
-      "Follow the upload workflow from the browser through Shelby storage and on-chain commit.",
+      "How uploads work: preparation, parallel pieces, retries and finalizing.",
     href: "/docs/upload-pipeline",
-    icon: Boxes,
+    icon: Layers3,
   },
   {
     title: "Explorer",
     description:
-      "Learn how assets are searched, filtered, sorted and explored.",
+      "Look up the files stored by any wallet address.",
     href: "/docs/explorer",
     icon: Search,
   },
   {
+    title: "Dashboard",
+    description:
+      "The Home page, the menu and where the numbers come from.",
+    href: "/docs/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Assets",
+    description:
+      "Every file stored with your wallet, with real counts and history.",
+    href: "/docs/assets",
+    icon: Boxes,
+  },
+  {
     title: "Metadata",
     description:
-      "Learn how Shelby Studio creates and manages NFT metadata.",
+      "Create, validate and publish NFT metadata.",
     href: "/docs/metadata",
     icon: FileJson,
   },
   {
     title: "Collections",
     description:
-      "Learn how collection tooling fits into the Shelby Studio workflow.",
+      "Build and publish NFT collections.",
     href: "/docs/collections",
-    icon: Layers3,
+    icon: Boxes,
   },
   {
-    title: "Dashboard",
+    title: "Developer Platform",
     description:
-      "Understand the central workspace experience and how platform information is presented.",
-    href: "/docs/dashboard",
-    icon: LayoutDashboard,
+      "The API Playground, read-only Shelby routes, SDK examples and code generation.",
+    href: "/docs/developer",
+    icon: Code2,
+  },
+  {
+    title: "Self-Hosting Setup",
+    description:
+      "Run your own copy: environment variables, database, LiveKit and deployment.",
+    href: "/docs/self-hosting",
+    icon: Settings2,
   },
   {
     title: "Engineering Decisions",
     description:
-      "Explore the technical decisions and boundaries behind the Shelby Studio implementation.",
+      "Why Shelby Studio is built the way it is, including security choices.",
     href: "/docs/engineering-decisions",
     icon: Settings2,
   },
   {
     title: "Limitations & Roadmap",
     description:
-      "See what Shelby Studio supports today, its current limitations, and where the platform is heading.",
+      "What works today, what does not, and what is planned.",
     href: "/docs/limitations-roadmap",
     icon: Settings2,
-  },
-  {
-    title: "Developer Platform",
-    description:
-      "Explore the API Playground, storage routes, SDK resources, code generation, and integration examples.",
-    href: "/docs/developer",
-    icon: Code2,
   },
 ];
 

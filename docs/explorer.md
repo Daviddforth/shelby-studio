@@ -1,234 +1,116 @@
 # Explorer
 
-> [!IMPORTANT]
->
-> **Version:** v0.1.0
->
-> **Status:** Active Development
->
->
-> This document describes the Explorer module of Shelby Studio.
->
-> Sections marked **Current Implementation** describe features available today.
->
-> Sections marked **Planned** describe capabilities currently under development.
+The Explorer (`/explorer`) is a public, read-only view of the blobs stored under any Shelby account. Enter an account address and it lists that account's discoverable blobs. No wallet connection is required.
+
+Managing your own files (replace, delete, share) happens in **Assets** (`/assets`), not in the Explorer.
 
 ---
 
 # Contents
 
 1. Overview
-2. Objectives
-3. Design Philosophy
-4. Explorer Architecture
-5. Current Features
-6. Asset Lifecycle
-7. Planned Features
-8. Related Documentation
+2. Current Features
+3. Architecture
+4. Explorer and Assets
+5. Limitations
+6. Related Documentation
 
 ---
 
 # Overview
 
-The Explorer is the primary interface for viewing and managing assets stored through Shelby Studio.
-
-Rather than acting as a traditional file browser, the Explorer provides a structured workspace for interacting with decentralized storage objects throughout their lifecycle.
-
-It allows developers to inspect uploaded assets, verify stored objects and perform storage operations from a single location.
-
----
-
-# Objectives
-
-The Explorer is designed to:
-
-- Display uploaded assets.
-- Simplify asset management.
-- Provide direct access to storage operations.
-- Present verified Shelby object information.
-- Maintain synchronization with the current workspace.
-
-The Explorer intentionally focuses on asset management while delegating storage operations to the server-side API layer.
-
----
-
-# Design Philosophy
-
-The Explorer follows three core principles.
-
-## Visibility
-
-Developers should immediately understand what assets exist inside their workspace.
-
----
-
-## Verification
-
-Displayed information should reflect verified Shelby data rather than assumptions made by the client.
-
----
-
-## Simplicity
-
-Frequently used operations should require as few interactions as possible while still exposing useful technical information.
-
----
-
-# Explorer Architecture
-
-```text
-                Explorer
-
-         +----------------------+
-         |   Asset Table         |
-         +----------+-----------+
-                    |
-                    v
-         +----------------------+
-         |     Asset Row        |
-         +----------+-----------+
-                    |
-     +--------------+--------------+
-     |              |              |
-     v              v              v
- Download        Replace        Delete*
-                    |
-                    v
-           Next.js API Routes
-                    |
-                    v
-              Shelby SDK
-                    |
-                    v
-               Shelby Network
-
-*Planned
-```
-
-The Explorer acts as the presentation layer while storage operations are handled through secure API routes.
+The Explorer looks up an account address on Shelbynet and shows the blobs the Shelby coordination layer returns for it. If a wallet is connected, the page fills in the wallet address automatically, and an "Explore connected wallet" link switches back to it after you look up another address.
 
 ---
 
 # Current Features
 
-The current implementation provides:
+### Account Lookup
+
+Enter a Shelby account address (`0x...`) and select **Explore Account**, or press Enter.
+
+---
 
 ### Asset Listing
 
-Display uploaded assets stored within the current workspace.
+Lists the blobs returned for the account, with a count of how many were found.
 
 ---
 
 ### Search
 
-Filter assets by name using case-insensitive matching.
+Filters the list by blob name, using case-insensitive matching.
 
 ---
 
-### Download
+### Status Filter
 
-Retrieve the latest committed version of an asset directly from Shelby.
-
----
-
-### Replace
-
-> **Status: In Progress**
-
-Replacement controls are planned for the Explorer but are not currently enabled.
+Filters by All Status, Stored, Failed or Pending.
 
 ---
 
-### Verification
+### Sorting
 
-Asset information displayed in the Explorer is retrieved from Shelby rather than relying solely on local application state.
+Sorts by Newest, Oldest, Name, Largest or Smallest.
 
 ---
 
-# Asset Lifecycle
+### Row Actions
 
-An asset typically progresses through the following stages.
+Each blob row has:
+
+- **Details** - opens a panel with the blob's information, with copy buttons for the UID, owner address and blob name, and a Download button.
+- **Shelby Explorer** - opens the account on the external Shelby Explorer.
+- **Download** - downloads the blob through `/api/shelby/download`.
+
+---
+
+# Architecture
 
 ```text
-Upload
-
-↓
-
-Verification
-
-↓
-
-Explorer
-
-↓
-
-Download
-
-↓
-
-Future Asset Actions
-
-↓
-
-Explorer Refresh
+app/explorer/page.tsx
+components/explorer/
+├── AssetDetails.tsx
+├── AssetRow.tsx
+├── AssetTable.tsx
+├── ExplorerHeader.tsx
+└── SearchBar.tsx
 ```
 
-This lifecycle ensures the Explorer always reflects the latest verified state of the object.
+```text
+Explorer page
+     │
+     ▼
+GET /api/shelby/assets?walletAddress=<address>
+     │
+     ▼
+Shelby SDK / Shelbynet
+```
+
+`AssetTable` fetches the list for the active address. Search, status filtering and sorting are applied in the browser on the returned list.
 
 ---
 
-# Planned Features
+# Explorer and Assets
 
-The following Explorer capabilities are currently under development.
-
-### Asset Management
-
-- Delete objects
-- Batch deletion
-- Batch replacement
-- Batch downloads
+| | Explorer | Assets |
+| --- | --- | --- |
+| Account | Any address you enter | The connected wallet |
+| Wallet required | No | Yes |
+| Actions | View, search, filter, sort, details, download | View, download, replace, delete |
+| Extras | Link to the external Shelby Explorer | Stat cards and a History tab |
 
 ---
 
-### Visualization
+# Limitations
 
-- Image thumbnails
-- Preview modal
-- File type icons
+The Explorer does not currently provide:
 
----
-
-### Productivity
-
-- Sorting
+- Replace or delete (use Assets for your own files)
+- Image thumbnails or a preview modal
 - Pagination
-- Multi-select
-- Bulk operations
-
----
-
-### Versioning
-
-- Object history
-- Previous versions
-- Rollback support
-
-These features will expand the Explorer while preserving its current architecture.
-
----
-
-# Engineering Notes
-
-The Explorer intentionally separates presentation from storage operations.
-
-Explorer actions use the appropriate Shelby Studio storage path: server-side coordination where required, browser-side Shelby communication for supported storage operations, and connected-wallet authorization for blockchain transactions.
-
-This approach:
-
-- Protects sensitive credentials.
-- Centralizes storage logic.
-- Simplifies maintenance.
-- Enables future authentication.
+- Multi-select or batch actions
+- Object version history
 
 ---
 
@@ -245,8 +127,6 @@ This approach:
 
 ## Summary
 
-The Explorer provides the primary interface for interacting with stored Shelby assets.
-
-By combining verified object information with streamlined storage operations, it enables developers to confidently manage decentralized assets while maintaining a clean and scalable user experience.
+The Explorer is a read-only lookup for the blobs stored under a Shelby account. It lists, searches, filters, sorts and downloads. Changes to your own files are made in Assets.
 
 ---

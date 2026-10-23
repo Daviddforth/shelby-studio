@@ -1,183 +1,74 @@
 # Limitations & Roadmap
 
-Shelby Studio is an evolving developer and creator workspace built around Shelby storage.
+This page lists what works today, what does not, and what is planned. Nothing here is a promise of dates.
 
-This page describes what is currently supported, what still has limitations, and the areas planned for future development.
+## What works today
 
-## Current Status
+| Area | Status |
+|---|---|
+| Library: upload video, audio and images | Available |
+| Titles, descriptions and cover pictures (wallet-signed, saved in Postgres) | Available |
+| Public media page, embed code and creator page | Available |
+| Streaming with seek support (HTTP range) | Available |
+| Go Live with chat (needs LiveKit) | Available |
+| LIVE NOW banner on the creator page | Available |
+| Raw Storage for any file type | Available |
+| Assets view with real counts | Available |
+| Explorer: look up files by wallet address | Available |
+| Collection Builder and Metadata generator | Available |
+| Developer playground, SDK examples and code generator | Available |
 
-### Storage
+## Known limitations
 
-- Shelby storage integration
-- File uploads
-- File downloads
-- Asset listing
-- Asset inspection
-- Object metadata inspection
-- Asset deletion
-- Asset replacement
-- Storage location information
+### Uploads
 
-### Explorer
+- Upload time depends on your internet speed. A multi-gigabyte file takes a long time on a slow connection, whatever the software does.
+- Shelby closes a request that takes more than 60 seconds. Pieces are about 9 to 10 MB, so connections slower than roughly 1.5 Mbps may fail even with retries. The uploader sends several pieces at once and slows down after a timeout.
+- The browser has to read the whole file and prepare it before sending the first byte, which takes time on large files.
+- Uploading and deleting need wallet approval and gas.
 
-The Explorer provides a read-oriented interface for discovering and inspecting available assets.
+### Library
 
-It supports asset search, filtering, sorting and detailed asset inspection where the underlying Shelby information is available.
+- Only the listed video, audio and image formats get public pages. Other files can be stored in Raw Storage.
+- There is no transcoding. A file plays only if the viewer's browser supports its format.
+- Without a configured database, titles and covers cannot be saved.
 
-### Metadata
+### Go Live
 
-Shelby Studio provides tools for creating and managing NFT metadata.
+- Streams are not recorded and not saved to Shelby.
+- Chat has no moderation tools and is not stored.
+- There is no page that lists who is live.
+- Rate limits are kept in memory per server instance.
+- LiveKit's own plan limits apply, such as monthly participant-minutes.
 
-Metadata can be associated with assets stored through the Shelby workflow and exported for use in external applications and NFT workflows.
+### Profiles
 
-### Collections
+- Profile names and pictures are saved in the browser only. They are not shown on public pages yet.
+- There is no verified link to social accounts yet.
 
-Collection tooling provides a workspace for organizing NFT-related metadata and assets.
+### General
 
-### Developer Platform
+- Shelby Studio depends on the Shelby network and on the services it is configured with.
+- The AI Tools page is hidden from the menu until it is connected to a real model.
+- Some wallets may not support message signing, which Library edits and Go Live need.
 
-The Developer workspace currently includes:
+## What Shelby Studio does not claim
 
-- API Playground
-- SDK Explorer
-- Code Generator
-- Integration Examples
-- Developer documentation
-
-## Important Limitations
-
-### Network Availability
-
-Shelby Studio depends on the Shelby network and services configured by the application.
-
-Availability and supported functionality may therefore depend on the configured Shelby environment.
-
-### Wallet-Dependent Operations
-
-Some operations require a connected wallet because they involve signing or submitting blockchain transactions.
-
-Read-only exploration and documentation do not require a wallet.
-
-### API Configuration
-
-Some Shelby operations are backed by server-side configuration.
-
-Private credentials must remain server-side.
-
-### Browser Upload Configuration
-
-The browser upload workflow uses the Shelby browser SDK and the application's configured upload pipeline.
-
-Browser-visible configuration must never contain private administrative credentials.
-
-### Storage Quota
-
-Shelby Studio does not display an invented account quota.
-
-Storage usage shown by the application should represent data that can actually be measured from the connected or configured storage environment.
-
-No fixed quota should be assumed unless the underlying Shelby service provides one.
-
-### Production Readiness
-
-Some parts of Shelby Studio are still evolving.
-
-Developers should verify the behavior of the configured Shelby network and application environment before using the platform as a production dependency.
-
-## What Shelby Studio Does Not Claim
-
-Shelby Studio does not claim:
-
-- A fixed storage quota unless one is provided by the underlying service
-- A specific number of stored assets
-- A specific number of developers
-- Guaranteed uptime statistics
-- Network performance statistics that have not been measured
-- Production readiness for functionality that is still being developed
-
-Product status should be based on actual implemented functionality rather than invented statistics.
+- No fixed storage quota.
+- No performance statistics that have not been measured.
+- No uptime guarantee.
 
 ## Roadmap
 
-### Developer Experience
+Ideas, roughly in the order they are being considered:
 
-Planned improvements include:
-
-- More SDK operations exposed through the developer workspace
-- More complete API coverage
-- Additional integration examples
-- Improved code generation
-- Better developer onboarding
-
-### Storage
-
-Future storage improvements may include:
-
-- More storage management capabilities
-- More detailed storage information
-- Improved asset management workflows
-- Additional Shelby storage operations
-
-### Explorer
-
-Future Explorer improvements may include:
-
-- More powerful discovery
-- Improved asset inspection
-- More detailed object information
-- Additional filtering and organization capabilities
-
-### Metadata & Collections
-
-Future improvements may include:
-
-- Expanded metadata workflows
-- More collection management capabilities
-- Improved validation
-- Better export workflows
-- Additional NFT tooling
-
-### Documentation
-
-Documentation will continue to expand around:
-
-- API usage
-- SDK operations
-- Architecture
-- Integration patterns
-- Examples
-- Changelog and release information
-
-## Status Labels
-
-**Available**
-
-Implemented and currently accessible in Shelby Studio.
-
-**In Development**
-
-Actively being improved or expanded.
-
-**Planned**
-
-Identified as a future improvement but not currently available.
-
-## How to Follow Development
-
-The Developer workspace and documentation provide the current implementation surface.
-
-For the latest supported functionality, developers should use the available API Playground, SDK Explorer, Code Generator and documentation rather than relying on roadmap items that have not yet been implemented.
+1. Creator profile pages stored in the database (name, picture, bio), with an optional verified social link.
+2. Live replays: record a stream and save it to the Library on Shelby.
+3. A Discover page showing who is live and new uploads.
+4. Chat moderation for hosts.
+5. Tips or paid access using Aptos.
+6. A list of past collections, and a Library that accepts every file type.
 
 ## Next
 
-If you are new to Shelby Studio, start with:
-
-1. Introduction
-2. Quick Start
-3. Developer Platform
-4. API Playground
-5. SDK Explorer
-6. Examples
-7. Architecture
-
-Then move into the storage and metadata documentation for deeper integration work.
+Start with [Quick Start](/docs/quick-start) or read [Architecture](/docs/architecture).

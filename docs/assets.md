@@ -4,7 +4,24 @@
 
 The Assets workspace is the central place for viewing and working with files stored through Shelby Studio.
 
-It provides a focused interface for discovering stored assets, inspecting asset information, and moving between the asset explorer and the rest of the Shelby Studio workflow.
+It lists every file stored on Shelby with the connected wallet, and lets you view, download, replace and delete them. Connect a wallet to see your files.
+
+## Page Layout
+
+At the top, stat cards show figures counted from the wallet's real files:
+
+- Total files
+- Storage used
+- Videos
+- Audio
+- Images
+
+Below the cards are two tabs:
+
+- **Files** - the list of stored files, with Download, Replace and Delete actions.
+- **History** - upload, replace and delete activity, kept in this browser's `localStorage` (up to 100 entries per wallet).
+
+Videos, audio and images also get a public page and embed code in the **Library** (`/library`). New files are added from the Library or Raw Storage.
 
 ## Asset Workflow
 
@@ -12,7 +29,7 @@ The typical asset workflow is:
 
 1. Upload an asset through Shelby Studio.
 2. Store the asset through the Shelby storage pipeline.
-3. Discover stored assets through the Assets or Explorer workspace.
+3. See stored assets in the Assets workspace (or, for any account, the Explorer).
 4. Inspect asset metadata and storage information.
 5. Download or otherwise use the asset when required.
 
@@ -26,7 +43,7 @@ Shelby Studio exposes API routes that support asset discovery and inspection.
 GET /api/shelby/assets
 ```
 
-Returns assets associated with the configured Shelby account.
+Returns assets for the account given in the `walletAddress` query parameter.
 
 ### Get Asset Metadata
 
@@ -50,11 +67,15 @@ Retrieves full object metadata for a requested Shelby object.
 GET /api/shelby/download
 ```
 
-Downloads an asset from Shelby storage.
+Downloads an asset from Shelby storage. Takes `owner` and `blobName` query parameters.
+
+### Delete and Locations
+
+`app/api/shelby/locations/route.ts` also exists under the same folder and is not described further here. `app/api/shelby/delete/route.ts` is disabled and returns `410 Gone`: deleting is signed by the owner's wallet in the browser.
 
 ## Relationship With Explorer
 
-The Assets workspace focuses on the stored asset experience, while Explorer provides tools for searching, filtering, sorting, and exploring available assets.
+The Assets workspace shows and manages the connected wallet's own files. The Explorer is a public, read-only lookup that works for any account address and offers search, status filtering and sorting.
 
 These surfaces work together rather than replacing one another.
 
@@ -91,4 +112,4 @@ app/api/shelby/download/route.ts
 
 ## Summary
 
-Assets are a core part of Shelby Studio. They connect the upload pipeline, Shelby storage, Explorer, metadata, and developer APIs into one workflow.
+Assets are a core part of Shelby Studio. They connect the upload pipeline, Shelby storage, the Library, the Explorer, and the Shelby API routes.

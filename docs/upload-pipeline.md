@@ -25,13 +25,29 @@ Finalize Upload
 Shelby Storage
 ```
 
-The application also exposes a general upload entry point:
-
-```text
-/api/storage/upload
-```
+`/api/storage/upload` and `/api/storage/stream-upload` still exist but are disabled and return `410 Gone`. They used to sign with the server's own key and accepted any file from anyone. Uploads now go from the browser straight to Shelby and are signed by the user's wallet.
 
 The storage API is implemented separately from the read-oriented Shelby Developer API.
+
+## Large Files: Parallel Chunksets
+
+Shelby accepts a file as a series of chunksets (about 9 to 10 MB each). The browser sends them directly to the Shelby RPC.
+
+Chunksets are sent several at a time by `runPool` (`lib/services/runPool.ts`):
+
+- It starts with up to 4 chunksets in flight.
+- When a chunkset fails and is retried, the allowed number in flight is halved, down to 1.
+- After 8 successes in a row, it grows back by one, up to the starting value.
+- A chunkset gets up to 6 attempts. Bad requests (such as 400, 401, 403, 404, 409 and 422) are not retried.
+- The first chunkset that finally fails stops the upload.
+
+This exists because Shelby closes a request that takes longer than 60 seconds ("408 Connection timed out"). On a slow connection, sending too many pieces at once leaves each one too little bandwidth. Slowing down fixes that.
+
+Before the first chunkset is sent, the browser has to read the whole file to build its commitments. The progress bar reports this "Preparing" step as bytes read.
+
+Total time is still limited by your upload speed.
+
+---
 
 ## Storage API Routes
 
@@ -79,7 +95,9 @@ This stage exists so that the application can establish the upload context befor
 /api/storage/stream-upload
 ```
 
-The stream stage handles transmission of upload data.
+This route is disabled (`410 Gone`). The browser sends the data directly to Shelby (see Browser-Direct Upload).
+
+The stage below describes the original design.
 
 Conceptually:
 
@@ -127,9 +145,7 @@ This stage represents the final application-side step after the upload data has 
 /api/storage/upload
 ```
 
-The upload route provides the application's general storage upload entry point.
-
-It represents the higher-level upload operation while the prepare, stream, and finalize routes expose the individual stages of the pipeline.
+This route is disabled (`410 Gone`). Upload requests are no longer accepted by the server, and every upload is signed by the user's own wallet.
 
 ## Upload Lifecycle
 

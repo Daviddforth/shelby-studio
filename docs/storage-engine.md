@@ -2,9 +2,9 @@
 
 Shelby Studio uses Shelby as its decentralized storage infrastructure.
 
-The storage engine is responsible for connecting the application workspace with Shelby storage operations while keeping project, wallet, asset, and storage information organized within the application.
+The storage engine connects the application (Library, Raw Storage, Assets, Explorer, and the NFT metadata tools) to Shelby storage operations. File bytes live on Shelby. Small pieces of application data, such as titles, descriptions, and covers for Library files, live in Postgres.
 
-The storage layer is designed to support both server-assisted operations and browser-direct workflows.
+The storage layer supports both browser-direct workflows and a small number of server-side operations.
 
 ---
 
@@ -13,23 +13,16 @@ The storage layer is designed to support both server-assisted operations and bro
 The storage layer is responsible for:
 
 - Preparing storage operations
-- Uploading assets
-- Streaming large uploads
-- Supporting browser-direct uploads
-- Finalizing uploads
-- Downloading stored objects
+- Uploading files
+- Registering and finalizing uploads with wallet-signed transactions
+- Deleting files (owner only, wallet-signed)
+- Downloading and streaming stored objects
 - Querying object information
-- Tracking storage information
-- Associating stored assets with projects
-- Providing storage information to Explorer and project dashboards
-
-Storage is therefore treated as an application subsystem rather than as a collection of isolated API calls.
+- Providing storage information to Explorer, Assets, and Raw Storage
 
 ---
 
 ## Storage Architecture
-
-The storage system is organized into several layers.
 
 ```text
                          Storage Engine
@@ -51,9 +44,7 @@ The storage system is organized into several layers.
                         Stored Objects
 ```
 
-The browser and server cooperate where necessary.
-
-Large file data can use browser-direct workflows, while server-side routes remain available for operations that require server-side configuration or application logic.
+The browser and server cooperate where necessary. File data is uploaded from the browser straight to the Shelby RPC. Server routes build transaction payloads, answer queries, and serve public media.
 
 ---
 
@@ -61,37 +52,39 @@ Large file data can use browser-direct workflows, while server-side routes remai
 
 Storage-related functionality is distributed across the application libraries.
 
-Core storage functionality includes:
-
 ```text
 lib/core/
 └── storage.ts
-```
 
-Shelby-specific storage integration includes:
-
-```text
 lib/shelby/
 └── storage.ts
-```
 
-Storage services include:
-
-```text
 lib/services/
 ├── storage.ts
+├── runPool.ts
+├── shelbyBrowserDirectUpload.ts
+├── shelbyDelete.ts
 ├── shelbyLargeUpload.ts
-├── shelbyStreamingUpload.ts
-└── shelbyBrowserDirectUpload.ts
+└── shelbyStreamingUpload.ts
+
+lib/media/
+├── auth.ts
+├── clientSign.ts
+├── db.ts
+├── server.ts
+└── types.ts
 ```
 
-These layers allow general application storage logic to remain separate from Shelby-specific implementation details.
+- `shelbyBrowserDirectUpload.ts` implements the browser upload described below.
+- `runPool.ts` runs the chunkset uploads with limited, adaptive concurrency.
+- `shelbyDelete.ts` builds and submits the wallet-signed delete transaction.
+- `shelbyLargeUpload.ts` holds the shared progress type and upload-mode helpers (a 100 MB threshold used for UI purposes).
+- `shelbyStreamingUpload.ts` is the old server-side upload that signed with the server signer. Its route, `/api/storage/stream-upload`, is disabled (`410 Gone`) and nothing calls it.
+- `lib/media/` handles media lookups, the media type allow-list, wallet-signed saves, and the Postgres store for Library details.
 
 ---
 
 ## Storage API Routes
-
-The application exposes server-side storage routes under:
 
 ```text
 app/api/storage/
@@ -99,109 +92,29 @@ app/api/storage/
 ├── upload/
 ├── stream-upload/
 └── finalize-upload/
-```
 
-Shelby-specific routes are also available under:
-
-```text
 app/api/shelby/
 ├── asset/
 ├── assets/
+├── delete/
 ├── download/
 ├── locations/
 └── object/
+
+app/api/media/[owner]/[...name]
+app/api/media-details/
+└── cleanup/
 ```
 
-The API routes provide the server-side boundary for operations that should not require exposing protected application configuration to the browser.
+The API routes are the server-side boundary for operations that need protected configuration such as `SHELBY_API_KEY` or `SHELBY_SIGNER_PRIVATE_KEY`.
 
----
-
-## Upload Models
-
-Shelby Studio supports multiple upload approaches:
-
-- Server-assisted upload
-- Streaming upload
-- Large-file upload
-- Browser-direct upload
-
-The appropriate workflow depends on the size of the asset and the operation being performed.
-
----
-
-## Server-Assisted Upload
-
-A server-assisted workflow allows the browser to communicate with a Next.js API route.
-
-A simplified flow is:
-
-```text
-User
- │
- ▼
-Select File
- │
- ▼
-Browser
- │
- │ Upload Request
- ▼
-Next.js API
- │
- ├── Validate request
- ├── Access server configuration
- ├── Communicate with Shelby
- │
- ▼
-Shelby
- │
- ▼
-Upload Result
- │
- ▼
-Browser
-```
-
-This model is useful when the server needs to participate directly in the storage operation.
-
----
-
-## Upload Preparation
-
-The application contains a dedicated preparation route:
-
-```text
-/api/storage/prepare-upload
-```
-
-Preparation allows the server and browser to establish the information required before the actual data transfer begins.
-
-The preparation stage can include information such as:
-
-- Blob name
-- Owner
-- File size
-- Chunk information
-- Expiration information
-- Transaction payload
-
-The server prepares the operation but does not automatically imply that the user's wallet has authorized the resulting blockchain transaction.
+`/api/storage/upload` and `/api/storage/stream-upload` are disabled and return `410 Gone`, because they signed with the server signer for anyone who called them. The NFT metadata tools now store generated `metadata.json` files with the same wallet-signed browser upload as the Library, so the connected wallet approves and pays.
 
 ---
 
 ## Browser-Direct Upload
 
-For supported large-file workflows, Shelby Studio can transfer file data directly from the browser toward Shelby.
-
-The browser-direct service is:
-
-```text
-lib/services/shelbyBrowserDirectUpload.ts
-```
-
-The purpose of this architecture is to avoid routing large file payloads unnecessarily through the application server.
-
-A simplified workflow is:
+Library and Raw Storage uploads go through `uploadDirectlyToShelby` in `lib/services/shelbyBrowserDirectUpload.ts`. The purpose is to keep large file payloads off the application server.
 
 ```text
 User
@@ -212,461 +125,178 @@ Select File
  ▼
 Browser
  │
- ├── Generate commitments
+ ├── Generate commitments (Shelby SDK, erasure coding)
  │
- ├── Request preparation
+ ├── Request preparation  ──►  /api/storage/prepare-upload
  │
- ▼
-Next.js API
+ ├── Wallet signs registration transaction
  │
- └── Prepare operation
+ ├── Wallet signs a Shelby auth challenge message
  │
- ▼
-Browser
+ ├── Upload chunksets  ──►  Shelby RPC (parallel, adaptive)
  │
- ├── Wallet authorization
+ ├── Request commit payload  ──►  /api/storage/finalize-upload
  │
- ├── Transfer data
- │
- ▼
-Shelby
- │
- ▼
-Finalize
- │
- ▼
-Project / Asset State
+ └── Wallet signs finalize transaction
 ```
 
-This approach can reduce server bandwidth requirements for large files.
+The steps are:
+
+1. **Commitments.** The browser reads the file and generates Shelby commitments locally with the Shelby SDK.
+2. **Prepare.** The server builds the registration transaction payload. It does not sign or submit it.
+3. **Register.** The connected wallet signs and submits the registration transaction. The browser waits for it to be visible on the network.
+4. **Authenticate.** The wallet signs a challenge from the Shelby RPC so the browser may upload for that account.
+5. **Upload chunksets.** The browser sends the file in chunksets directly to the Shelby RPC and collects the storage provider acknowledgements.
+6. **Finalize.** The server builds the commit transaction payload from the acknowledgements. The wallet signs and submits it.
+
+The server never receives the file bytes on this path.
 
 ---
 
-## Commitment Generation
+## Parallel, Adaptive Chunkset Upload
 
-The browser-direct upload implementation can generate Shelby commitments locally before transferring the file.
+Chunksets are uploaded by `runPool` in `lib/services/runPool.ts`:
 
-The general process is:
+- Up to 4 chunksets are in flight at once.
+- Each chunkset is attempted up to 6 times, with a pause that grows with each attempt.
+- When a chunkset has to be retried (for example after a timeout on a slow connection), the allowed concurrency is halved, down to a minimum of 1. After a streak of successful chunksets it grows back one at a time, up to 4.
+- Errors that will not fix themselves (HTTP 400, 401, 403, 404, 409, 422) are not retried.
+- The first chunkset that finally fails stops the remaining ones and its error is thrown.
 
-```text
-File
- │
- ▼
-Erasure Coding Provider
- │
- ▼
-Commitment Generation
- │
- ▼
-Upload Preparation
-```
-
-The implementation uses Shelby SDK browser functionality for the commitment process.
-
-Generating commitments locally also allows the application to validate that the commitment metadata corresponds to the selected file before proceeding.
+The reason is that many parallel requests on a slow connection each get a thin slice of bandwidth and can hit the server's per-request timeout. Slowing down after a timeout lets the upload finish instead of failing.
 
 ---
 
 ## Wallet Authorization
 
-Some storage workflows require blockchain transactions to be authorized by the connected Aptos wallet.
+Storage workflows that change on-chain state are authorized by the connected Aptos wallet:
 
-Shelby Studio therefore separates:
+- Registering a blob (upload)
+- Committing a blob (finalize)
+- Deleting a blob
 
-- **Operation Preparation**
-- **Wallet Authorization**
+The server can prepare transaction payloads, but the wallet is the only party that signs and submits them. The application does not custody a user's wallet private key. This is an important security and ownership boundary.
 
-The application can prepare transaction information server-side while the connected wallet remains responsible for signing and submitting user-authorized transactions.
-
-This is an important security and ownership boundary.
-
----
-
-## Streaming Uploads
-
-The application includes a streaming upload service:
-
-```text
-lib/services/shelbyStreamingUpload.ts
-```
-
-Streaming workflows are intended to support storage operations where data should be processed progressively rather than requiring the entire file to be handled as a single in-memory operation.
-
-This is particularly relevant for larger assets.
-
----
-
-## Large File Uploads
-
-Large file functionality is supported through:
-
-```text
-lib/services/shelbyLargeUpload.ts
-```
-
-The large upload layer is responsible for coordinating progress and storage operations for larger assets.
-
-The interface can expose progress information such as:
-
-- Current phase
-- Uploaded bytes
-- Total bytes
-- Percentage
-
-This allows the UI to communicate the state of a long-running upload to the user.
-
----
-
-## Upload Lifecycle
-
-A typical upload lifecycle can be represented as:
-
-```text
-Select File
-    │
-    ▼
-Validate File
-    │
-    ▼
-Prepare Upload
-    │
-    ▼
-Generate / Prepare Commitments
-    │
-    ▼
-Authorize Transaction
-    │
-    ▼
-Transfer Data
-    │
-    ▼
-Receive Storage Provider Responses
-    │
-    ▼
-Finalize Upload
-    │
-    ▼
-Record Asset Information
-    │
-    ▼
-Verify / Inspect
-    │
-    ▼
-Update Project State
-```
-
-Not every upload path uses exactly the same sequence.
-
-The lifecycle depends on whether the operation uses the server, browser-direct transfer, streaming, or another Shelby workflow.
+Deleting a file is a wallet-signed transaction built by `shelbyDelete.ts`, so only the owner account can delete a file.
 
 ---
 
 ## Upload Progress
 
-The storage services provide progress information that can be used by the application interface.
-
-A progress state can include:
+The upload reports progress through a callback with:
 
 - Phase
-- Uploaded Bytes
-- Total Bytes
+- Uploaded bytes
+- Total bytes
 - Percentage
+- Current chunkset and total chunksets (while uploading)
 
-This allows the application to distinguish between different stages of an operation rather than displaying a single generic loading state.
+The progress phases are `preparing`, `commitments`, `registering`, `uploading`, `committing`, and `complete`. Not every phase is reported by every code path.
 
-Example phases may include:
-
-- Preparing
-- Registering
-- Uploading
-- Finalizing
-- Completed
-
-The exact phases depend on the upload implementation.
+This lets the interface show which stage a long upload has reached instead of a single loading state.
 
 ---
 
-## Finalization
+## Download and Streaming
 
-After data transfer and required authorization steps are completed, the upload can be finalized through:
+Two read paths exist:
 
-```text
-/api/storage/finalize-upload
-```
+- `/api/shelby/download` retrieves a stored object through the server for download.
+- `/api/media/[owner]/[...name]` serves Library media for playback and embedding.
 
-Finalization is important because successful data transfer alone does not necessarily represent a fully completed storage workflow.
+The media route:
 
-The finalization stage can return information required by the application to associate the resulting storage operation with the project and asset record.
+- Serves only file types on a fixed allow-list (see Media Type Allow-List below).
+- Supports HTTP Range requests (single `bytes=` ranges, including suffix ranges), answering with 206 for valid ranges and 416 for unsatisfiable ones, so video and audio can seek.
+- Supports `HEAD` and `If-None-Match` (ETag, 304).
+- Sends `X-Content-Type-Options: nosniff` and a `Content-Security-Policy: default-src 'none'; sandbox` header so the app origin cannot run hosted content.
 
----
-
-## Asset Records
-
-Once an asset has been stored, Shelby Studio can associate information about the asset with the project.
-
-Asset information can be used by:
-
-- Storage
-- Explorer
-- Project dashboards
-- Portfolio workflows
-- Publication workflows
-
-The application can track information such as:
-
-- Asset identity
-- File information
-- Storage information
-- Transaction information
-- Project association
-- Upload state
-
-The exact fields depend on the current project and storage models.
+Public pages built on top of it are `/m/<owner>/<file>` (media page), `/embed/<owner>/<file>` (embeddable player), and `/c/<owner>` (creator page).
 
 ---
 
-## Project and Storage Relationship
+## Media Type Allow-List
 
-Storage is project-aware.
+Only these extensions are ever served by the public media route:
 
-The relationship can be represented as:
+- Video: mp4, m4v, webm, mov, ogv
+- Audio: mp3, wav, m4a, aac, ogg, oga, opus, flac
+- Image: jpg, jpeg, png, gif, webp, avif
 
-```text
-Project
-   │
-   └── Project Assets
-          │
-          ├── Asset
-          ├── Storage Information
-          ├── Metadata
-          └── Activity
-```
-
-This allows the project dashboard to present storage information alongside other project information.
-
-It also allows publication workflows to use project storage state when determining project readiness.
+Anything else (HTML, SVG, JSON, executables) is refused. SVG is excluded on purpose because it can carry scripts.
 
 ---
 
-## Storage Usage
+## Library Details in Postgres
 
-Project views can expose storage-related information such as:
+Titles, descriptions, and cover images for Library files are saved in a `media_details` table, keyed by owner and blob name.
 
-- Storage Used
-- Asset Count
+- In production the table lives in Postgres through `DATABASE_URL`. It is created automatically on first use, with row-level security enabled and no policies so that only the server can read or write it.
+- In development only, when `DATABASE_URL` is not set, a JSON file at `.data/media-details.json` is used instead. This fallback is not used in production.
 
-This information can be used by project dashboards and other presentation components.
+Saving details requires a wallet signature from the owner. The signed message binds the file name and a hash of the new details, and the server checks that:
 
-Future versions can expand this into more detailed storage analytics.
+1. The request is fresh (within 5 minutes).
+2. The signed text contains the expected message.
+3. The public key controls the owner address.
+4. The signature is valid.
 
----
-
-## Download Architecture
-
-Shelby Studio provides server-side download functionality through:
-
-```text
-/api/shelby/download
-```
-
-The application can use this functionality to retrieve stored objects from Shelby and provide them to the user.
-
-A simplified flow is:
-
-```text
-User
- │
- ▼
-Asset
- │
- ▼
-Download Action
- │
- ▼
-Next.js API
- │
- ▼
-Shelby
- │
- ▼
-Stored Object
- │
- ▼
-Browser
-```
+After a file is deleted from Shelby, `/api/media-details/cleanup` removes its saved details, but only once the server has confirmed the file is gone.
 
 ---
 
 ## Object Queries
 
-The application contains Shelby API routes for querying stored information, including:
+The application contains Shelby API routes for querying stored information:
 
 - `/api/shelby/asset`
-- `/api/shelby/assets`
+- `/api/shelby/assets` (takes a wallet address)
 - `/api/shelby/object`
 - `/api/shelby/locations`
 
-These routes provide access to storage information that can be used by application features such as Explorer and asset inspection.
-
----
-
-## Object Inspection
-
-Explorer and storage interfaces can use object information to help developers inspect stored assets.
-
-The goal is to provide visibility into the storage state instead of treating storage as an opaque operation.
-
-Inspection can include information such as:
-
-- Object identity
-- Storage location
-- Asset information
-- Storage status
-- Transaction information where available
-
----
-
-## Verification
-
-Verification is an important principle of the storage engine.
-
-The application should not assume that an operation succeeded merely because a request was sent.
-
-Storage-related state should be based on available evidence from the operation and the resulting storage information.
-
-Verification may involve:
-
-```text
-Upload Result
-     │
-     ▼
-Storage Information
-     │
-     ▼
-Object Inspection
-     │
-     ▼
-Application State
-```
-
-The exact verification mechanism depends on the storage operation.
-
----
-
-## Storage and Publication
-
-Storage is closely connected to project publication.
-
-A project may require storage-related information before it can be considered ready for publication.
-
-The relationship is:
-
-```text
-Project
- │
- ├── Assets
- │
- └── Storage
-       │
-       ▼
-Publication Validation
-       │
-       ▼
-Publication Workflow
-```
-
-Publication information can then reference storage information such as:
-
-- Manifest blob
-- Storage URI
-- Transaction information
-- Network
-
-This creates a connection between the storage engine and project publication system.
+The StorageContext loads the connected wallet's assets from `/api/shelby/assets`. Explorer, Assets, Raw Storage, and the dashboard read from that context.
 
 ---
 
 ## Storage and Explorer
 
-Explorer provides a user-facing interface over stored asset information.
-
-The relationship is:
-
-```text
-Storage Services
-       │
-       ▼
-Project Asset State
-       │
-       ▼
-Explorer
-       │
- ┌─────┼─────────┐
- ▼     ▼         ▼
-Search Filter   Sort
-```
-
-The current Explorer supports:
+Explorer is a user-facing interface over the connected wallet's stored assets. It supports:
 
 - Asset search
-- Status filtering
-- Sorting
+- Status filtering (`Stored`, `Failed`)
+- Sorting: newest, oldest, name, largest, smallest
 - Asset inspection
 - Empty states
-- Published project views
 
----
+Explorer shows no wallet-specific assets while no wallet is connected.
 
-## Storage and Wallets
-
-Wallets are involved in storage workflows where transactions require user authorization.
-
-The general relationship is:
-
-```text
-User
- │
- ▼
-Connected Wallet
- │
- ▼
-Authorize Transaction
- │
- ▼
-Shelby Storage Operation
-```
-
-Shelby Studio does not require the application to custody a user's wallet private key.
-
-The user's wallet remains responsible for user-authorized blockchain transactions.
+A small per-wallet activity history is also kept in the browser's `localStorage`. It is supplementary interface state; a `localStorage` failure never breaks a storage operation.
 
 ---
 
 ## Server-Side Credentials
 
-Server-side Shelby credentials are used only from server-side code. Examples include:
+Server-side Shelby credentials are used only from server-side code:
 
 - `SHELBY_API_KEY`
 - `SHELBY_SIGNER_PRIVATE_KEY`
 
-These values must remain private. They must never be placed in `NEXT_PUBLIC_*` variables, and must never be committed to the Git repository.
+These values must remain private. They must never be placed in `NEXT_PUBLIC_*` variables, and must never be committed to the Git repository. The application's `.gitignore` excludes `.env*` files (except `.env.example`).
 
-The application's `.gitignore` excludes `.env*` files.
+The browser upload uses a separate, browser-visible key, `NEXT_PUBLIC_SHELBY_BROWSER_API_KEY`, to call the Shelby RPC directly. Anything in a `NEXT_PUBLIC_*` variable is visible to every visitor and should be treated as public.
 
 ---
 
 ## Storage Security Boundary
-
-The storage architecture can be summarized as:
 
 ```text
 PUBLIC / BROWSER
 │
 ├── File selection
 ├── Upload interface
-├── Wallet interaction
+├── Wallet interaction (signing)
 ├── Progress display
-└── Supported direct transfer
+└── Direct chunkset transfer to Shelby RPC
           │
           │
       SERVER BOUNDARY
@@ -675,139 +305,66 @@ PUBLIC / BROWSER
 PRIVATE / SERVER
 │
 ├── Protected credentials
-├── Server-side Shelby operations
-├── Upload preparation
-└── Server-side application logic
+├── Transaction payload preparation
+├── Public media serving
+└── Database access
 ```
 
-This boundary allows the application to support browser-direct storage without exposing protected server configuration.
+This boundary allows browser-direct storage without exposing protected server configuration.
 
 ---
 
 ## Failure Handling
 
-Storage operations can fail at different stages.
+Storage operations can fail at different stages:
 
-Potential failure points include:
-
-- File validation
 - Commitment generation
 - Upload preparation
 - Wallet authorization
-- Data transfer
-- Storage provider response
+- Chunkset transfer (including timeouts, which are retried)
+- Missing storage provider acknowledgements
 - Transaction submission
 - Finalization
-- Object inspection
 
-The application should surface meaningful failure information rather than treating every failure as a generic upload error.
-
-This allows users to understand which stage of the workflow failed.
-
----
-
-## Current Storage Capabilities
-
-The current storage engine provides a foundation for:
-
-- Shelby integration
-- Asset uploads
-- Large-file workflows
-- Streaming uploads
-- Browser-direct uploads
-- Upload preparation
-- Upload finalization
-- Downloads
-- Object queries
-- Storage inspection
-- Project asset association
-- Wallet-authorized storage operations
-
-These capabilities form the storage foundation for the wider Shelby Studio platform.
+The upload throws a message naming the stage that failed, for example which chunkset was rejected or that the wallet transaction failed, rather than a generic upload error.
 
 ---
 
 ## Current Limitations
 
-The storage engine is still evolving.
-
-The current architecture does not yet provide a complete system for:
-
-- Global Shelby asset indexing
-- Multi-device storage synchronization
-- Real-time storage activity feeds
-- Organization-wide storage permissions
-- Large-scale analytics
-- Background storage indexing
-- Full storage history across every project state
-
-These capabilities can be added as the platform develops.
-
----
-
-## Planned Development
-
-Future storage development may include:
-
-**Object Management**
-- Additional object operations
-- Improved object inspection
-- Expanded object lifecycle controls
-
-**Explorer**
-- Broader asset discovery
-- Advanced search
-- Batch operations
-- Version history
-
-**Project Storage**
-- Persistent project storage
-- Cross-device synchronization
-- Storage history
-- Recovery workflows
-
-**Infrastructure**
-- Asset indexing
-- Background workers
-- Storage analytics
-- Audit history
-
-The timing and implementation of these features will depend on product requirements and Shelby infrastructure evolution.
+- Library details are only saved when Postgres is configured (or in development with the JSON fallback).
+- Asset lists are loaded from Shelby per connected wallet. There is no global index of Shelby assets and no background indexing.
+- The activity history is stored in the browser only and is not synchronized between devices.
+- The server-side streaming upload route exists but is not used by the browser upload path.
 
 ---
 
 ## Design Principles
 
-The storage engine follows several principles.
-
-**Keep Large Data Off the Application Server When Appropriate**
-Browser-direct workflows can prevent unnecessary server bandwidth usage.
+**Keep Large Data Off the Application Server**
+Browser-direct upload avoids routing file payloads through Next.js.
 
 **Keep User Authorization With the User**
-Wallet-controlled transactions should remain under the user's authority.
+Registering, committing, and deleting are wallet-signed. Owner-only saves of Library details require a wallet-signed message.
 
 **Protect Server Credentials**
-Server-side credentials must remain behind the server boundary.
+Server-side credentials stay behind the server boundary.
 
-**Verify Important Operations**
-The application should use actual storage information when determining operation state.
+**Be Strict About What Is Served**
+The public media route serves an allow-list of media types and applies restrictive headers.
 
-**Keep Storage Project-Aware**
-Stored assets should remain connected to the project context where appropriate.
+**Adapt to the Connection**
+Chunkset uploads run in parallel but slow down and retry when a connection cannot keep up.
 
 **Keep Storage Modular**
-Shelby-specific infrastructure should remain separated from UI components.
+Shelby-specific infrastructure is kept separate from UI components.
 
 ---
 
 ## Summary
 
-The Shelby Studio storage engine provides the infrastructure layer connecting projects and assets to Shelby decentralized storage.
+The Shelby Studio storage engine connects the application to Shelby decentralized storage.
 
-It supports server-assisted operations, streaming workflows, large-file handling, browser-direct uploads, downloads, object queries, finalization, and storage inspection.
+Files are uploaded from the browser directly to Shelby in parallel chunksets, with two wallet-signed transactions (register and finalize) around the transfer. Deleting a file is also a wallet-signed transaction. Library media is served through a Range-capable route with a strict type allow-list, and Library titles, descriptions, and covers are stored in Postgres and changed only with a wallet signature from the owner.
 
-The architecture separates browser responsibilities from server responsibilities while keeping wallet authorization under user control and protected Shelby credentials on the server.
-
-Storage forms one of the core foundations of Shelby Studio and is also a dependency for Explorer, project dashboards, and publication workflows.
-
-Future development can extend the storage engine with persistent indexing, synchronization, recovery, analytics, and more advanced object management without requiring a complete replacement of the current architecture.
+The architecture keeps wallet authorization with the user and protected Shelby credentials on the server.
