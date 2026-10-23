@@ -1,198 +1,88 @@
 # Quick Start
 
-Get from Shelby Studio to a working Shelby integration.
+This page takes you from a new wallet to a hosted video, a shareable page and a live stream.
 
-Shelby Studio provides a developer workspace for exploring Shelby storage, inspecting assets, testing API operations, and generating integration examples.
+## For creators
 
-## 1. What You Need
+### 1. Connect your wallet
 
-Before starting, you should have:
+Open the app and click **Connect Wallet** in the top bar. Use an Aptos-compatible wallet such as Petra. Your wallet address becomes your creator identity.
 
-- A Shelby Studio environment
-- Access to the Shelby network you want to work with
-- A wallet when an operation requires an on-chain transaction
-- Your application environment ready to make HTTP requests
+### 2. Upload to your Library
 
-Read-only API exploration does not require you to connect a wallet.
+1. Open **Library** in the side menu.
+2. Drag a video, audio file or image into the upload box, or click it to choose a file.
+3. Approve the wallet prompts. Uploading registers the file on Shelby and then commits it, so the wallet asks twice and pays a small gas fee.
+4. Wait for the progress bar to finish. Large files take longer: the time is mostly your upload speed.
 
-## 2. Start With the Developer Workspace
+Supported formats are listed in [Library](/docs/library).
 
-Open the **Developer** workspace in Shelby Studio.
+### 3. Add details and share
 
-The Developer workspace provides:
+On any file in your Library:
 
-- API Playground
-- SDK Explorer
-- Code Generator
-- Integration examples
+- **Edit details** sets a title, a description and an optional cover picture. Saving asks your wallet for a free signature, so nobody else can change them.
+- **Link** copies the public page for that file.
+- **Embed** copies an `<iframe>` you can paste into your own site.
+- **Open** shows the public page.
 
-Use the API Playground to understand an operation before integrating it into your own application.
+### 4. Share your creator page
 
-## 3. List Assets
+Open **My Page** in the side menu. That page lists everything you host. Copy its link and put it in your social profile.
 
-The simplest way to begin is to retrieve available Shelby assets.
+### 5. Go live
 
-### Request
+1. Click the red **Go live** button in the top bar.
+2. Type a title and click **Go live**. Your wallet asks for a free signature.
+3. Allow camera and microphone access in your browser.
+4. Copy the link shown under **Send this link to people** and send it.
+
+Viewers open the link, click **Watch live** and can chat with you. Click **End live** when you finish. Go Live needs LiveKit to be configured, see [Self-Hosting Setup](/docs/self-hosting).
+
+## For developers
+
+The Shelby Studio API exposes read operations for Shelby assets. Open **Developer** in the side menu to try them in the API Playground.
+
+### List assets
 
 ```ts
-const response = await fetch("/api/shelby/assets");
+const response = await fetch(`/api/shelby/assets?walletAddress=${encodeURIComponent(address)}`);
 
-if (!response.ok) {
-  throw new Error("Failed to load Shelby assets");
-}
+if (!response.ok) throw new Error("Failed to load Shelby assets");
 
 const data = await response.json();
-
-console.log(data);
 ```
 
-This allows your application to inspect the assets returned by Shelby Studio.
-
-## 4. Inspect an Asset
-
-Once you have a blob name, you can request detailed information about that asset.
+### Download an asset
 
 ```ts
-const blobName = "your-blob-name";
-
-const response = await fetch(
-  `/api/shelby/asset?blobName=${encodeURIComponent(blobName)}`
-);
-
-if (!response.ok) {
-  throw new Error("Failed to inspect asset");
-}
-
-const asset = await response.json();
-
-console.log(asset);
-```
-
-Use this when your application needs information about a specific Shelby object.
-
-## 5. Inspect Full Object Metadata
-
-For applications that need the underlying object information, use:
-
-```ts
-const blobName = "your-blob-name";
-
-const response = await fetch(
-  `/api/shelby/object?blobName=${encodeURIComponent(blobName)}`
-);
-
-if (!response.ok) {
-  throw new Error("Failed to retrieve object metadata");
-}
-
-const object = await response.json();
-
-console.log(object);
-```
-
-## 6. Download an Asset
-
-To retrieve an existing Shelby asset:
-
-```ts
-const owner = "your-owner-address";
-const blobName = "your-blob-name";
-
 const response = await fetch(
   `/api/shelby/download?owner=${encodeURIComponent(owner)}&blobName=${encodeURIComponent(blobName)}`
 );
 
-if (!response.ok) {
-  throw new Error("Failed to download asset");
-}
-
 const file = await response.blob();
-
-console.log(file);
 ```
 
-Your application can then create an object URL or otherwise process the returned file.
+### Stream hosted media
 
-## 7. Explore Shelby Storage Locations
+Public media is served with HTTP range support, so players can seek:
 
-Shelby Studio also exposes storage location information:
-
-```ts
-const response = await fetch("/api/shelby/locations");
-
-if (!response.ok) {
-  throw new Error("Failed to load storage locations");
-}
-
-const locations = await response.json();
-
-console.log(locations);
+```html
+<video controls src="/api/media/<wallet>/<file name>"></video>
 ```
 
-## 8. Uploading Files
+See [Public Pages & Embeds](/docs/public-pages-embeds) for the exact URLs.
 
-Uploads are different from read-only API operations.
+### Uploading
 
-Shelby Studio's upload pipeline handles preparation, browser upload, and finalization. Depending on the workflow, wallet signing and Shelby storage configuration are required.
+Uploads are signed by the user's wallet in the browser, so they are not a plain API call. The flow is described in [Upload Pipeline](/docs/upload-pipeline).
 
-The existing upload implementation should be used rather than sending private credentials from the browser.
+## Security
 
-See:
+Never put private credentials in client-side code. Shelby Studio keeps server credentials in server-side environment variables, and only keys that are meant to be public use the `NEXT_PUBLIC_` prefix.
 
-- Upload Pipeline
-- Storage Engine
-- Developer Platform
+## Next
 
-for the implementation details.
-
-## 9. From Shelby Studio to Your Application
-
-A typical developer workflow looks like this:
-
-```
-Explore
-   ↓
-API Playground
-   ↓
-Inspect request/response
-   ↓
-Generate example
-   ↓
-Copy into your application
-   ↓
-Connect your application logic
-   ↓
-Integrate Shelby storage
-```
-
-Start with the API Playground, then use the Code Generator and Examples when you are ready to integrate.
-
-## 10. Security
-
-Never expose private Shelby credentials or server-side secrets in client-side application code.
-
-In particular, server-side credentials should remain on the server and should not be placed in public browser bundles.
-
-For production applications, keep sensitive configuration in server-side environment variables.
-
-## 11. Where to Go Next
-
-**API Playground**
-Experiment with the Shelby Studio API operations interactively.
-
-**SDK Explorer**
-Review the Shelby SDK operations currently exposed through the developer platform.
-
-**Code Generator**
-Generate request examples that you can adapt to your application.
-
-**Examples**
-Follow practical examples for common Shelby Studio API operations.
-
-**Architecture**
-Understand how Shelby Studio connects the application layer, API layer, Shelby SDK, storage and blockchain components.
-
-**Upload Pipeline**
-Understand how files move through the Shelby upload workflow.
-
-Next step: Open the Developer workspace and run your first API request in the API Playground.
+- [Library](/docs/library)
+- [Go Live](/docs/live-streaming)
+- [Self-Hosting Setup](/docs/self-hosting) if you want to run your own copy

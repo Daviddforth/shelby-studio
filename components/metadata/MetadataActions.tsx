@@ -10,6 +10,8 @@ import {
 import { useState } from "react";
 
 import { useMetadata } from "@/context/MetadataContext";
+import { useStorage } from "@/hooks/useStorage";
+import { useWallet } from "@/context/WalletContext";
 
 type UploadResult = {
   success?: boolean;
@@ -28,6 +30,10 @@ type UploadResult = {
 
 export default function MetadataActions() {
   const { metadata, setMetadata, resetMetadata } = useMetadata();
+
+  const { upload } = useStorage();
+
+  const { walletAddress } = useWallet();
 
   const [status, setStatus] = useState<
     "idle" | "uploading" | "success" | "error"
@@ -138,36 +144,21 @@ export default function MetadataActions() {
         }
       );
 
-      const formData = new FormData();
+      // Wallet-signed upload straight from the browser: the connected wallet
+      // approves and pays, so the server never signs on anyone's behalf.
+      const uploaded = await upload(metadataFile);
 
-      formData.append(
-        "file",
-        metadataFile
-      );
+      const asset = {
+        uid: uploaded.uid,
+        name: uploaded.name,
+        blobName: uploaded.blobName ?? uploaded.name,
+        size: uploaded.size,
+        uploadedAt: uploaded.uploadedAt,
+        network: uploaded.network,
+        status: uploaded.status,
+        owner: uploaded.owner ?? walletAddress ?? "",
+      };
 
-      const response = await fetch(
-        "/api/storage/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const result =
-        (await response.json()) as UploadResult;
-
-      if (
-        !response.ok ||
-        !result.success ||
-        !result.asset
-      ) {
-        throw new Error(
-          result.error ||
-            "Shelby metadata upload failed."
-        );
-      }
-
-      const asset = result.asset;
 
       setStoredAsset(asset);
 
@@ -175,13 +166,13 @@ export default function MetadataActions() {
         ...prev,
         image: prev.image.trim(),
         storage: {
-          uid: asset.uid!,
-          name: asset.name!,
-          blobName: asset.blobName!,
-          size: asset.size!,
-          uploadedAt: asset.uploadedAt!,
-          network: asset.network!,
-          owner: asset.owner!,
+          uid: asset.uid,
+          name: asset.name,
+          blobName: asset.blobName,
+          size: asset.size,
+          uploadedAt: asset.uploadedAt,
+          network: asset.network,
+          owner: asset.owner,
         },
       }));
 

@@ -1,6 +1,6 @@
 # Shelby Studio
 
-A project-centric developer workspace for building, organizing, storing, publishing, and exploring applications and digital assets on the Shelby network.
+A creator workspace built on the Shelby decentralized storage protocol. Upload video, audio and images, get a public page and an embed code for each file, and go live with a link anyone can open. Everything you upload is stored on Shelby and belongs to your wallet.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -8,573 +8,143 @@ A project-centric developer workspace for building, organizing, storing, publish
 [![Aptos](https://img.shields.io/badge/Aptos-Compatible-5A45FF)](https://aptos.dev/)
 [![Shelby](https://img.shields.io/badge/Shelby-Storage-111827)](https://shelby.xyz/)
 
-## What is Shelby Studio?
+**Live site:** https://shelbystudio.xyz
 
-Shelby Studio is a developer workspace built around the Shelby storage ecosystem.
-
-It brings together the workflows developers need when building applications around decentralized storage and digital assets.
-
-Instead of switching between separate tools for storage, assets, NFT metadata, collections, publishing, and exploration, Shelby Studio provides these workflows inside one connected project workspace.
-
-The platform follows a project-centric model where developers can connect an Aptos-compatible wallet, create projects, manage assets and metadata, prepare collections, and move projects through a publishing workflow.
-
-Shelby Studio is an independent developer project built around the Shelby ecosystem.
+> Shelby Studio is an independent project built around the Shelby ecosystem. It is not an official Shelby product.
 
 ---
 
-## Core Workflow
+## What you can do
 
-Shelby Studio is organized around a project-centric workflow:
+| Area | What it does |
+|---|---|
+| **Library** | Upload video, audio and images. Add a title, description and cover picture. Copy a share link or an embed code. |
+| **Go Live** | Stream from your camera or screen and send one link. Viewers watch and chat in the browser, with no account. |
+| **My Page** | Your public creator page at `/c/<wallet>`. It lists your media and shows a LIVE NOW banner while you stream. |
+| **NFT Tools** | Collection Builder, Metadata generator and an Assets view of everything stored with your wallet. |
+| **Raw Storage** | Upload any file type to Shelby, with progress and storage statistics. |
+| **Explorer** | Look up the files stored by any wallet address. |
+| **Developer** | An API playground, SDK examples and a code generator. |
+| **Docs** | Guides and reference at `/docs`. |
 
-```text
-                         Shelby Studio Project
-                                  |
-                    +-------------+-------------+
-                    |                           |
-                    v                           v
-                 Storage                     Metadata
-                    |                           |
-                    v                           v
-                  Assets                    NFT Data
-                    |                           |
-                    +-------------+-------------+
-                                  |
-                                  v
-                              Collections
-                                  |
-                                  v
-                         Publish Readiness
-                                  |
-                                  v
-                           Publish Project
-                                  |
-                                  v
-                          Published Project
-                             /         \
-                            v           v
-                        Portfolio     Explorer
-```
-
-The goal is to keep the complete development workflow connected instead of requiring developers to coordinate each stage across separate tools.
-
-## Platform
-
-Shelby Studio is organized into connected modules for managing projects, assets, storage, metadata, collections, publishing, and development.
-
-| Module | Purpose | Status |
-|---|---|---|
-| Dashboard | Central workspace for projects, storage, assets, and activity | Implemented |
-| Projects | Create and manage wallet-specific project workspaces | Implemented |
-| Storage | Upload, store, inspect, and download digital assets | Implemented |
-| Assets | Manage and organize project files | Implemented |
-| Explorer | Search, filter, sort, and inspect workspace assets | Implemented |
-| Metadata | Create, edit, validate, and export NFT metadata | Implemented |
-| Collections | Organize assets and configure NFT collections | Implemented |
-| Publishing | Prepare projects for publication through the project workflow | Implemented |
-| Portfolio | Display published projects and project information | Implemented |
-| Developer | Developer utilities, API exploration, SDK information, and examples | Implemented |
-| AI | Intelligent development assistance | In development |
-
-## Features
-
-### Dashboard
-
-The central workspace for monitoring project activity and storage.
-
-The dashboard provides:
-
-- Project overview
-- Storage statistics
-- Quick actions
-- Network status
-- Storage overview
-- Storage analytics
-
-### Projects
-
-Create and manage project-specific workspaces.
-
-Projects provide the organizational layer connecting assets, metadata, collections, storage, and publishing.
-
-### Storage
-
-Manage digital assets through Shelby-backed storage workflows.
-
-The Storage Manager provides a workspace for:
-
-- Uploading assets
-- Viewing storage information
-- Inspecting stored files
-- Downloading assets
-- Monitoring storage usage
-
-### Asset Management
-
-Manage digital files used throughout a project.
-
-Assets can be organized and inspected before being used by metadata, collections, or publishing workflows.
-
-### Metadata
-
-Create and manage NFT metadata directly inside Shelby Studio.
-
-The metadata workspace includes:
-
-- NFT information
-- Attribute management
-- Metadata templates
-- Metadata import
-- NFT preview
-- JSON preview
-- Metadata validation
-- Metadata export
-
-### Collections
-
-Organize project assets and metadata into NFT collections.
-
-The Collection Builder provides tools for:
-
-- Collection information
-- Collection branding
-- Collection preview
-- Collection actions
-- Asset organization
-
-### Explorer
-
-Explore and inspect assets and project data through a dedicated workspace.
-
-The Explorer is designed to provide visibility into the assets and information associated with a project.
-
-### Publishing
-
-Prepare projects for publication through a structured project workflow.
-
-Publishing connects project assets, metadata, collections, and storage into a single preparation process.
-
-### Portfolio
-
-Display published projects and associated project information.
-
-### Developer Tools
-
-A dedicated developer surface for working with Shelby-related development resources.
-
-Planned and supported areas include:
-
-- API exploration
-- SDK information
-- Developer utilities
-- Examples
-- API Playground
-
-### AI
-
-AI-powered development assistance is part of the longer-term Shelby Studio roadmap.
-
-Status: In development
-
-## Wallet & Demo Mode
-
-Shelby Studio supports both wallet-connected workflows and demonstration workspaces.
-
-### Wallet-connected mode
-
-When an Aptos-compatible wallet is connected, Shelby Studio can provide access to wallet-specific project workflows.
-
-These workflows are designed around the connected wallet and its associated project environment.
-
-### Demo mode
-
-Users can explore selected Shelby Studio workflows without immediately connecting a wallet.
-
-Demo workspaces currently provide sample experiences for areas such as:
-
-- Storage
-- Metadata
-- Collections
-
-Demo data is separated from wallet-connected project data.
-
-The general experience is:
+## How it works
 
 ```text
-                  Shelby Studio
-                       |
-             +---------+---------+
-             |                   |
-             v                   v
-        Demo Workspace      Connect Wallet
-             |                   |
-             v                   v
-       Explore Product      Wallet Workspace
-                                 |
-                                 v
-                          Manage Project Data
+Browser (wallet connected)
+   |-- upload ------------> Shelby storage   (wallet-signed transactions)
+   |-- titles, covers ----> Postgres         (wallet-signed messages)
+   |-- go live -----------> LiveKit          (real-time video, audio, chat)
+
+Anyone with a link
+   |-- /m/<wallet>/<file>    media page
+   |-- /embed/<wallet>/<file> embeddable player
+   |-- /c/<wallet>           creator page
+   |-- /live/<wallet>        watch a live stream
 ```
 
-## Storage Workflow
+- **Your wallet is your identity.** There are no usernames or passwords.
+- **Uploading and deleting are signed by your wallet** in the browser, so only the owner can change a file. The server never signs uploads or deletes on anyone's behalf.
+- **Saving details and starting a live use free wallet signatures** bound to the exact request, so they cannot be reused or changed.
+- **Public pages read straight from Shelby**, with range requests so players can seek.
+- **Live video runs on LiveKit.** Shelby is storage, so the live stream itself does not go through Shelby.
 
-The Storage Manager is designed around the following workflow:
+## Wallet and demo mode
 
-```text
-Connect Wallet
-      |
-      v
-Storage Workspace
-      |
-      v
-Select Asset
-      |
-      v
-Upload
-      |
-      v
-Store on Shelby
-      |
-      v
-Inspect Asset
-      |
-      v
-Retrieve / Download
-```
+Without a wallet you can browse the app in demo mode (clearly labeled sample data), open public creator pages, watch live streams and read the docs. Connect an Aptos-compatible wallet such as Petra to upload, edit, delete, create collections and go live.
 
-## Metadata Workflow
+## Quick start
 
-NFT metadata can be created, imported, validated, previewed, and exported inside Shelby Studio.
-
-```text
-NFT Information
-      |
-      v
-Attributes
-      |
-      v
-Metadata
-      |
-      +------> Import Existing Metadata
-      |
-      v
-Preview
-      |
-      v
-JSON
-      |
-      v
-Validation
-      |
-      v
-Export
-```
-
-## Collection Workflow
-
-Collections build on top of a project's assets and metadata.
-
-```text
-Project
-   |
-   +---- Assets
-   |
-   +---- Metadata
-   |
-   v
-Collection Builder
-   |
-   +---- Collection Information
-   |
-   +---- Branding
-   |
-   +---- Preview
-   |
-   v
-Collection Actions
-```
-
-## Quick Start
-
-### Prerequisites
-
-- Node.js 18+
-- npm, pnpm, or yarn
-- An Aptos-compatible wallet for wallet-connected functionality
-- Access to the Shelby environment required by the application
-
-### Clone the repository
+You need Node.js 20.9 or newer, and a Shelby API key and signer key.
 
 ```bash
 git clone https://github.com/Daviddforth/shelby-studio.git
 cd shelby-studio
-```
-
-### Install dependencies
-
-```bash
 npm install
-```
-
-### Environment configuration
-
-Create your local environment file:
-
-```bash
 cp .env.example .env.local
-```
-
-Configure the environment variables required by the application.
-
-Never commit `.env.local` or private credentials to the repository.
-
-### Start the development server
-
-```bash
 npm run dev
 ```
 
-Open the application at:
+Fill in `.env.local`, then open http://localhost:3000. Restart `npm run dev` after changing it.
 
-```
-http://localhost:3000
-```
+### Environment variables
 
-## Development
+Never commit `.env.local` and never paste its values into chat, screenshots or issues.
 
-Start the development server:
+| Variable | Needed for |
+|---|---|
+| `SHELBY_API_KEY` | Server-side Shelby reads (server only) |
+| `SHELBY_SIGNER_PRIVATE_KEY` | Server-side Shelby lookups (server only, secret) |
+| `NEXT_PUBLIC_APTOS_API_KEY` | Browser Aptos requests (public, use a restricted key) |
+| `NEXT_PUBLIC_SHELBY_BROWSER_API_KEY` | Browser uploads (public, use a restricted key) |
+| `DATABASE_URL` | Titles, descriptions and covers. Any Postgres. Required in production |
+| `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET` | Go Live |
+| `NEXT_PUBLIC_SITE_URL` | Optional: public URL used in share links |
+| `LIVE_MAX_PARTICIPANTS` | Optional: people per live room (default 100) |
 
-```bash
-npm run dev
-```
+Full setup for the database, LiveKit and deployment is in [Self-Hosting Setup](docs/self-hosting.md).
 
-Create a production build:
-
-```bash
-npm run build
-```
-
-Start the production server:
-
-```bash
-npm run start
-```
-
-Run linting:
+### Checks
 
 ```bash
+npx tsc --noEmit
 npm run lint
-```
-
-## Project Structure
-
-The application is built with Next.js, React, TypeScript, and Tailwind CSS.
-
-A simplified structure looks like:
-
-```
-shelby-studio/
-├── app/
-│   ├── dashboard/
-│   ├── assets/
-│   ├── storage/
-│   ├── metadata/
-│   ├── collections/
-│   ├── explorer/
-│   ├── developer/
-│   ├── docs/
-│   └── page.tsx
-│
-├── components/
-│   ├── dashboard/
-│   ├── asset-manager/
-│   ├── storage/
-│   ├── metadata/
-│   ├── collections/
-│   ├── demo/
-│   ├── landing/
-│   └── layout/
-│
-├── context/
-│   └── WalletContext
-│
-├── public/
-│
-├── package.json
-├── tsconfig.json
-└── README.md
-```
-
-## Application Areas
-
-### Landing Page
-
-The public-facing introduction to Shelby Studio.
-
-It presents the platform, its workflows, features, developer tools, and entry points into the workspace.
-
-### Dashboard
-
-The central project and storage workspace.
-
-### Assets
-
-The interface for managing digital assets.
-
-### Storage
-
-The Shelby-backed storage management workspace.
-
-### Metadata
-
-The NFT metadata creation and validation workspace.
-
-### Collections
-
-The NFT Collection Builder.
-
-### Explorer
-
-The workspace for exploring project assets and associated information.
-
-### Developer
-
-The developer-focused area for Shelby-related tools and resources.
-
-## Design Principles
-
-Shelby Studio is built around several principles.
-
-**Project-centric**
-
-Projects provide the organizational layer for assets, metadata, collections, storage, and publishing.
-
-**Developer-first**
-
-The interface is designed around the practical workflow of developers building applications with Shelby.
-
-**Connected workflows**
-
-The platform connects assets, metadata, collections, storage, publishing, and exploration.
-
-**Transparent infrastructure**
-
-The goal is to make storage and application infrastructure understandable rather than hiding it behind unrelated abstractions.
-
-**Simple where possible**
-
-Complex workflows should remain accessible through a focused interface.
-
-## Roadmap
-
-Shelby Studio is being developed incrementally.
-
-### Completed
-
-- Landing page
-- Dashboard workspace
-- Wallet connection
-- Demo workspaces
-- Asset management
-- Storage interface
-- Metadata workspace
-- Metadata validation
-- Collection Builder
-- Explorer
-- Developer workspace
-- Publishing workflow foundation
-- Portfolio foundation
-
-### In Development
-
-- AI development assistance
-- Expanded developer tooling
-- Additional Shelby integrations
-- Expanded publishing functionality
-- Improved project management
-- Additional analytics
-- Production hardening
-
-## Troubleshooting
-
-### Wallet does not connect
-
-Make sure:
-
-- Your Aptos-compatible wallet is installed.
-- The wallet extension is enabled for the application.
-- The correct network is selected.
-- The browser has permission to communicate with the wallet.
-
-### The application shows Demo Mode
-
-Demo Mode is expected when a wallet is not connected.
-
-Connect an Aptos-compatible wallet to access wallet-connected functionality.
-
-### Storage functionality is unavailable
-
-Check that:
-
-- Your wallet is connected.
-- Required environment variables are configured.
-- The application is connected to the expected Shelby environment.
-- Your account has the resources required for the operation.
-
-### Build errors
-
-Try reinstalling the project dependencies:
-
-```bash
-rm -rf node_modules
-npm install
-```
-
-Then run:
-
-```bash
 npm run build
 ```
+
+## Project structure
+
+```text
+app/
+  library/        Upload and manage video, audio, images
+  live/           Go live (host) and /live/<wallet> (watch)
+  c/ m/ embed/    Public creator page, media page, embeddable player
+  storage/ assets/ explorer/ metadata/ collections/ developer/ docs/
+  api/            media, media-details, live, shelby (read), storage (prepare/finalize)
+components/       UI by area (media, live, layout, storage, ...)
+lib/
+  media/          Media lookups, wallet-signature checks, Postgres store
+  live/           LiveKit tokens, status, rate limiting
+  services/       Browser-direct upload to Shelby, runPool, delete
+docs/             Documentation shown at /docs
+```
+
+## Documentation
+
+Docs are in [`docs/`](docs/README.md) and are shown on the site at `/docs`.
+
+- [Quick Start](docs/quick-start.md)
+- [Library](docs/library.md)
+- [Go Live](docs/live-streaming.md)
+- [Public Pages & Embeds](docs/public-pages-embeds.md)
+- [Self-Hosting Setup](docs/self-hosting.md)
+- [Upload Pipeline](docs/upload-pipeline.md)
+- [Limitations & Roadmap](docs/limitations-roadmap.md)
+
+## Limitations
+
+- Upload time depends on your internet speed. Shelby closes a request after 60 seconds, so very slow connections can fail even with retries.
+- Streams are not recorded or saved to Shelby, and chat has no moderation.
+- Profile names and pictures are saved in your browser only and do not appear on public pages yet.
+- Titles and covers need a configured database.
+
+See [Limitations & Roadmap](docs/limitations-roadmap.md) for the full list and what is planned next.
 
 ## Contributing
 
-Contributions, issues, feature requests, and feedback are welcome.
-
-Before submitting a pull request:
+Issues, feature requests and pull requests are welcome. Before opening a pull request:
 
 - Keep changes focused.
-- Test affected functionality.
-- Run the linter.
-- Run the production build.
-- Do not commit secrets or environment files.
-- Provide a clear description of the change.
+- Run `npx tsc --noEmit`, `npm run lint` and `npm run build`.
+- Never commit secrets or environment files.
+- Describe what changed and why.
 
 ## License
 
-This project is licensed under the MIT License.
-
-## Relationship to Shelby
-
-Shelby Studio is an independent developer project built around the Shelby ecosystem.
-
-It is not an official Shelby Protocol product unless explicitly stated otherwise.
-
-For information about Shelby itself, visit:
-
-- https://shelby.xyz/
-- https://docs.shelby.xyz/
-
-## Next Steps
-
-- Explore the Shelby Studio workspace.
-- Connect an Aptos-compatible wallet.
-- Create a project.
-- Upload and manage assets.
-- Build NFT metadata.
-- Organize collections.
-- Explore developer tools.
-- Prepare projects for publishing.
+MIT. See [LICENSE](LICENSE).
 
 ## Links
 
+- Site: https://shelbystudio.xyz/
 - GitHub: https://github.com/Daviddforth/shelby-studio
-- Shelby Studio: https://shelbystudio.xyz/
 - X: https://x.com/ShelbyStudioHQ
+- Shelby: https://shelby.xyz/ and https://docs.shelby.xyz/

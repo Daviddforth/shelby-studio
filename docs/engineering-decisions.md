@@ -1,35 +1,50 @@
 # Engineering Decisions
 
-Shelby Studio is being developed as a modular, project-centric developer workspace for applications and digital assets built on Shelby. This document records the major engineering decisions that shape the current implementation and the direction of future development.
+Shelby Studio is a Next.js creator workspace built on the Shelby decentralized storage protocol. Creators upload video, audio, and images to Shelby, share them through public pages, go live, and use tools for raw storage, assets, NFT collections, and metadata. This document records the major engineering decisions behind the current implementation.
 
-The goal is to make important architectural choices understandable and maintainable as the project grows.
+The goal is to make important architectural choices understandable and maintainable as the application grows.
 
 ## 1. Next.js as the Application Framework
 
-Shelby Studio uses Next.js with the App Router as its primary application framework, combining:
+Shelby Studio uses Next.js with the App Router as its application framework, combining:
 
 - Browser-based application pages
-- Server-rendered functionality
+- Server-rendered pages (public media, embed, and creator pages)
 - Client-side interactions
 - API routes
 - Documentation pages
 - Server-side integrations
 
-The application does not require a separate frontend and backend project for its current requirements — the frontend and server-side API layer are maintained within the same repository and deployment.
+The frontend and server-side API layer are maintained in the same repository and deployment, so no separate backend service is needed for the current requirements.
 
-## 2. Hybrid Browser and Server Architecture
+## 2. Product Areas
 
-Shelby Studio uses both browser-side and server-side operations.
+The application is organized around these areas:
+
+- **Library** (`/library`) — upload video, audio, and images; edit titles, descriptions, and covers; share links
+- **Public pages** — `/m/<owner>/<file>` (media page), `/embed/<owner>/<file>` (embeddable player), `/c/<owner>` (creator page)
+- **Go Live** (`/live`, `/live/<owner>`) — live streaming and viewing through LiveKit
+- **Raw Storage** (`/storage`) — upload, inspect, and delete files on Shelby
+- **Assets** (`/assets`) and **Explorer** (`/explorer`) — browse and inspect the connected wallet's stored assets
+- **Collections** and **Metadata** — NFT collection and metadata tools
+- **Developer** and **Docs** — developer tools and documentation pages
+
+## 3. Hybrid Browser and Server Architecture
 
 **Browser** — operations requiring direct user interaction:
 
 - Wallet connection
 - Wallet signing
-- Client-side workspace interaction
-- Supported direct Shelby uploads
+- Computing commitments and uploading file data directly to Shelby
 - User interface state
 
-**Server** — operations requiring protected credentials or server-side processing.
+**Server** — operations requiring protected credentials or server-side processing:
+
+- Building transaction payloads
+- Querying Shelby with the server API key
+- Serving public media
+- Reading and writing Postgres
+- Issuing LiveKit tokens
 
 ```
 Browser
@@ -37,146 +52,126 @@ Browser
 ├── UI
 ├── Wallet
 ├── Client State
-└── Direct User Operations
+└── Direct Uploads to Shelby
         │
         ▼
 Next.js Server
 │
 ├── API Routes
 ├── Protected Credentials
-└── Server-Side Shelby Operations
+└── Database Access
 ```
 
-This avoids unnecessarily creating a separate backend service while still protecting sensitive operations.
-
-## 3. Server-Side Secrets
+## 4. Server-Side Secrets
 
 Protected Shelby credentials remain server-side:
 
 - `SHELBY_API_KEY`
 - `SHELBY_SIGNER_PRIVATE_KEY`
 
-These are accessed through server-side environment variables and are intentionally **not** exposed through `NEXT_PUBLIC_*` variables. The repository contains only configuration templates or references — actual secret values belong in the deployment environment or local environment configuration and must not be committed to Git.
+These are read from server-side environment variables and are intentionally **not** exposed through `NEXT_PUBLIC_*` variables. The repository contains only configuration templates; real values belong in the deployment environment or local environment files, which are excluded from Git.
 
-## 4. Wallet-Controlled Transactions
+The browser-direct upload does need a key to call the Shelby RPC, so it uses a separate browser-visible key (`NEXT_PUBLIC_SHELBY_BROWSER_API_KEY`). Anything in a `NEXT_PUBLIC_*` variable is visible to every visitor and is treated as public.
 
-Blockchain transactions requiring the user's authority are controlled by the user's connected wallet. The application does not treat the server as the user's wallet:
+## 5. Wallet-Controlled Transactions
+
+Blockchain transactions requiring the user's authority are signed by the user's connected wallet. The server is never the user's wallet:
 
 ```
 User → Connected Wallet → Transaction Approval → Shelby / Aptos
 ```
 
-This preserves user control over transactions and prevents the application from silently signing on behalf of users. Server-side operations may prepare or support a transaction, but user-authorized blockchain actions remain subject to wallet approval.
+Registering a blob, committing it, and deleting it are each wallet-signed transactions. The server may build a payload, but it does not sign or submit it on the user's behalf. Because deletion needs a transaction from the owner account, only the owner can delete a file.
 
-## 5. Aptos Wallet Integration
+## 6. Aptos Wallet Integration
 
-Shelby Studio uses the Aptos wallet ecosystem for wallet interaction. The wallet layer provides:
+Shelby Studio uses the Aptos wallet ecosystem. The wallet layer provides:
 
 - Wallet connection
 - Wallet address
 - Connection state
-- Transaction signing
-- Transaction submission
-- Wallet-aware application state
+- Transaction signing and submission
+- Message signing
 
-Wallet functionality is made available through the application context so project, storage, explorer, and publication workflows can respond to the connected wallet.
+Wallet state is made available through the application context (`context/WalletContext.tsx`) so storage, explorer, and library features can respond to the connected wallet.
 
-## 6. Wallet-Aware Workspace State
+## 7. Wallet-Signed Messages for Owner-Only Saves
 
-The connected wallet is an important workspace boundary, particularly for project and asset information. The application avoids showing wallet-specific workspace information when the wallet that owns the workspace is no longer connected:
-
-```
-Wallet
-  │
-  ▼
-Workspace State
-  │
-  ▼
-Project
-  │
-  ├── Assets
-  ├── Metadata
-  ├── Collections
-  └── Publication
-```
-
-This reduces the possibility of stale project state being displayed after wallet changes.
-
-## 7. Project-Centric Architecture
-
-Projects are the primary organizational boundary within Shelby Studio. Rather than treating storage, metadata, collections, and publication as unrelated global features, the application associates them with projects:
+Library titles, descriptions, and covers are stored in Postgres, not on-chain, so a database write needs its own proof of ownership. The server requires a wallet-signed message for each save:
 
 ```
-Project
-│
-├── Assets
-├── Storage
-├── Metadata
-├── Collections
-├── Activity
-└── Publication
+Wallet signs: "Shelby Studio: save details for <file> | ref <hash of details> | <time>"
+        │
+        ▼
+Server verifies
+  ├── request is fresh (5 minutes)
+  ├── signed text contains the expected message
+  ├── public key controls the owner address
+  └── signature is valid
 ```
 
-This makes it possible to build a complete development workflow around a specific application or asset collection, and provides a foundation for future project export, synchronization, collaboration, and versioning.
+The signed message includes a hash of the new details, so a signature for one change cannot be reused for a different change. The same verification is used for other wallet-signed actions, such as going live. Nothing is signed or submitted on-chain for a details save.
 
-## 8. Separation of Domain Responsibilities
+## 8. Wallet-Aware State
+
+The connected wallet is the boundary for wallet-specific information. When no wallet is connected, the asset list is cleared and Explorer shows no wallet-specific assets. Search is reset when the wallet changes. This avoids showing stale information after a wallet change.
+
+## 9. Separation of Domain Responsibilities
 
 Major application areas have separate responsibilities:
 
-- **Projects** — organize development workspaces
-- **Storage** — manage decentralized asset storage
-- **Explorer** — browse and inspect assets
-- **Metadata** — create and validate metadata
-- **Collections** — organize related assets
-- **Portfolio** — present published project information
-- **Publication** — track project publication state
-- **Developer** — provide developer-oriented tools
-- **AI** — foundation for future AI-assisted workflows
+- **Library / media** — hosting, details, and sharing of media files
+- **Storage** — manage decentralized storage
+- **Explorer / Assets** — browse and inspect stored assets
+- **Live** — LiveKit rooms, tokens, and status
+- **Metadata** — create and validate NFT metadata
+- **Collections** — generate NFT collections
+- **Developer** — developer-oriented tools
 
-This separation prevents one module from becoming responsible for unrelated application concerns.
+This prevents one module from becoming responsible for unrelated concerns.
 
-## 9. Component-Oriented UI
+## 10. Component-Oriented UI
 
-The application uses feature-oriented React components:
+The application uses feature-oriented React components, for example:
 
 ```
 components/
 ├── dashboard/
 ├── storage/
 ├── explorer/
-├── projects/
-├── portfolio/
+├── media/
+├── live/
 ├── metadata/
 ├── collections/
 ├── developer/
-├── ai/
-├── profile/
-├── wallet/
 ├── docs/
 ├── layout/
 ├── shared/
-└── ui/
+├── ui/
+└── wallet/
 ```
 
-This structure allows features to evolve independently. Reusable interface primitives are maintained separately under `components/ui/` — e.g. Button, Card, Badge, Input, Select, Modal, EmptyState, Loading, StatCard — to avoid duplicating common interface behavior across feature modules.
+Reusable interface primitives are kept under `components/ui/` so common interface behavior is not duplicated across features.
 
-## 10. Domain Logic Outside UI Components
+## 11. Domain Logic Outside UI Components
 
-Important application logic is kept outside presentation components where practical. The `lib` directory contains domain and infrastructure functionality:
+Important application logic is kept outside presentation components where practical:
 
 ```
 lib/
 ├── core/
-├── project/
-├── publish/
+├── live/
+├── media/
 ├── services/
-├── shelby/
-└── sync/
+└── shelby/
 ```
 
-This lets UI components focus primarily on presentation and interaction while reusable logic remains accessible to other parts of the application.
+- `lib/media/` — media type allow-list, wallet signature verification, and the details store
+- `lib/live/` — LiveKit room, token, and status logic
+- `lib/services/` — upload, delete, and storage services
+- `lib/shelby/` — Shelby-specific client, configuration, and helpers
 
-## 11. Shelby Integration Layer
+## 12. Shelby Integration Layer
 
 Shelby-specific integration is separated into dedicated modules:
 
@@ -190,63 +185,58 @@ lib/shelby/
 └── wallet.ts
 ```
 
-Additional specialized workflows exist under `lib/services/`. This keeps protocol-specific logic from being scattered throughout the user interface.
+Specialized workflows live under `lib/services/`. This keeps protocol-specific logic from being scattered throughout the user interface.
 
-## 12. Multiple Storage Paths
+## 13. Browser-Direct Parallel Upload
 
-Shelby Studio supports different storage workflows rather than forcing every upload through a single path:
-
-```
-lib/services/
-├── shelbyBrowserDirectUpload.ts
-├── shelbyLargeUpload.ts
-├── shelbyStreamingUpload.ts
-└── storage.ts
-```
-
-The browser-direct workflow is particularly important for large files, since it can avoid unnecessarily routing the entire file through the Next.js server.
-
-## 13. Browser-Direct Large Uploads
-
-For supported large-file workflows, the browser communicates directly with Shelby after the application server prepares the required operation:
+Uploads from Library and Raw Storage go from the browser directly to the Shelby RPC:
 
 ```
-User
- │
- ▼
 Browser
  │
- ├── Prepare file
  ├── Generate commitments
  │
- ▼
-Next.js API
+ ├── /api/storage/prepare-upload   (server builds registration payload)
  │
- └── Prepare operation
+ ├── Wallet signs registration transaction
+ ├── Wallet signs Shelby auth challenge
  │
- ▼
-Browser
+ ├── Upload chunksets ──► Shelby RPC
  │
- ├── Wallet authorization
- └── Direct data transfer
+ ├── /api/storage/finalize-upload  (server builds commit payload)
  │
- ▼
-Shelby
- │
- ▼
-Finalize
+ └── Wallet signs finalize transaction
 ```
 
-The application server does not necessarily need to receive the complete file payload, reducing unnecessary server bandwidth and making large-file workflows more efficient.
+The server never receives the file bytes, which avoids routing large files through the Next.js server and its request limits.
 
-## 14. API Routes for Protected Operations
+Chunksets are uploaded in parallel by `lib/services/runPool.ts`:
 
-Next.js API routes provide server-side application functionality:
+- Up to 4 chunksets run at once.
+- Each chunkset is attempted up to 6 times, with a growing pause between attempts.
+- After a retry (typically a timeout on a slow connection), concurrency is halved, down to 1, and grows back one at a time after a streak of successes.
+- Client errors that cannot fix themselves (400, 401, 403, 404, 409, 422) are not retried.
+
+Parallel uploads are faster on a good connection. On a slow connection they can each hit the per-request timeout, so the pool slows itself down instead of failing the whole upload.
+
+## 14. Disabled Server-Signed Upload Paths
+
+Two server-side upload routes used to exist:
+
+- `/api/storage/upload`: a server-assisted upload signed by the server signer.
+- `/api/storage/stream-upload`: a server-side large-file upload.
+
+Both signed with `SHELBY_SIGNER_PRIVATE_KEY` and had no login, size limit or rate limit, so a stranger could have stored files at the server owner's expense. The delete route had the same problem. All three now return `410 Gone`, and the NFT metadata tools use the wallet-signed browser upload instead.
+
+The rule is simple: anything that spends or changes storage is signed by the user's wallet, never by the server on a stranger's behalf.
+
+## 15. API Routes for Protected Operations
 
 ```
 app/api/shelby/
 ├── asset/
 ├── assets/
+├── delete/
 ├── download/
 ├── locations/
 └── object/
@@ -256,42 +246,38 @@ app/api/storage/
 ├── prepare-upload/
 ├── stream-upload/
 └── upload/
+
+app/api/media/[owner]/[...name]
+app/api/media-details/
+app/api/live/
 ```
 
 These routes provide a controlled server-side boundary for operations requiring protected configuration or server-side Shelby interaction.
 
-## 15. Publication as a State Machine
+## 16. Strict Media Type Allow-List
 
-Publication is not represented as a simple assumption that a project is published. A project can move through different stages:
+The public media route serves only a fixed list of video, audio, and image types. Anything else (HTML, SVG, JSON, executables) is refused. SVG is excluded because it can carry scripts.
 
-```
-Draft → Validation → Preparing → Registering → Committing → Published
-```
+Because `/api/media/...` is served from the application's own origin, serving arbitrary uploaded content there would let anyone host scriptable content on that origin. The route also sends `X-Content-Type-Options: nosniff` and `Content-Security-Policy: default-src 'none'; sandbox`.
 
-A project may also encounter failure or incomplete states during the workflow. Publication information is therefore stored and interpreted as structured state.
+## 17. HTTP Range Streaming
 
-## 16. Derived Publication Status
+The media route supports HTTP Range requests (single `bytes=` ranges, including suffix ranges), answers 206 for valid ranges and 416 for unsatisfiable ones, and supports `HEAD` and ETag-based 304 responses.
 
-Publication status is derived from actual project and publication information — the application contains publication utilities for determining publication state rather than relying on a hardcoded success flag. The project view layer uses publication information to construct the data displayed by project interfaces.
+Video and audio players need Range support to seek and to start playback without downloading the whole file. The route reads only the requested bytes from Shelby rather than the entire object.
 
-This matters because the presence of a publication record does not necessarily mean every required publication step has completed.
+## 18. Postgres with a Development JSON Fallback
 
-## 17. Project View Model
+Library titles, descriptions, and covers are small, mutable records that Shelby blobs are not suited to, so they are stored in a `media_details` table.
 
-The project view layer provides a normalized representation of project information for the user interface:
+- In production the table is in Postgres through `DATABASE_URL` and is created on first use. Row-level security is enabled with no policies, so only the server connection can read or write it. This matters on hosts such as Supabase, where public-schema tables can otherwise be reached through a built-in API with a public key.
+- In development only, when `DATABASE_URL` is not set, a JSON file at `.data/media-details.json` is used so the feature can be tried without a database. It is never used in production.
 
-```
-lib/project/
-├── projectView.ts
-├── publication.ts
-└── PublicationTimeline.tsx
-```
+When a file is deleted from Shelby, `/api/media-details/cleanup` removes its saved details, but only after the server confirms the file is really gone.
 
-This allows interface components to consume consistent information — project identity, owner, network, assets, storage information, publication state, transaction information, storage URI, explorer information — reducing the need for multiple components to independently reconstruct project state.
+## 19. Explorer as a Workspace Interface
 
-## 18. Explorer as a Workspace Interface
-
-Explorer provides a focused interface for browsing and inspecting assets:
+Explorer provides a focused interface for browsing and inspecting the connected wallet's assets:
 
 ```
 Explorer
@@ -302,78 +288,42 @@ Explorer
 ├── Sorting
 ├── Asset Table
 ├── Asset Rows
-├── Empty State
-└── Published Project Views
+└── Empty State
 ```
 
-Current sorting options: Newest, Oldest, Name A-Z, Largest, Smallest. Explorer is wallet-aware and should not expose workspace-specific asset information without the appropriate wallet context.
-
-## 19. Portfolio as a Presentation Layer
-
-Portfolio is separated from the internal project workspace, presenting published project information in a more public-facing format. Current functionality includes components for portfolio header, portfolio statistics, published project cards, published project grids, project details, empty states, and NFT presentation.
-
-This separation allows internal project management and public project presentation to evolve independently.
+Status filters are `Stored` and `Failed`. Sorting options are Newest, Oldest, Name, Largest, and Smallest. Explorer is wallet-aware and shows no wallet-specific asset information without a connected wallet.
 
 ## 20. Metadata and Storage Separation
 
-Metadata and storage are intentionally separate systems. Storage answers *where is the asset stored?* Metadata answers *what does the asset represent?*
+Metadata and storage are intentionally separate systems. Storage answers *where is the file stored?* Metadata answers *what does it represent?*
 
 ```
 Asset
  │
  ├── Storage
- │     └── Shelby Asset
+ │     └── Shelby blob
  │
  └── Metadata
-       └── NFT Description
+       └── NFT description or Library details
 ```
 
-This lets developers update metadata without necessarily changing the underlying stored asset, and lets storage functionality remain useful for applications that don't use NFT metadata.
+This lets metadata change without changing the stored file, and lets storage remain useful for content that has no NFT metadata.
 
-## 21. Collections as an Organizational Layer
+## 21. Collections and Metadata Tools
 
-Collections provide an organizational layer between individual assets and projects:
+Collections and Metadata are NFT tooling: generating collection metadata, validating it, and previewing NFTs. They rely on the Storage and Metadata modules for their respective responsibilities rather than owning storage themselves.
 
-```
-Project
- │
- └── Collection
-       │
-       ├── Assets
-       ├── Metadata
-       ├── Branding
-       └── Preview
-```
+## 22. Browser State as a Convenience Only
 
-Collections don't own the underlying storage system — they organize project assets while relying on the Storage and Metadata modules for their respective responsibilities.
+Some interface state, such as a per-wallet activity history, is kept in the browser's `localStorage`. It is supplementary: reads and writes are wrapped so that a `localStorage` failure never breaks a storage operation. State that must persist reliably (Library details) is in Postgres, and file contents and ownership are on Shelby and Aptos.
 
-## 22. Local State as the Current Workspace Foundation
+## 23. Avoiding Unnecessary Backend Infrastructure
 
-The current application uses client-side state and project context to support workspace functionality. This keeps the current architecture lightweight, but also means the application should not yet be described as having a full persistent multi-device backend. Future infrastructure may introduce persistent project storage, databases, indexing, and synchronization when required.
+A separate backend service is not required: Next.js already provides the frontend and the API routes in one deployment. Postgres is the only added service for application data, and LiveKit is used as a hosted service for live streaming.
 
-## 23. Synchronization Foundation
+A separate backend may become appropriate if the product later needs things such as long-running workers, global asset indexing, or background monitoring. That decision should be driven by actual requirements.
 
-The project contains synchronization utilities under:
-
-```
-lib/sync/
-├── cache.ts
-├── offline.ts
-├── queue.ts
-└── sync.ts
-```
-
-These provide a foundation for future synchronization and offline workflows and should not currently be interpreted as a complete distributed synchronization system. The architecture intentionally leaves room for these capabilities to expand as persistent infrastructure is introduced.
-
-## 24. Avoiding Unnecessary Backend Infrastructure
-
-A separate backend service is not currently required for the core application — Next.js already provides frontend and server-side API routes within the same application.
-
-A separate backend may become appropriate if Shelby Studio later requires infrastructure such as long-running workers, persistent database services, global asset indexing, background Shelby monitoring, large-scale analytics, real-time collaboration, or organization-level access control. The decision should be driven by actual product requirements rather than introducing infrastructure prematurely.
-
-## 25. Security Boundary
-
-The application maintains a clear browser/server security boundary:
+## 24. Security Boundary
 
 ```
 PUBLIC
@@ -382,7 +332,7 @@ PUBLIC
 ├── Client State
 ├── Wallet Interaction
 ├── Public Configuration
-└── Browser-Supported Operations
+└── Direct Uploads to Shelby
 
           │
           ▼
@@ -390,93 +340,58 @@ PUBLIC
 PRIVATE
 │
 ├── API Credentials
-├── Private Signing Material
-├── Protected Server Operations
-└── Server-Only Configuration
+├── Signer Private Key
+├── Database Connection
+└── Protected Server Operations
 ```
 
-Anything exposed through `NEXT_PUBLIC_*` should be considered browser-visible. Sensitive credentials must remain server-side.
+Anything exposed through `NEXT_PUBLIC_*` is browser-visible. Sensitive credentials must remain server-side.
 
-## 26. Environment Configuration
+## 25. Environment Configuration
 
-The local development environment contains server-side credentials and browser-visible configuration separately.
-
-**Server-side configuration:**
+**Server-side configuration** includes:
 - `SHELBY_API_KEY`
 - `SHELBY_SIGNER_PRIVATE_KEY`
+- `DATABASE_URL`
 
-**Browser-visible configuration** may use `NEXT_PUBLIC_*` variables where necessary.
+**Browser-visible configuration** uses `NEXT_PUBLIC_*` variables where necessary, such as `NEXT_PUBLIC_SHELBY_BROWSER_API_KEY` and `NEXT_PUBLIC_SITE_URL`.
 
-Environment files containing real values are excluded from Git through the repository's environment-file ignore rules.
+Environment files containing real values are excluded from Git by the `.env*` ignore rule; `.env.example` is kept.
 
-## 27. Documentation as an Engineering Tool
+## 26. Documentation as an Engineering Tool
 
-Documentation is treated as part of the engineering process rather than an afterthought, describing architecture, storage, upload workflows, Explorer behavior, metadata, collections, dashboard behavior, and engineering decisions.
+Documentation is treated as part of the engineering process. It should describe what exists and distinguish current implementation from possible future work, so planned functionality is not presented as if it already exists.
 
-Documentation should distinguish between **Current Implementation** and **Planned Development** to prevent future functionality from being presented as if it already exists.
+## 27. Open Development
 
-## 28. Open Development
+The source repository can contain application source code, components, domain logic, documentation, configuration templates, and engineering decisions.
 
-Shelby Studio is structured as an open developer platform. The source repository can contain application source code, components, domain logic, documentation, configuration templates, and engineering decisions.
+Secrets must never be included in the repository. This includes private keys, API secrets, wallet seed phrases, passwords, deployment credentials, and other authentication secrets.
 
-However, secrets must never be included in the repository. This includes private keys, API secrets, wallet seed phrases, passwords, deployment credentials, and other authentication secrets.
+## 28. Current Limitations
 
-## 29. Current Architectural Priorities
+- No global index of Shelby assets; asset lists are loaded per connected wallet.
+- No background workers.
+- No cross-device synchronization of browser-stored state.
+- `lib/sync/` and `lib/publish/` contain only empty or stub files and are not used by any feature.
 
-- Maintain reliable Shelby storage workflows
-- Keep wallet interactions user-controlled
-- Maintain project-aware application state
-- Keep publication state derived from real information
-- Keep server-only credentials protected
-- Maintain modular feature boundaries
-- Keep the application deployable without unnecessary infrastructure
-- Keep documentation aligned with actual implementation
-
-## 30. Planned Engineering Direction
-
-As Shelby Studio evolves, engineering work may introduce:
-
-- Persistent project storage
-- Database-backed workspaces
-- Global Shelby asset indexing
-- Background workers
-- Cross-device synchronization
-- Project versioning
-- Recovery workflows
-- Team workspaces
-- Permission systems
-- Analytics
-- Audit history
-- Advanced publication tooling
-- Expanded developer APIs
-- AI-assisted workflows
-
-These are future architectural possibilities and should not be interpreted as current infrastructure.
-
-## 31. Decision-Making Principles
+## 29. Decision-Making Principles
 
 - **Solve the Current Problem** — do not introduce infrastructure without a concrete requirement.
-- **Protect User Authority** — users should remain in control of wallet-authorized blockchain transactions.
-- **Protect Secrets** — sensitive credentials should remain on trusted server infrastructure.
-- **Prefer Clear Boundaries** — UI, state, domain logic, and infrastructure should have understandable responsibilities.
-- **Prefer Derived State** — important status indicators should come from actual application data rather than assumptions.
-- **Design for Extension** — new functionality should be added through modular systems where practical.
-- **Document Important Changes** — major architectural changes should be reflected in the engineering documentation.
+- **Protect User Authority** — users stay in control of wallet-authorized transactions.
+- **Protect Secrets** — sensitive credentials stay on trusted server infrastructure.
+- **Prefer Clear Boundaries** — UI, state, domain logic, and infrastructure have understandable responsibilities.
+- **Be Strict About What Is Served** — host only the media types we intend to host.
+- **Document Important Changes** — major architectural changes should be reflected in these documents.
 
 ## Summary
 
-Shelby Studio is built as a modular Next.js application with a hybrid browser/server architecture. The current engineering approach prioritizes:
+Shelby Studio is a Next.js application with a hybrid browser/server architecture. The current engineering approach prioritizes:
 
-- Project-centric organization
-- Wallet-controlled transactions
-- Secure server-side credentials
-- Modular feature boundaries
-- Shelby-specific integration layers
-- Multiple storage workflows
-- Derived publication state
+- Wallet-controlled transactions and wallet-signed owner-only saves
+- Browser-direct, parallel, adaptive chunkset uploads
+- Server-side credentials
+- A strict media type allow-list and HTTP Range streaming
+- Postgres for Library details, with a development-only JSON fallback
+- Modular feature boundaries and Shelby-specific integration layers
 - Lightweight infrastructure
-- Clear documentation
-
-The architecture is intentionally designed to support the current product without introducing unnecessary backend complexity. As requirements grow, persistent databases, indexing services, background workers, synchronization infrastructure, collaboration systems, analytics, and additional backend services can be introduced incrementally.
-
-The fundamental architectural principle remains the same: build a reliable, understandable developer workspace around Shelby while keeping user authority, security, modularity, and future extensibility at the center of the system.
