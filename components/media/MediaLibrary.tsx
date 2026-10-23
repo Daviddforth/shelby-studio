@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useEffect, useMemo, useState } from "react";
 
 import {
@@ -8,9 +10,9 @@ import {
   Link2,
   RefreshCw,
   UserCircle2,
+  UploadCloud,
 } from "lucide-react";
 
-import AssetUploader from "@/components/asset-manager/AssetUploader";
 import EditMediaDialog from "@/components/media/EditMediaDialog";
 import MediaCard from "@/components/media/MediaCard";
 import { useOrigin } from "@/components/media/useOrigin";
@@ -186,33 +188,6 @@ export default function MediaLibrary() {
     }
   }
 
-  async function handleSelect(file: File) {
-    setMessage(null);
-
-    if (!getMediaType(file.name)) {
-      setMessage({
-        type: "error",
-        text: "Only video (mp4, webm, mov), audio (mp3, wav, m4a, ogg, flac) and image (jpg, png, gif, webp, avif) files can be hosted here.",
-      });
-
-      return;
-    }
-
-    try {
-      await upload(file);
-
-      setMessage({
-        type: "success",
-        text: `${file.name} is uploaded and ready to share.`,
-      });
-    } catch (error) {
-      setMessage({
-        type: "error",
-        text: error instanceof Error ? error.message : "Upload failed.",
-      });
-    }
-  }
-
   async function saveDetails(item: LibraryItem, next: MediaDetails) {
     const request = await signSaveRequest({
       signMessage,
@@ -366,7 +341,29 @@ export default function MediaLibrary() {
 
       {/* Upload */}
       <div className="space-y-3">
-        <AssetUploader onSelect={handleSelect} disabled={loading} />
+        <Link
+          href="/storage"
+          className="flex items-center gap-4 rounded-2xl border border-dashed border-slate-700 bg-slate-900/50 p-4 transition hover:border-blue-500/60 hover:bg-slate-900 sm:p-5"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400">
+            <UploadCloud size={20} />
+          </span>
+
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-semibold text-white">
+              Upload a video, song or image
+            </span>
+
+            <span className="block text-xs text-slate-400">
+              Uploads happen on the Upload page. New files appear here with a
+              share link and embed code.
+            </span>
+          </span>
+
+          <span className="shrink-0 text-sm font-medium text-blue-400">
+            Upload →
+          </span>
+        </Link>
 
         {uploading && progress && (
           <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">

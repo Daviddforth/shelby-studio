@@ -1,8 +1,31 @@
+import { Clapperboard, ImageIcon, Music2 } from "lucide-react";
+
+/** A mock of a public creator page. The data is an example, not a real creator. */
+const tiles = [
+  {
+    title: "Studio session, take 2",
+    kind: "Video",
+    icon: Clapperboard,
+    gradient: "from-blue-600/40 to-indigo-700/40",
+  },
+  {
+    title: "Late night demo",
+    kind: "Audio",
+    icon: Music2,
+    gradient: "from-indigo-600/40 to-violet-700/40",
+  },
+  {
+    title: "Album cover",
+    kind: "Image",
+    icon: ImageIcon,
+    gradient: "from-cyan-600/40 to-blue-700/40",
+  },
+];
+
 export default function ProductPreview() {
   return (
     <section className="mx-auto max-w-7xl px-6 pb-24">
       <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl shadow-blue-950/20">
-        {/* Browser chrome */}
         <div className="flex items-center justify-between border-b border-slate-800 bg-slate-950 px-5 py-3">
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-slate-700" />
@@ -10,165 +33,74 @@ export default function ProductPreview() {
             <span className="h-2.5 w-2.5 rounded-full bg-slate-700" />
           </div>
 
-          <div className="rounded-lg border border-slate-800 bg-slate-900 px-5 py-1.5 text-[11px] text-slate-500">
-            app.shelbystudio.xyz
+          <div className="rounded-lg border border-slate-800 bg-slate-900 px-5 py-1.5 font-mono text-[11px] text-slate-500">
+            shelbystudio.xyz/c/0x26…e16a
           </div>
 
           <div className="w-12" />
         </div>
 
-        {/* Workspace */}
-        <div className="grid min-h-[460px] lg:grid-cols-[190px_1fr]">
-          {/* Sidebar */}
-          <aside className="hidden border-r border-slate-800 bg-slate-950 p-4 lg:block">
-            <div className="mb-8 text-sm font-bold text-white">
-              Shelby Studio
-            </div>
+        <div className="bg-slate-950/60 p-5 sm:p-8">
+          <div className="flex items-center gap-3 rounded-2xl border border-red-500/40 bg-red-500/10 p-4">
+            <span className="flex shrink-0 items-center gap-1.5 rounded-md bg-red-600 px-2 py-1 text-xs font-bold uppercase text-white">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+              Live now
+            </span>
 
-            <div className="space-y-1 text-xs">
-              <div className="rounded-lg bg-blue-500/10 px-3 py-2.5 text-blue-400">
-                Dashboard
-              </div>
+            <span className="min-w-0 flex-1 truncate text-sm font-medium text-white">
+              Launch day Q&amp;A
+            </span>
 
-              <div className="px-3 py-2.5 text-slate-500">
-                Assets
-              </div>
+            <span className="shrink-0 text-xs text-slate-300">Watch</span>
+          </div>
 
-              <div className="px-3 py-2.5 text-slate-500">
-                Collections
-              </div>
+          <div className="mt-7">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-400">
+              Creator
+            </p>
 
-              <div className="px-3 py-2.5 text-slate-500">
-                Metadata
-              </div>
+            <h3 className="mt-1 font-mono text-xl font-bold text-white">
+              0x2659…e16a
+            </h3>
 
-              <div className="px-3 py-2.5 text-slate-500">
-                Storage
-              </div>
+            <p className="mt-1 text-sm text-slate-400">
+              1 video · 1 audio · 1 image, hosted on Shelby
+            </p>
+          </div>
 
-              <div className="px-3 py-2.5 text-slate-500">
-                Explorer
-              </div>
-            </div>
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            {tiles.map((tile) => {
+              const Icon = tile.icon;
 
-            <div className="mt-10 border-t border-slate-800 pt-5">
-              <p className="px-3 text-[10px] uppercase tracking-widest text-slate-600">
-                Developer
-              </p>
-
-              <div className="mt-2 px-3 py-2.5 text-xs text-slate-500">
-                API Playground
-              </div>
-
-              <div className="px-3 py-2.5 text-xs text-slate-500">
-                SDK Explorer
-              </div>
-            </div>
-          </aside>
-
-          {/* Main dashboard preview */}
-          <div className="bg-slate-950/60 p-5 sm:p-7">
-            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-400">
-                  Workspace
-                </p>
-
-                <h3 className="mt-1 text-xl font-bold text-white">
-                  Project Overview
-                </h3>
-              </div>
-
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/5 px-3 py-1.5 text-[11px] text-emerald-400">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                Shelby connected
-              </div>
-            </div>
-
-            {/* Stats */}
-            <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {[
-                ["Assets", "—", "Stored files"],
-                ["Collections", "—", "Organized assets"],
-                ["Metadata", "—", "Structured records"],
-                ["Network", "Shelbynet", "Connected network"],
-              ].map(([label, value, description]) => (
+              return (
                 <div
-                  key={label}
-                  className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4"
+                  key={tile.title}
+                  className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900"
                 >
-                  <p className="text-xs text-slate-500">
-                    {label}
-                  </p>
-
-                  <p className="mt-3 text-lg font-bold text-white">
-                    {value}
-                  </p>
-
-                  <p className="mt-1 text-[11px] text-slate-600">
-                    {description}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            {/* Recent assets */}
-            <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900/50">
-              <div className="flex items-center justify-between border-b border-slate-800 px-4 py-4">
-                <div>
-                  <p className="text-sm font-semibold text-white">
-                    Recent Assets
-                  </p>
-
-                  <p className="mt-1 text-xs text-slate-500">
-                    Manage and inspect Shelby-backed files.
-                  </p>
-                </div>
-
-                <span className="text-xs text-blue-400">
-                  View all
-                </span>
-              </div>
-
-              <div className="divide-y divide-slate-800">
-                {[
-                  ["collection-cover.png", "Image", "Stored"],
-                  ["metadata.json", "JSON", "Stored"],
-                  ["game-assets.zip", "Archive", "Stored"],
-                ].map(([name, type, status]) => (
                   <div
-                    key={name}
-                    className="flex items-center justify-between gap-4 px-4 py-4"
+                    className={`flex aspect-video items-center justify-center bg-gradient-to-br ${tile.gradient}`}
                   >
-                    <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-xs text-blue-400">
-                        {type === "JSON" ? "{}" : "●"}
-                      </div>
-
-                      <div className="min-w-0">
-                        <p className="truncate text-xs font-medium text-white">
-                          {name}
-                        </p>
-
-                        <p className="mt-1 text-[10px] text-slate-600">
-                          {type} • Shelby-backed asset
-                        </p>
-                      </div>
-                    </div>
-
-                    <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] text-emerald-400">
-                      {status}
-                    </span>
+                    <Icon size={30} className="text-white/80" />
                   </div>
-                ))}
-              </div>
-            </div>
+
+                  <div className="p-4">
+                    <p className="truncate text-sm font-semibold text-white">
+                      {tile.title}
+                    </p>
+
+                    <p className="mt-1 text-xs text-slate-500">
+                      {tile.kind} · Stored on Shelby
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
       <p className="mt-4 text-center text-xs text-slate-600">
-        A preview of the Shelby Studio workspace.
+        An example of a public creator page.
       </p>
     </section>
   );

@@ -10,11 +10,11 @@ Shelby Studio is an independent project built around the Shelby ecosystem. It is
 
 | Area | What it does |
 |---|---|
-| **Library** | Upload video, audio and images. Add a title, description and cover picture. Copy a share link or an embed code. |
+| **Upload** | The one place to upload. Any file type goes to Shelby, with progress. Videos, audio and images then appear in your Library. |
+| **Library** | Your videos, audio and images. Add a title, description and cover picture. Copy a share link or an embed code. |
 | **Go Live** | Start a live stream from your camera or screen. Send the link to anyone. They watch and chat in the browser, no account needed. |
 | **My Page** | Your public creator page. It lists your hosted media and shows a LIVE NOW banner while you stream. |
 | **NFT Tools** | Collection Builder, Metadata generator and an Assets view of everything stored with your wallet. |
-| **Raw Storage** | Upload any file type to Shelby, with progress and storage statistics. |
 | **Explorer** | Look up the files stored by any wallet address. |
 | **Developer** | An API playground, SDK examples and a code generator for the Shelby Studio API. |
 

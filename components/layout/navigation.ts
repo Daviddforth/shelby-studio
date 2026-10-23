@@ -3,13 +3,13 @@ import {
   Bot,
   Clapperboard,
   Code2,
-  Database,
   FileJson,
   FolderKanban,
   Images,
   LayoutDashboard,
   Radio,
   Search,
+  UploadCloud,
   UserCircle2,
   type LucideIcon,
 } from "lucide-react";
@@ -33,6 +33,7 @@ export const navSections: NavSection[] = [
     title: "Create",
     items: [
       { name: "Home", href: "/dashboard", icon: LayoutDashboard },
+      { name: "Upload", href: "/storage", icon: UploadCloud },
       { name: "Library", href: "/library", icon: Clapperboard },
       { name: "Go Live", href: "/live", icon: Radio },
       { name: "My Page", href: "/library", icon: UserCircle2, isMyPage: true },
@@ -49,7 +50,6 @@ export const navSections: NavSection[] = [
   {
     title: "More",
     items: [
-      { name: "Raw Storage", href: "/storage", icon: Database },
       { name: "Explorer", href: "/explorer", icon: Search },
       { name: "Developer", href: "/developer", icon: Code2 },
       { name: "Documentation", href: "/docs", icon: BookOpen },

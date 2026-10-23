@@ -75,7 +75,7 @@ export default function Sidebar() {
             </p>
 
             <p className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.14em] text-slate-500">
-              Digital Asset Workspace
+              Creator Workspace
             </p>
           </div>
         </Link>

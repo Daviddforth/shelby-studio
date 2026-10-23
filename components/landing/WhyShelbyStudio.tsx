@@ -1,27 +1,27 @@
 const reasons = [
   {
     number: "01",
-    title: "Developer First",
+    title: "You own it",
     description:
-      "Designed around the practical workflow of builders working with storage, assets and application infrastructure.",
+      "Files are stored on Shelby and tied to your wallet. Only your wallet can change or delete them. There are no passwords to leak.",
   },
   {
     number: "02",
-    title: "Operational Visibility",
+    title: "One link",
     description:
-      "Inspect important storage and development operations instead of treating decentralized infrastructure as a black box.",
+      "A page for every file, an embed code for your site, and one creator page you can put in your bio.",
   },
   {
     number: "03",
-    title: "Project Oriented",
+    title: "Live in one click",
     description:
-      "Keep assets, metadata, collections and development resources connected around the work your application is actually doing.",
+      "Go live from the browser. Anyone with the link can watch and chat, with no account or app to install.",
   },
   {
     number: "04",
     title: "Built for Shelby",
     description:
-      "Purpose-built around Shelby workflows rather than adapting a generic file manager or NFT dashboard.",
+      "Made around Shelby's fast reads, so a hosted video can be streamed and seeked like it would on any media site.",
   },
 ];
 
@@ -36,13 +36,13 @@ export default function WhyShelbyStudio() {
             </p>
 
             <h2 className="mt-4 text-3xl font-bold tracking-tight text-white md:text-4xl">
-              A workspace built around the work.
+              A home for creators who own their content.
             </h2>
 
             <p className="mt-5 max-w-md text-base leading-7 text-slate-400">
-              Shelby Studio focuses on the layer between Shelby
-              infrastructure and the applications, creators and
-              teams building with it.
+              Shelby Studio is the layer between Shelby storage and the
+              people who make things: simple tools, public pages and live
+              streaming on top of storage you own.
             </p>
           </div>
 

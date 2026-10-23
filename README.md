@@ -18,11 +18,11 @@ A creator workspace built on the Shelby decentralized storage protocol. Upload v
 
 | Area | What it does |
 |---|---|
-| **Library** | Upload video, audio and images. Add a title, description and cover picture. Copy a share link or an embed code. |
+| **Upload** | The one place to upload. Any file type goes to Shelby, with progress. |
+| **Library** | Your videos, audio and images. Add a title, description and cover picture. Copy a share link or an embed code. |
 | **Go Live** | Stream from your camera or screen and send one link. Viewers watch and chat in the browser, with no account. |
 | **My Page** | Your public creator page at `/c/<wallet>`. It lists your media and shows a LIVE NOW banner while you stream. |
 | **NFT Tools** | Collection Builder, Metadata generator and an Assets view of everything stored with your wallet. |
-| **Raw Storage** | Upload any file type to Shelby, with progress and storage statistics. |
 | **Explorer** | Look up the files stored by any wallet address. |
 | **Developer** | An API playground, SDK examples and a code generator. |
 | **Docs** | Guides and reference at `/docs`. |

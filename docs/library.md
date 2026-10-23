@@ -1,12 +1,12 @@
 # Library
 
-The Library is where creators upload and manage videos, audio and images. Every file gets a public page and an embed code, and all of them appear on the creator's public page.
+The Library is where creators manage their videos, audio and images. Every file gets a public page and an embed code, and all of them appear on the creator's public page.
 
-Open it from **Library** in the side menu.
+Open it from **Library** in the side menu. The Library has no upload box of its own: it has an **Upload** button that takes you to the Upload page, so there is one place to upload.
 
 ## Uploading
 
-Drag a file into the upload box or click it to choose one. The upload runs in your browser:
+Open **Upload** in the side menu, then drag a file into the upload box or click it to choose one. Any file type can be uploaded, and videos, audio and images then appear in the Library. After an upload finishes, **View in Library** takes you there. The upload runs in your browser:
 
 1. The browser reads the file and prepares it for Shelby.
 2. Your wallet approves a transaction that registers the file.
@@ -23,7 +23,7 @@ Both transactions cost gas. The pieces are sent several at a time, and Shelby St
 | Audio | mp3, wav, m4a, aac, ogg, oga, opus, flac |
 | Images | jpg, jpeg, png, gif, webp, avif |
 
-Other file types can be stored with **Raw Storage**, but they do not get a public page or embed. SVG images are deliberately not supported, because an SVG can contain scripts.
+Other file types can be uploaded on the **Upload** page, but they do not get a public page or embed. SVG images are deliberately not supported, because an SVG can contain scripts.
 
 ## Details
 

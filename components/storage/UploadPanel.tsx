@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useRef, useState } from "react";
 
 import {
@@ -269,6 +271,13 @@ export default function UploadPanel() {
           <span className="text-sm font-medium">
             File successfully stored on Shelby.
           </span>
+
+          <Link
+            href="/library"
+            className="text-sm font-semibold text-emerald-300 underline underline-offset-2 hover:text-white"
+          >
+            View in Library →
+          </Link>
         </div>
       )}
     </section>

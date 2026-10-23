@@ -2,7 +2,7 @@
 
 Shelby Studio uses Shelby as its decentralized storage infrastructure.
 
-The storage engine connects the application (Library, Raw Storage, Assets, Explorer, and the NFT metadata tools) to Shelby storage operations. File bytes live on Shelby. Small pieces of application data, such as titles, descriptions, and covers for Library files, live in Postgres.
+The storage engine connects the application (Upload, Library, Assets, Explorer, and the NFT metadata tools) to Shelby storage operations. File bytes live on Shelby. Small pieces of application data, such as titles, descriptions, and covers for Library files, live in Postgres.
 
 The storage layer supports both browser-direct workflows and a small number of server-side operations.
 
@@ -18,7 +18,7 @@ The storage layer is responsible for:
 - Deleting files (owner only, wallet-signed)
 - Downloading and streaming stored objects
 - Querying object information
-- Providing storage information to Explorer, Assets, and Raw Storage
+- Providing storage information to Explorer, Assets, and Upload
 
 ---
 
@@ -114,7 +114,7 @@ The API routes are the server-side boundary for operations that need protected c
 
 ## Browser-Direct Upload
 
-Library and Raw Storage uploads go through `uploadDirectlyToShelby` in `lib/services/shelbyBrowserDirectUpload.ts`. The purpose is to keep large file payloads off the application server.
+Uploads from the Upload page go through `uploadDirectlyToShelby` in `lib/services/shelbyBrowserDirectUpload.ts`. The purpose is to keep large file payloads off the application server.
 
 ```text
 User
@@ -254,7 +254,7 @@ The application contains Shelby API routes for querying stored information:
 - `/api/shelby/object`
 - `/api/shelby/locations`
 
-The StorageContext loads the connected wallet's assets from `/api/shelby/assets`. Explorer, Assets, Raw Storage, and the dashboard read from that context.
+The StorageContext loads the connected wallet's assets from `/api/shelby/assets`. Explorer, Assets, Upload, and the dashboard read from that context.
 
 ---
 

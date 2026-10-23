@@ -21,7 +21,7 @@ Below the cards are two tabs:
 - **Files** - the list of stored files, with Download, Replace and Delete actions.
 - **History** - upload, replace and delete activity, kept in this browser's `localStorage` (up to 100 entries per wallet).
 
-Videos, audio and images also get a public page and embed code in the **Library** (`/library`). New files are added from the Library or Raw Storage.
+Videos, audio and images also get a public page and embed code in the **Library** (`/library`). New files are added from the **Upload** page.
 
 ## Asset Workflow
 

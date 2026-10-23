@@ -22,8 +22,8 @@ export default function LandingFooter() {
             </Link>
 
             <p className="mt-3 max-w-sm text-sm leading-6 text-slate-500">
-              A creator and developer workspace for building,
-              managing and exploring assets on Shelby.
+              A creator workspace on Shelby: upload, share, go live
+              and keep your content in your own wallet.
             </p>
 
             <div className="mt-5 flex flex-wrap gap-2">
@@ -52,25 +52,20 @@ export default function LandingFooter() {
 
             <nav className="mt-4 space-y-3 text-sm text-slate-500">
               <Link className="block hover:text-white" href="/dashboard">
-                Dashboard
+                Home
               </Link>
-
-              <Link className="block hover:text-white" href="/assets">
-                Assets
+              <Link className="block hover:text-white" href="/storage">
+                Upload
               </Link>
-
+              <Link className="block hover:text-white" href="/library">
+                Library
+              </Link>
+              <Link className="block hover:text-white" href="/live">
+                Go Live
+              </Link>
               <Link className="block hover:text-white" href="/collections">
                 Collections
               </Link>
-
-              <Link className="block hover:text-white" href="/metadata">
-                Metadata
-              </Link>
-
-              <Link className="block hover:text-white" href="/storage">
-                Storage
-              </Link>
-
               <Link className="block hover:text-white" href="/explorer">
                 Explorer
               </Link>

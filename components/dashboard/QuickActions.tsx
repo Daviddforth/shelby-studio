@@ -8,10 +8,17 @@ import {
   Radio,
   UserCircle2,
   FolderPlus,
-  BookOpen,
+  Clapperboard,
 } from "lucide-react";
 
 const actions = [
+  {
+    title: "Upload",
+    description: "Video, audio, images, any file",
+    href: "/storage",
+    icon: UploadCloud,
+    iconClass: "bg-blue-500/15 text-blue-400",
+  },
   {
     title: "Go Live",
     description: "Stream and share a link",
@@ -20,11 +27,11 @@ const actions = [
     iconClass: "bg-red-500/15 text-red-400",
   },
   {
-    title: "Upload to Library",
-    description: "Video, audio and images",
+    title: "Library",
+    description: "Share links and embed codes",
     href: "/library",
-    icon: UploadCloud,
-    iconClass: "bg-blue-500/15 text-blue-400",
+    icon: Clapperboard,
+    iconClass: "bg-amber-500/15 text-amber-400",
   },
   {
     title: "Share Your Page",
@@ -40,13 +47,6 @@ const actions = [
     href: "/collections",
     icon: FolderPlus,
     iconClass: "bg-violet-500/15 text-violet-400",
-  },
-  {
-    title: "Documentation",
-    description: "Developer guides",
-    href: "/docs",
-    icon: BookOpen,
-    iconClass: "bg-amber-500/15 text-amber-400",
   },
 ];
 

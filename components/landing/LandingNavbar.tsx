@@ -32,8 +32,14 @@ export default function LandingNavbar() {
             href="#workflow"
             className="transition hover:text-white"
           >
-            Workflow
+            How it works
           </a>
+          <Link
+            href="/docs"
+            className="transition hover:text-white"
+          >
+            Docs
+          </Link>
 
           <Link
             href="/contact"
@@ -65,7 +71,7 @@ export default function LandingNavbar() {
           href="/dashboard"
           className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500"
         >
-          Launch Workspace →
+          Start creating →
         </Link>
       </div>
     </header>

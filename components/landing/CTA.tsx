@@ -9,16 +9,16 @@ export default function CTA() {
 
           <div className="relative mx-auto max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-400">
-              Start Building
+              Start creating
             </p>
 
             <h2 className="mt-4 text-3xl font-bold tracking-tight text-white md:text-5xl">
-              Your Shelby workflow starts here.
+              Upload it. Share it. Go live.
             </h2>
 
             <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-slate-400">
-              Manage assets, structure metadata, explore storage
-              and access developer tooling from a single workspace.
+              Connect your wallet and put your first video, song or
+              image on Shelby in a few minutes.
             </p>
 
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
@@ -26,7 +26,7 @@ export default function CTA() {
                 href="/dashboard"
                 className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-500"
               >
-                Launch Workspace →
+                Start creating →
               </Link>
 
               <Link

@@ -21,9 +21,9 @@ export default function LibraryPage() {
           </h1>
 
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
-            Upload videos, audio and images to Shelby in one place. Every file
-            gets a public page and an embed code, and all of it appears on your
-            public creator page.
+            Your videos, audio and images on Shelby. Every file gets a public page
+            and an embed code, and all of it appears on your public creator
+            page. Upload new files from the Upload page.
           </p>
         </div>
 
