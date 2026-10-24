@@ -38,7 +38,7 @@ Shelby Studio says what it does not do yet. See [Limitations & Roadmap](/docs/li
 
 ## Keep it simple
 
-The app has few areas on purpose: Library, Go Live, My Page, NFT Tools and a small "More" section. New features should fit one of those, or earn a new place.
+The app has few areas on purpose: Upload, Library, Go Live, My Page and a small "More" section. New features should fit one of those, or earn a new place.
 
 ## Independent project
 

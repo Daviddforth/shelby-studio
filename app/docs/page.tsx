@@ -95,27 +95,6 @@ const cards = [
     icon: LayoutDashboard,
   },
   {
-    title: "Assets",
-    description:
-      "Every file stored with your wallet, with real counts and history.",
-    href: "/docs/assets",
-    icon: Boxes,
-  },
-  {
-    title: "Metadata",
-    description:
-      "Create, validate and publish NFT metadata.",
-    href: "/docs/metadata",
-    icon: FileJson,
-  },
-  {
-    title: "Collections",
-    description:
-      "Build and publish NFT collections.",
-    href: "/docs/collections",
-    icon: Boxes,
-  },
-  {
     title: "Developer Platform",
     description:
       "The API Playground, read-only Shelby routes, SDK examples and code generation.",

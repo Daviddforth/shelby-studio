@@ -22,7 +22,6 @@ A creator workspace built on the Shelby decentralized storage protocol. Upload v
 | **Library** | Your videos, audio and images. Add a title, description and cover picture. Copy a share link or an embed code. |
 | **Go Live** | Stream from your camera or screen and send one link. Viewers watch and chat in the browser, with no account. |
 | **My Page** | Your public creator page at `/c/<wallet>`. It lists your media and shows a LIVE NOW banner while you stream. |
-| **NFT Tools** | Collection Builder, Metadata generator and an Assets view of everything stored with your wallet. |
 | **Explorer** | Look up the files stored by any wallet address. |
 | **Developer** | An API playground, SDK examples and a code generator. |
 | **Docs** | Guides and reference at `/docs`. |
@@ -50,7 +49,7 @@ Anyone with a link
 
 ## Wallet and demo mode
 
-Without a wallet you can browse the app in demo mode (clearly labeled sample data), open public creator pages, watch live streams and read the docs. Connect an Aptos-compatible wallet such as Petra to upload, edit, delete, create collections and go live.
+Without a wallet you can browse the app in demo mode (clearly labeled sample data), open public creator pages, watch live streams and read the docs. Connect an Aptos-compatible wallet such as Petra to upload, edit, delete and go live.
 
 ## Quick start
 
@@ -98,7 +97,7 @@ app/
   library/        Upload and manage video, audio, images
   live/           Go live (host) and /live/<code> (watch)
   c/ m/ embed/    Public creator page, media page, embeddable player
-  storage/ assets/ explorer/ metadata/ collections/ developer/ docs/
+  storage/ explorer/ developer/ docs/
   api/            media, media-details, live, shelby (read), storage (prepare/finalize)
 components/       UI by area (media, live, layout, storage, ...)
 lib/

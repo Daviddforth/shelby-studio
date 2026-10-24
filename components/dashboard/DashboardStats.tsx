@@ -1,76 +1,62 @@
 "use client";
 
-import {
-  Database,
-  FolderKanban,
-  FileJson,
-  HardDrive,
-} from "lucide-react";
+import { Clapperboard, Database, HardDrive, Images } from "lucide-react";
 
 import { useStorageContext } from "@/context/StorageContext";
 import { useWallet } from "@/context/WalletContext";
-import { useCollection } from "@/context/CollectionContext";
-import { useMetadata } from "@/context/MetadataContext";
-import { demoAssets, demoCollection, demoMetadata } from "@/components/demo/demoData";
+import { demoAssets } from "@/components/demo/demoData";
+import { getMediaType } from "@/lib/media/types";
+
+interface Countable {
+  name: string;
+  blobName?: string;
+  size: number;
+  status?: string;
+}
+
+function summarize(assets: Countable[]) {
+  let videos = 0;
+  let images = 0;
+  let bytes = 0;
+
+  for (const asset of assets) {
+    bytes += asset.size;
+
+    const kind = getMediaType(asset.blobName || asset.name)?.kind;
+
+    if (kind === "video") videos += 1;
+    else if (kind === "image") images += 1;
+  }
+
+  return { files: assets.length, videos, images, bytes };
+}
+
+function formatBytes(bytes: number) {
+  if (bytes === 0) return "0 MB";
+
+  const mb = bytes / 1024 / 1024;
+
+  if (mb < 1) return `${(bytes / 1024).toFixed(2)} KB`;
+
+  if (mb < 1024) return `${mb.toFixed(2)} MB`;
+
+  return `${(mb / 1024).toFixed(2)} GB`;
+}
 
 export default function DashboardStats() {
   const { assets } = useStorageContext();
   const { walletConnected } = useWallet();
-  const { hasCollection } = useCollection();
-  const { hasMetadata } = useMetadata();
 
-  const totalFiles = assets.length;
+  const real = summarize(assets as Countable[]);
+  const demo = summarize(demoAssets as Countable[]);
 
-  const totalStorage = assets.reduce(
-    (sum, asset) => sum + asset.size,
-    0
-  );
-
-  const demoStorage = demoAssets.reduce(
-    (sum, asset) => sum + asset.size,
-    0
-  );
-
-  const collectionCount = hasCollection ? 1 : 0;
-  const metadataCount = hasMetadata ? 1 : 0;
-
-  function formatBytes(bytes: number) {
-    if (bytes === 0) return "0 MB";
-
-    const mb = bytes / 1024 / 1024;
-
-    if (mb < 1) {
-      return `${(bytes / 1024).toFixed(2)} KB`;
-    }
-
-    return `${mb.toFixed(2)} MB`;
-  }
+  const shown = walletConnected ? real : demo;
 
   const stats = [
-    {
-      title: "Assets",
-      value: totalFiles,
-      preview: demoAssets.length,
-      icon: Database,
-    },
-    {
-      title: "Collections",
-      value: collectionCount,
-      preview: demoCollection ? 1 : 0,
-      icon: FolderKanban,
-    },
-    {
-      title: "Metadata",
-      value: metadataCount,
-      preview: demoMetadata ? 1 : 0,
-      icon: FileJson,
-    },
-    {
-      title: "Storage Used",
-      value: formatBytes(totalStorage),
-      preview: formatBytes(demoStorage),
-      icon: HardDrive,
-    },
+    { title: "Files", value: shown.files, icon: Database },
+    { title: "Videos", value: shown.videos, icon: Clapperboard },
+    { title: "Images", value: shown.images, icon: Images },
+    { title: "Storage used", value: formatBytes(shown.bytes), icon: HardDrive },
   ];
 
   return (
@@ -92,14 +78,10 @@ export default function DashboardStats() {
               </span>
             </div>
 
-            <p className="mt-2 text-xl font-semibold text-white">
-              {walletConnected ? stat.value : stat.preview}
-            </p>
+            <p className="mt-2 text-xl font-semibold text-white">{stat.value}</p>
 
             {!walletConnected && (
-              <p className="mt-1 text-[11px] text-slate-600">
-                Demo data
-              </p>
+              <p className="mt-1 text-[11px] text-slate-600">Demo data</p>
             )}
           </div>
         );

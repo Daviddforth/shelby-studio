@@ -25,12 +25,6 @@ const features = [
   },
   {
     number: "05",
-    title: "NFT tools",
-    description:
-      "Build collections and NFT metadata, and store the files on Shelby with the same wallet.",
-  },
-  {
-    number: "06",
     title: "Developer tools",
     description:
       "An API playground, SDK examples and a code generator, plus an Explorer to look up any wallet's files.",

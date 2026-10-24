@@ -27,7 +27,7 @@ const steps = [
     number: "05",
     title: "Build more",
     description:
-      "Create NFT collections and metadata, or use the developer tools to connect Shelby to your own app.",
+      "Use the developer tools and the Explorer to connect Shelby to your own app.",
   },
 ];
 

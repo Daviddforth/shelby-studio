@@ -3,9 +3,6 @@ import {
   Bot,
   Clapperboard,
   Code2,
-  FileJson,
-  FolderKanban,
-  Images,
   LayoutDashboard,
   Radio,
   Search,
@@ -37,14 +34,6 @@ export const navSections: NavSection[] = [
       { name: "Library", href: "/library", icon: Clapperboard },
       { name: "Go Live", href: "/live", icon: Radio },
       { name: "My Page", href: "/library", icon: UserCircle2, isMyPage: true },
-    ],
-  },
-  {
-    title: "NFT Tools",
-    items: [
-      { name: "Collections", href: "/collections", icon: FolderKanban },
-      { name: "Metadata", href: "/metadata", icon: FileJson },
-      { name: "Assets", href: "/assets", icon: Images },
     ],
   },
   {

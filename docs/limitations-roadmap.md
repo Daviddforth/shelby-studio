@@ -13,9 +13,7 @@ This page lists what works today, what does not, and what is planned. Nothing he
 | Go Live with chat (needs LiveKit) | Available |
 | LIVE NOW banner on the creator page | Available |
 | Upload page for any file type | Available |
-| Assets view with real counts | Available |
 | Explorer: look up files by wallet address | Available |
-| Collection Builder and Metadata generator | Available |
 | Developer playground, SDK examples and code generator | Available |
 
 ## Known limitations

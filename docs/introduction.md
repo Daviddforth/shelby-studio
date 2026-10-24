@@ -14,7 +14,6 @@ Shelby Studio is an independent project built around the Shelby ecosystem. It is
 | **Library** | Your videos, audio and images. Add a title, description and cover picture. Copy a share link or an embed code. |
 | **Go Live** | Start a live stream from your camera or screen. Send the link to anyone. They watch and chat in the browser, no account needed. |
 | **My Page** | Your public creator page. It lists your hosted media and shows a LIVE NOW banner while you stream. |
-| **NFT Tools** | Collection Builder, Metadata generator and an Assets view of everything stored with your wallet. |
 | **Explorer** | Look up the files stored by any wallet address. |
 | **Developer** | An API playground, SDK examples and a code generator for the Shelby Studio API. |
 
@@ -35,7 +34,7 @@ Most creator platforms keep your files on their servers. Shelby is a decentraliz
 Connect an Aptos-compatible wallet to use Shelby Studio.
 
 - **Without a wallet** you can browse the app in demo mode, open public creator pages, watch live streams and read these docs.
-- **With a wallet** you can upload, edit details, delete files, create collections and go live.
+- **With a wallet** you can upload, edit details, delete files and go live.
 
 Some actions ask your wallet for a **signature** that is free and sends nothing to the chain (saving a video's title, starting a live). Others, such as uploading and deleting, are **transactions** that the wallet approves and that cost gas.
 

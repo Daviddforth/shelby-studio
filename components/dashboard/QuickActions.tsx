@@ -7,7 +7,6 @@ import {
   UploadCloud,
   Radio,
   UserCircle2,
-  FolderPlus,
   Clapperboard,
 } from "lucide-react";
 
@@ -41,13 +40,6 @@ const actions = [
     iconClass: "bg-emerald-500/15 text-emerald-400",
     isMyPage: true,
   },
-  {
-    title: "Create Collection",
-    description: "Organize your assets",
-    href: "/collections",
-    icon: FolderPlus,
-    iconClass: "bg-violet-500/15 text-violet-400",
-  },
 ];
 
 export default function QuickActions() {
@@ -65,7 +57,7 @@ export default function QuickActions() {
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {actions.map((action) => {
           const Icon = action.icon;
 
