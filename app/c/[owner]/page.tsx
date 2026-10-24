@@ -10,6 +10,8 @@ import { liveWatchPath, OFFLINE } from "@/lib/live/types";
 import MediaThumb from "@/components/media/MediaThumb";
 
 import { getDetailsForOwner } from "@/lib/media/db";
+import { getProfile } from "@/lib/profile/db";
+import { profileLabel } from "@/lib/profile/types";
 
 import {
   MediaLookupError,
@@ -17,7 +19,7 @@ import {
   type OwnerMediaItem,
 } from "@/lib/media/server";
 
-import { displayTitle, mediaPagePath } from "@/lib/media/types";
+import { displayTitle, mediaPagePath, mediaStreamPath } from "@/lib/media/types";
 
 type PageProps = {
   params: Promise<{
@@ -62,11 +64,16 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { owner } = await params;
 
-  const label = shortAddress(decodeURIComponent(owner));
+  const decoded = decodeURIComponent(owner);
+
+  const profile = await getProfile(decoded.toLowerCase()).catch(() => null);
+
+  const label = profileLabel(profile, decoded);
 
   return {
-    title: `Media by ${label} | Shelby Studio`,
-    description: `Videos, audio and images hosted on Shelby by ${label}.`,
+    title: `${label} | Shelby Studio`,
+    description:
+      profile?.bio?.slice(0, 160) || `Videos, audio and images hosted on Shelby by ${label}.`,
   };
 }
 
@@ -80,6 +87,10 @@ export default async function CreatorPage({ params }: PageProps) {
   }
 
   const details = await getDetailsForOwner(creator.owner);
+
+  const profile = await getProfile(creator.owner.toLowerCase());
+
+  const name = profileLabel(profile, creator.owner);
 
   // A missing or unreachable live service must never break the creator page.
   const live = await getLiveStatus(creator.owner).catch(() => OFFLINE);
@@ -149,20 +160,96 @@ export default async function CreatorPage({ params }: PageProps) {
           </Link>
         )}
 
-        <section className="mb-8">
-          <p className="text-xs font-medium uppercase tracking-widest text-blue-400">
-            Creator
-          </p>
+        <section className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-start">
+          <div className="relative h-24 w-24 shrink-0">
+            {profile?.avatarBlob ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={mediaStreamPath(creator.owner, profile.avatarBlob)}
+                alt={name}
+                className={`h-24 w-24 rounded-full object-cover ${
+                  live.live ? "ring-4 ring-red-500" : "ring-2 ring-slate-700"
+                }`}
+              />
+            ) : (
+              <div
+                className={`flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-3xl font-bold text-white ${
+                  live.live ? "ring-4 ring-red-500" : ""
+                }`}
+              >
+                {(profile?.displayName?.trim()[0] || creator.owner.replace(/^0x/, "")[0] || "?").toUpperCase()}
+              </div>
+            )}
 
-          <h1 className="mt-2 break-all font-mono text-2xl font-bold text-white sm:text-3xl">
-            {shortAddress(creator.owner)}
-          </h1>
+            {live.live && (
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-md bg-red-600 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
+                Live
+              </span>
+            )}
+          </div>
 
-          <p className="mt-2 text-sm text-slate-400">
-            {items.length === 0
-              ? "No public media yet."
-              : `${counts.video} video · ${counts.audio} audio · ${counts.image} images, hosted on Shelby`}
-          </p>
+          <div className="min-w-0">
+            <h1
+              className={`break-words text-2xl font-bold text-white sm:text-3xl ${
+                profile?.displayName ? "" : "font-mono"
+              }`}
+            >
+              {name}
+            </h1>
+
+            {profile?.displayName && (
+              <p className="mt-1 font-mono text-xs text-slate-500">{shortAddress(creator.owner)}</p>
+            )}
+
+            {profile?.bio && (
+              <p className="mt-3 max-w-2xl whitespace-pre-line text-sm leading-6 text-slate-300">
+                {profile.bio}
+              </p>
+            )}
+
+            {(profile?.website || profile?.twitter || profile?.github) && (
+              <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                {profile.website && (
+                  <a
+                    href={profile.website}
+                    target="_blank"
+                    rel="noopener nofollow ugc"
+                    className="rounded-full border border-slate-700 px-3 py-1 text-slate-300 hover:text-white"
+                  >
+                    {profile.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                  </a>
+                )}
+
+                {profile.twitter && (
+                  <a
+                    href={`https://x.com/${profile.twitter}`}
+                    target="_blank"
+                    rel="noopener nofollow ugc"
+                    className="rounded-full border border-slate-700 px-3 py-1 text-slate-300 hover:text-white"
+                  >
+                    X @{profile.twitter}
+                  </a>
+                )}
+
+                {profile.github && (
+                  <a
+                    href={`https://github.com/${profile.github}`}
+                    target="_blank"
+                    rel="noopener nofollow ugc"
+                    className="rounded-full border border-slate-700 px-3 py-1 text-slate-300 hover:text-white"
+                  >
+                    GitHub {profile.github}
+                  </a>
+                )}
+              </div>
+            )}
+
+            <p className="mt-3 text-sm text-slate-400">
+              {items.length === 0
+                ? "No public media yet."
+                : `${counts.video} video · ${counts.audio} audio · ${counts.image} images, hosted on Shelby`}
+            </p>
+          </div>
         </section>
 
         {items.length === 0 ? (

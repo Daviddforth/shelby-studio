@@ -124,7 +124,7 @@ Docs are in [`docs/`](docs/README.md) and are shown on the site at `/docs`.
 
 - Upload time depends on your internet speed. Shelby closes a request after 60 seconds, so very slow connections can fail even with retries.
 - Streams are not recorded or saved to Shelby, and chat has no moderation.
-- Profile names and pictures are saved in your browser only and do not appear on public pages yet.
+- The X handle on a profile is not verified yet.
 - Titles and covers need a configured database.
 
 See [Limitations & Roadmap](docs/limitations-roadmap.md) for the full list and what is planned next.

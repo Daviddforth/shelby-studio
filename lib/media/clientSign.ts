@@ -176,3 +176,48 @@ export async function signLiveRequest({
         : `APTOS\nmessage: ${message}\nnonce: ${nonce}`,
   };
 }
+
+/**
+ * Asks the wallet to sign one message and returns the proof fields the server
+ * needs. Used for actions that are not tied to a file (for example the profile).
+ */
+export async function signWalletMessage({
+  signMessage,
+  account,
+  message,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  signMessage: (input: any) => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  account: any;
+  message: string;
+}): Promise<{ publicKey: string; signature: string; fullMessage: string }> {
+  if (typeof signMessage !== "function") {
+    throw new Error("Your wallet does not support message signing.");
+  }
+
+  const publicKey = publicKeyToHex(account?.publicKey);
+
+  if (!publicKey) {
+    throw new Error("Your wallet did not share its public key.");
+  }
+
+  const nonce = bytesToHex(crypto.getRandomValues(new Uint8Array(8))).slice(2);
+
+  const signed = await signMessage({ message, nonce });
+
+  const bytes = signatureToBytes(signed?.signature);
+
+  if (!bytes) {
+    throw new Error("Your wallet did not return a signature.");
+  }
+
+  return {
+    publicKey,
+    signature: bytesToBase64(bytes),
+    fullMessage:
+      typeof signed?.fullMessage === "string"
+        ? signed.fullMessage
+        : `APTOS\nmessage: ${message}\nnonce: ${nonce}`,
+  };
+}
