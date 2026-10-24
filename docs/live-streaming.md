@@ -11,7 +11,7 @@ Live video runs on [LiveKit](https://livekit.io). Shelby is a storage network, s
 3. Type a title (up to 100 characters) and click **Go live**.
 4. Your wallet asks for a free signature. It proves you own the address and is tied to your title. It expires after two minutes.
 5. Allow camera and microphone access.
-6. Copy the link under **Send this link to people**. It looks like `/live/<your wallet address>`.
+6. Copy the link under **Send this link to people**. It looks like `/live/<random code>`. The code is new for every live and does not contain your wallet address. It stops working when you end the live.
 
 While live you can turn the camera and microphone on or off, share your screen, watch the viewer count and read and send chat. Click **End live** to stop.
 
@@ -29,7 +29,7 @@ Chat travels over the live connection and is not stored. Messages are up to 300 
 
 ## Security
 
-- Only the wallet that owns an address can broadcast on that address's link. The server checks the wallet's signature before it opens a room.
+- Only the wallet that signed the start request can broadcast on a stream. The server checks the wallet's signature before it opens a room.
 - Viewers get tokens that can watch, listen and chat, but not publish video or audio.
 - Only the host's token can end a stream.
 - Viewers can only join while the host is connected.
@@ -40,7 +40,7 @@ Chat travels over the live connection and is not stored. Messages are up to 300 
 | Route | Who | What |
 |---|---|---|
 | `POST /api/live/start` | Owner (wallet signature) | Opens the room and returns the LiveKit URL and a host token. |
-| `GET /api/live/status?owner=` | Public | Is the creator live, the title, and the viewer count. |
+| `GET /api/live/status?ref=` | Public | Is this stream live (ref = the link code, or a wallet address), the title, and the viewer count. |
 | `POST /api/live/token` | Public | Returns a watch-only token while the host is live. |
 | `POST /api/live/end` | Host (`Authorization: Bearer <host token>`) | Ends the stream. |
 
@@ -59,4 +59,5 @@ LiveKit bills by participant-minutes and bandwidth. At the time of writing, Live
 - Streams are not recorded and are not saved to Shelby.
 - Chat has no moderation tools.
 - There is no page listing everyone who is live.
-- One stream per wallet address.
+- One stream per wallet at a time. Starting again while live keeps the same link.
+- The live runs in your browser tab. You can open other pages in the studio while live (a red bar lets you return or end it), but closing or reloading the tab ends it.

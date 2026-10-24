@@ -140,9 +140,9 @@ export default async function CreatorPage({ params }: PageProps) {
           </Link>
         </header>
 
-        {live.live && (
+        {live.live && live.code && (
           <Link
-            href={liveWatchPath(creator.owner)}
+            href={liveWatchPath(live.code)}
             className="mb-6 flex items-center gap-3 rounded-2xl border border-red-500/40 bg-red-500/10 p-4 transition hover:bg-red-500/15"
           >
             <span className="flex shrink-0 items-center gap-1.5 rounded-md bg-red-600 px-2 py-1 text-xs font-bold uppercase text-white">

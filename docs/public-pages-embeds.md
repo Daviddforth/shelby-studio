@@ -10,7 +10,7 @@ Hosted media can be opened and embedded by anyone, without a wallet.
 | `/m/<wallet>/<file>` | Media page: a player with the title, description and cover. |
 | `/embed/<wallet>/<file>` | Minimal player meant for an `<iframe>`. |
 | `/api/media/<wallet>/<file>` | The media bytes themselves, for players and developers. |
-| `/live/<wallet>` | Watch a live stream. See [Go Live](/docs/live-streaming). |
+| `/live/<code>` | Watch a live stream. See [Go Live](/docs/live-streaming). |
 
 `<wallet>` is the Aptos address of the creator. `<file>` is the file's name in Shelby, which can include folders.
 

@@ -23,7 +23,7 @@ import {
 
 type Phase = "checking" | "offline" | "ready" | "joining" | "watching" | "ended";
 
-export default function LiveViewer({ owner }: { owner: string }) {
+export default function LiveViewer({ code }: { code: string }) {
   const [phase, setPhase] = useState<Phase>("checking");
   const [status, setStatus] = useState<LiveStatus>(OFFLINE);
   const [name, setName] = useState("");
@@ -77,6 +77,35 @@ export default function LiveViewer({ owner }: { owner: string }) {
     };
   }, []);
 
+  // The video and audio elements only exist once the watch screen is showing,
+  // but the host's tracks can arrive while connecting, before that. When the
+  // screen appears, pick up everything the host is already sending.
+  useEffect(() => {
+    if (!room) return;
+
+    const holder = audioHolder.current;
+
+    if (holder) holder.replaceChildren();
+
+    for (const participant of room.remoteParticipants.values()) {
+      if (!isHostIdentity(participant.identity)) continue;
+
+      for (const publication of participant.trackPublications.values()) {
+        const track = publication.track;
+
+        if (!track) continue;
+
+        if (track.kind === Track.Kind.Video) {
+          videoTracks.current.set(publication.source, track);
+        } else if (track.kind === Track.Kind.Audio && holder) {
+          holder.appendChild(track.attach());
+        }
+      }
+    }
+
+    showBestVideo();
+  }, [room, showBestVideo]);
+
   // Keep the status fresh: finds a live that starts later, and keeps the viewer count current.
   useEffect(() => {
     let stopped = false;
@@ -86,7 +115,7 @@ export default function LiveViewer({ owner }: { owner: string }) {
 
       try {
         const response = await fetch(
-          `/api/live/status?owner=${encodeURIComponent(owner)}`,
+          `/api/live/status?ref=${encodeURIComponent(code)}`,
           { cache: "no-store" }
         );
 
@@ -98,6 +127,8 @@ export default function LiveViewer({ owner }: { owner: string }) {
           live: Boolean(data.live),
           title: String(data.title ?? ""),
           viewers: Number(data.viewers) || 0,
+          code,
+          owner: String(data.owner ?? ""),
         };
 
         setStatus(next);
@@ -122,7 +153,7 @@ export default function LiveViewer({ owner }: { owner: string }) {
       stopped = true;
       clearInterval(timer);
     };
-  }, [owner, setPhaseBoth]);
+  }, [code, setPhaseBoth]);
 
   async function join() {
     setError("");
@@ -136,7 +167,7 @@ export default function LiveViewer({ owner }: { owner: string }) {
       const response = await fetch("/api/live/token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ owner, name: displayName }),
+        body: JSON.stringify({ code, name: displayName }),
       });
 
       const data = await response.json();
