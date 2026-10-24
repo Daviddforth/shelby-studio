@@ -13,6 +13,7 @@ import {
   OFFLINE,
   hostIdentity,
   isHostIdentity,
+  isStreamCode,
   isViewerIdentity,
   liveRoomName,
   type LiveStatus,
@@ -70,7 +71,13 @@ export function normalizeOwner(value: unknown): string | null {
   }
 }
 
-export async function createHostToken(owner: string): Promise<string> {
+export function newStreamCode(): string {
+  return Array.from(crypto.getRandomValues(new Uint8Array(10)), (b) =>
+    b.toString(16).padStart(2, "0")
+  ).join("");
+}
+
+export async function createHostToken(owner: string, code: string): Promise<string> {
   const config = getLiveConfig();
 
   const token = new AccessToken(config.key, config.secret, {
@@ -80,7 +87,7 @@ export async function createHostToken(owner: string): Promise<string> {
   });
 
   token.addGrant({
-    room: liveRoomName(owner),
+    room: liveRoomName(code),
     roomJoin: true,
     canPublish: true,
     canSubscribe: true,
@@ -98,7 +105,7 @@ export async function createHostToken(owner: string): Promise<string> {
 
 /** Viewers can watch, listen and chat, but never publish video or audio. */
 export async function createViewerToken(
-  owner: string,
+  code: string,
   name: string
 ): Promise<string> {
   const config = getLiveConfig();
@@ -112,7 +119,7 @@ export async function createViewerToken(
   });
 
   token.addGrant({
-    room: liveRoomName(owner),
+    room: liveRoomName(code),
     roomJoin: true,
     canPublish: false,
     canSubscribe: true,
@@ -123,8 +130,10 @@ export async function createViewerToken(
   return token.toJwt();
 }
 
-/** Reads a host token and returns the owner it belongs to, or null. */
-export async function ownerFromHostToken(token: string): Promise<string | null> {
+/** Reads a host token and returns the owner and stream code it belongs to, or null. */
+export async function ownerFromHostToken(
+  token: string
+): Promise<{ owner: string; code: string } | null> {
   const config = getLiveConfig();
 
   try {
@@ -138,63 +147,140 @@ export async function ownerFromHostToken(token: string): Promise<string | null> 
 
     const owner = normalizeOwner(claims.sub.slice("host-".length));
 
-    if (!owner || liveRoomName(owner) !== room) return null;
+    const code = room.slice("live-".length);
 
-    return owner;
+    if (!owner || !isStreamCode(code)) return null;
+
+    return { owner, code };
   } catch {
     return null;
   }
 }
 
-export async function startRoom(owner: string, title: string): Promise<void> {
+export const hostFromToken = ownerFromHostToken;
+
+interface FoundRoom {
+  code: string;
+  owner: string;
+  title: string;
+}
+
+function readRoom(room: { name: string; metadata?: string }): FoundRoom | null {
+  if (!room.name.startsWith("live-")) return null;
+
+  const code = room.name.slice("live-".length);
+
+  if (!isStreamCode(code)) return null;
+
+  try {
+    const meta = JSON.parse(room.metadata || "{}");
+
+    return { code, owner: String(meta.owner ?? ""), title: String(meta.title ?? "") };
+  } catch {
+    return { code, owner: "", title: "" };
+  }
+}
+
+/** The open room for a creator, if any (the owner is stored in the room's metadata). */
+async function findOwnerRoom(owner: string): Promise<FoundRoom | null> {
+  const all = await rooms().listRooms();
+
+  for (const room of all) {
+    const found = readRoom(room);
+
+    if (found && found.owner === owner) return found;
+  }
+
+  return null;
+}
+
+/** Opens a room for this creator and returns its random code. A creator who is already streaming keeps the same link. */
+export async function startRoom(owner: string, title: string): Promise<string> {
   const client = rooms();
 
+  const metadata = JSON.stringify({ title, owner });
+
+  const existing = await findOwnerRoom(owner);
+
+  if (existing) {
+    await client.updateRoomMetadata(liveRoomName(existing.code), metadata);
+
+    return existing.code;
+  }
+
+  const code = newStreamCode();
+
   await client.createRoom({
-    name: liveRoomName(owner),
+    name: liveRoomName(code),
     emptyTimeout: 60,
     departureTimeout: 30,
     maxParticipants: maxParticipants(),
-    metadata: JSON.stringify({ title }),
+    metadata,
   });
+
+  return code;
 }
 
-export async function endRoom(owner: string): Promise<void> {
+export async function endRoom(code: string): Promise<void> {
   try {
-    await rooms().deleteRoom(liveRoomName(owner));
+    await rooms().deleteRoom(liveRoomName(code));
   } catch {
     // Room already gone: the stream is over either way.
   }
 }
 
-/** A creator is "live" only while their own host connection is in the room. */
-export async function getLiveStatus(owner: string): Promise<LiveStatus> {
+/** The wallet that owns a stream (from the room), or null when the stream is not open. */
+export async function getStreamOwner(code: string): Promise<string | null> {
+  try {
+    const [room] = await rooms().listRooms([liveRoomName(code)]);
+
+    return (room && readRoom(room)?.owner) || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Is this stream live? `ref` is a stream code (the public link) or a wallet
+ * address (used by a creator's own page). A stream is "live" only while the
+ * host's own connection is in the room.
+ */
+export async function getLiveStatus(ref: string): Promise<LiveStatus> {
   const client = rooms();
 
-  const name = liveRoomName(owner);
+  let found: FoundRoom | null = null;
+
+  try {
+    if (isStreamCode(ref)) {
+      const [room] = await client.listRooms([liveRoomName(ref)]);
+
+      found = room ? readRoom(room) : null;
+    } else {
+      const owner = normalizeOwner(ref);
+
+      found = owner ? await findOwnerRoom(owner) : null;
+    }
+  } catch {
+    return OFFLINE;
+  }
+
+  if (!found) return OFFLINE;
 
   let participants;
 
   try {
-    participants = await client.listParticipants(name);
+    participants = await client.listParticipants(liveRoomName(found.code));
   } catch {
     return OFFLINE;
   }
 
   if (!participants.some((p) => isHostIdentity(p.identity))) return OFFLINE;
 
-  let title = "";
-
-  try {
-    const [room] = await client.listRooms([name]);
-
-    title = String(JSON.parse(room?.metadata || "{}").title ?? "");
-  } catch {
-    title = "";
-  }
-
   return {
     live: true,
-    title,
+    title: found.title,
+    owner: found.owner,
+    code: found.code,
     viewers: participants.filter((p) => isViewerIdentity(p.identity)).length,
   };
 }

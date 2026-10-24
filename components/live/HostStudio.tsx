@@ -1,8 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-
-import { Room, RoomEvent, Track } from "livekit-client";
+import { useState } from "react";
 
 import {
   Check,
@@ -19,207 +17,23 @@ import {
 import LiveChat from "@/components/live/LiveChat";
 import { useOrigin } from "@/components/media/useOrigin";
 
-import { LIVE_TITLE_MAX, cleanText, liveWatchPath } from "@/lib/live/types";
-import { signLiveRequest } from "@/lib/media/clientSign";
+import { useLiveSession } from "@/context/LiveSessionContext";
 
-interface Props {
-  owner: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  signMessage: (input: any) => Promise<any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  account: any;
-}
+import { LIVE_TITLE_MAX, liveWatchPath } from "@/lib/live/types";
 
-type Phase = "idle" | "starting" | "live" | "ended";
-
-export default function HostStudio({ owner, signMessage, account }: Props) {
+/** Studio screen. The live itself runs in LiveSessionProvider, so leaving this page does not stop it. */
+export default function HostStudio() {
   const origin = useOrigin();
 
+  const session = useLiveSession();
+
+  const { phase, room, code, error, notice, viewers, camOn, micOn, screenOn, attachPreview } = session;
+
   const [title, setTitle] = useState("");
-  const [phase, setPhase] = useState<Phase>("idle");
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
-  const [room, setRoom] = useState<Room | null>(null);
-  const [viewers, setViewers] = useState(0);
-  const [camOn, setCamOn] = useState(false);
-  const [micOn, setMicOn] = useState(false);
-  const [screenOn, setScreenOn] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState("");
 
-  const roomRef = useRef<Room | null>(null);
-  const tokenRef = useRef("");
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  const watchUrl = `${origin}${liveWatchPath(owner)}`;
-
-  const refreshPreview = useCallback(() => {
-    const current = roomRef.current;
-    const video = videoRef.current;
-
-    if (!current || !video) return;
-
-    const local = current.localParticipant;
-
-    const screen = local.getTrackPublication(Track.Source.ScreenShare)?.track;
-    const camera = local.getTrackPublication(Track.Source.Camera)?.track;
-
-    const chosen = screen ?? camera;
-
-    for (const track of [screen, camera]) {
-      if (track && track !== chosen) track.detach(video);
-    }
-
-    if (chosen) chosen.attach(video);
-    else video.srcObject = null;
-
-    setCamOn(Boolean(camera && !camera.isMuted));
-    setMicOn(local.isMicrophoneEnabled);
-    setScreenOn(Boolean(screen));
-  }, []);
-
-  const leave = useCallback(() => {
-    roomRef.current?.disconnect();
-    roomRef.current = null;
-    setRoom(null);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      roomRef.current?.disconnect();
-    };
-  }, []);
-
-  async function goLive() {
-    setError("");
-    setNotice("");
-
-    const cleanTitle = cleanText(title, LIVE_TITLE_MAX);
-
-    if (!cleanTitle) {
-      setError("Give your live a title first.");
-      return;
-    }
-
-    setPhase("starting");
-
-    let next: Room | null = null;
-
-    try {
-      const body = await signLiveRequest({
-        signMessage,
-        account,
-        owner,
-        title: cleanTitle,
-      });
-
-      const response = await fetch("/api/live/start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || "Could not start the live.");
-      }
-
-      tokenRef.current = data.token;
-
-      next = new Room({ adaptiveStream: true, dynacast: true });
-
-      const updateViewers = () => setViewers(next?.remoteParticipants.size ?? 0);
-
-      next.on(RoomEvent.ParticipantConnected, updateViewers);
-      next.on(RoomEvent.ParticipantDisconnected, updateViewers);
-      next.on(RoomEvent.LocalTrackPublished, refreshPreview);
-      next.on(RoomEvent.LocalTrackUnpublished, refreshPreview);
-      next.on(RoomEvent.TrackMuted, refreshPreview);
-      next.on(RoomEvent.TrackUnmuted, refreshPreview);
-
-      next.on(RoomEvent.Disconnected, () => {
-        if (roomRef.current === next) {
-          roomRef.current = null;
-          setRoom(null);
-          setPhase("ended");
-        }
-      });
-
-      await next.connect(data.url, data.token);
-
-      roomRef.current = next;
-      setRoom(next);
-      setPhase("live");
-      updateViewers();
-
-      const problems: string[] = [];
-
-      try {
-        await next.localParticipant.setCameraEnabled(true);
-      } catch {
-        problems.push("camera");
-      }
-
-      try {
-        await next.localParticipant.setMicrophoneEnabled(true);
-      } catch {
-        problems.push("microphone");
-      }
-
-      refreshPreview();
-
-      if (problems.length) {
-        setNotice(
-          `Could not use your ${problems.join(" and ")}. Allow access in your browser's address bar, or share your screen instead.`
-        );
-      }
-    } catch (e) {
-      next?.disconnect();
-      roomRef.current = null;
-      setRoom(null);
-      setPhase("idle");
-      setError(e instanceof Error ? e.message : "Could not start the live.");
-    }
-  }
-
-  async function toggle(kind: "camera" | "mic" | "screen") {
-    const local = roomRef.current?.localParticipant;
-
-    if (!local) return;
-
-    setNotice("");
-
-    try {
-      if (kind === "camera") {
-        await local.setCameraEnabled(!local.isCameraEnabled);
-      } else if (kind === "mic") {
-        await local.setMicrophoneEnabled(!local.isMicrophoneEnabled);
-      } else {
-        await local.setScreenShareEnabled(!local.isScreenShareEnabled);
-      }
-    } catch {
-      setNotice("Your browser blocked that. Check its permission prompt.");
-    }
-
-    refreshPreview();
-  }
-
-  async function endLive() {
-    const token = tokenRef.current;
-
-    try {
-      await fetch("/api/live/end", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-    } catch {
-      // Disconnecting also takes the live offline within seconds.
-    }
-
-    leave();
-    tokenRef.current = "";
-    setPhase("ended");
-  }
+  const watchUrl = `${origin}${liveWatchPath(code)}`;
 
   async function copyLink() {
     try {
@@ -227,16 +41,16 @@ export default function HostStudio({ owner, signMessage, account }: Props) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {
-      setNotice("Copy failed. Select the link and copy it by hand.");
+      setCopyError("Copy failed. Select the link and copy it by hand.");
     }
   }
 
-  if (phase === "idle" || phase === "starting" || phase === "ended") {
+  if (phase !== "live") {
     return (
       <div className="max-w-xl rounded-2xl border border-slate-800 bg-slate-900 p-6">
         {phase === "ended" && (
           <p className="mb-4 rounded-lg border border-slate-700 bg-slate-950 p-3 text-sm text-slate-300">
-            Your live has ended. You can start a new one any time.
+            Your live has ended. Each new live gets a new link.
           </p>
         )}
 
@@ -257,7 +71,7 @@ export default function HostStudio({ owner, signMessage, account }: Props) {
 
         <button
           type="button"
-          onClick={goLive}
+          onClick={() => void session.goLive(title)}
           disabled={phase === "starting"}
           className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-red-600 text-sm font-semibold text-white transition hover:bg-red-500 disabled:opacity-60"
         >
@@ -267,8 +81,9 @@ export default function HostStudio({ owner, signMessage, account }: Props) {
 
         <p className="mt-3 text-xs leading-5 text-slate-500">
           Your wallet will ask you to sign a message. It is free and does not
-          send a transaction. Your browser will then ask to use your camera and
-          microphone.
+          send a transaction. You get a private random link to share, and your
+          wallet address is not in it. Once you are live you can move around
+          the studio; the stream keeps running until you press End live.
         </p>
       </div>
     );
@@ -279,7 +94,7 @@ export default function HostStudio({ owner, signMessage, account }: Props) {
       <div className="min-w-0 space-y-4">
         <div className="relative aspect-video overflow-hidden rounded-2xl border border-slate-800 bg-black">
           <video
-            ref={videoRef}
+            ref={attachPreview}
             autoPlay
             muted
             playsInline
@@ -303,12 +118,12 @@ export default function HostStudio({ owner, signMessage, account }: Props) {
           </span>
         </div>
 
-        {notice && <p className="text-sm text-amber-400">{notice}</p>}
+        {(notice || copyError) && <p className="text-sm text-amber-400">{notice || copyError}</p>}
 
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => toggle("camera")}
+            onClick={() => void session.toggle("camera")}
             className="flex min-h-10 items-center gap-2 rounded-lg border border-slate-700 px-3 text-sm text-slate-200 transition hover:bg-slate-800"
           >
             {camOn ? <Video size={15} /> : <VideoOff size={15} />}
@@ -317,7 +132,7 @@ export default function HostStudio({ owner, signMessage, account }: Props) {
 
           <button
             type="button"
-            onClick={() => toggle("mic")}
+            onClick={() => void session.toggle("mic")}
             className="flex min-h-10 items-center gap-2 rounded-lg border border-slate-700 px-3 text-sm text-slate-200 transition hover:bg-slate-800"
           >
             {micOn ? <Mic size={15} /> : <MicOff size={15} />}
@@ -326,7 +141,7 @@ export default function HostStudio({ owner, signMessage, account }: Props) {
 
           <button
             type="button"
-            onClick={() => toggle("screen")}
+            onClick={() => void session.toggle("screen")}
             className="flex min-h-10 items-center gap-2 rounded-lg border border-slate-700 px-3 text-sm text-slate-200 transition hover:bg-slate-800"
           >
             <MonitorUp size={15} />
@@ -335,7 +150,7 @@ export default function HostStudio({ owner, signMessage, account }: Props) {
 
           <button
             type="button"
-            onClick={endLive}
+            onClick={() => void session.endLive()}
             className="ml-auto min-h-10 rounded-lg bg-red-600 px-4 text-sm font-semibold text-white transition hover:bg-red-500"
           >
             End live
@@ -364,6 +179,11 @@ export default function HostStudio({ owner, signMessage, account }: Props) {
               {copied ? "Copied" : "Copy"}
             </button>
           </div>
+
+          <p className="mt-2 text-xs text-slate-500">
+            This link is new for this live and stops working when you end it. You can open other
+            pages while you are live; keep this browser tab open.
+          </p>
         </div>
       </div>
 

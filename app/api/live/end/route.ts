@@ -1,7 +1,7 @@
 import {
   LiveConfigError,
   endRoom,
-  ownerFromHostToken,
+  hostFromToken,
 } from "@/lib/live/server";
 
 import { fail, json } from "../_shared";
@@ -17,11 +17,11 @@ export async function POST(request: Request) {
   if (!token) return fail("Missing host token.", 401);
 
   try {
-    const owner = await ownerFromHostToken(token);
+    const host = await hostFromToken(token);
 
-    if (!owner) return fail("Invalid host token.", 401);
+    if (!host) return fail("Invalid host token.", 401);
 
-    await endRoom(owner);
+    await endRoom(host.code);
 
     return json({ success: true });
   } catch (error) {

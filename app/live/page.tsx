@@ -6,7 +6,7 @@ import HostStudio from "@/components/live/HostStudio";
 import { useWallet } from "@/context/WalletContext";
 
 export default function GoLivePage() {
-  const { walletAddress, walletConnected, account, signMessage } = useWallet();
+  const { walletAddress, walletConnected } = useWallet();
 
   return (
     <DashboardLayout>
@@ -33,16 +33,12 @@ export default function GoLivePage() {
             </p>
 
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-              Your wallet address is your live link, and only your wallet can
+              Each live gets its own private random link, and only your wallet can
               broadcast on it.
             </p>
           </div>
         ) : (
-          <HostStudio
-            owner={walletAddress}
-            signMessage={signMessage}
-            account={account}
-          />
+          <HostStudio />
         )}
       </div>
     </DashboardLayout>

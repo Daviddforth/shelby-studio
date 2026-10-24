@@ -2,7 +2,6 @@ import {
   LiveConfigError,
   clientIp,
   getLiveStatus,
-  normalizeOwner,
   rateLimited,
 } from "@/lib/live/server";
 
@@ -18,12 +17,12 @@ export async function GET(request: Request) {
     return fail("Too many requests.", 429);
   }
 
-  const owner = normalizeOwner(new URL(request.url).searchParams.get("owner"));
+  const ref = new URL(request.url).searchParams.get("ref") ?? "";
 
-  if (!owner) return fail("Invalid wallet address.", 400);
+  if (!ref || ref.length > 100) return fail("Invalid request.", 400);
 
   try {
-    return json({ success: true, ...(await getLiveStatus(owner)) });
+    return json({ success: true, ...(await getLiveStatus(ref)) });
   } catch (error) {
     if (error instanceof LiveConfigError) {
       return json({ success: true, ...OFFLINE, configured: false });

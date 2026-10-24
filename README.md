@@ -39,7 +39,7 @@ Anyone with a link
    |-- /m/<wallet>/<file>    media page
    |-- /embed/<wallet>/<file> embeddable player
    |-- /c/<wallet>           creator page
-   |-- /live/<wallet>        watch a live stream
+   |-- /live/<code>          watch a live stream (random link)
 ```
 
 - **Your wallet is your identity.** There are no usernames or passwords.
@@ -96,7 +96,7 @@ npm run build
 ```text
 app/
   library/        Upload and manage video, audio, images
-  live/           Go live (host) and /live/<wallet> (watch)
+  live/           Go live (host) and /live/<code> (watch)
   c/ m/ embed/    Public creator page, media page, embeddable player
   storage/ assets/ explorer/ metadata/ collections/ developer/ docs/
   api/            media, media-details, live, shelby (read), storage (prepare/finalize)

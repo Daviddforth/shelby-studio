@@ -4,11 +4,10 @@ import {
   createViewerToken,
   getLiveConfig,
   getLiveStatus,
-  normalizeOwner,
   rateLimited,
 } from "@/lib/live/server";
 
-import { VIEWER_NAME_MAX, cleanText } from "@/lib/live/types";
+import { VIEWER_NAME_MAX, cleanText, isStreamCode } from "@/lib/live/types";
 
 import { fail, json } from "../_shared";
 
@@ -20,7 +19,7 @@ export async function POST(request: Request) {
     return fail("Too many requests. Wait a minute and try again.", 429);
   }
 
-  let body: { owner?: unknown; name?: unknown };
+  let body: { code?: unknown; name?: unknown };
 
   try {
     body = await request.json();
@@ -28,20 +27,20 @@ export async function POST(request: Request) {
     return fail("Invalid request.", 400);
   }
 
-  const owner = normalizeOwner(body.owner);
+  if (!isStreamCode(body.code)) return fail("Invalid live link.", 400);
 
-  if (!owner) return fail("Invalid wallet address.", 400);
+  const code = body.code;
 
   const name = cleanText(body.name, VIEWER_NAME_MAX) || "Guest";
 
   try {
     const config = getLiveConfig();
 
-    const status = await getLiveStatus(owner);
+    const status = await getLiveStatus(code);
 
     if (!status.live) return fail("This creator is not live right now.", 409);
 
-    const token = await createViewerToken(owner, name);
+    const token = await createViewerToken(code, name);
 
     return json({ success: true, url: config.url, token, name });
   } catch (error) {

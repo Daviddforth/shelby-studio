@@ -67,11 +67,11 @@ export async function POST(request: Request) {
   try {
     const config = getLiveConfig();
 
-    await startRoom(owner, title);
+    const code = await startRoom(owner, title);
 
-    const token = await createHostToken(owner);
+    const token = await createHostToken(owner, code);
 
-    return json({ success: true, url: config.url, token, owner, title });
+    return json({ success: true, url: config.url, token, owner, title, code });
   } catch (error) {
     if (error instanceof LiveConfigError) return fail(error.message, 503);
 
