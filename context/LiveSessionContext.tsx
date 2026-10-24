@@ -291,6 +291,42 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // While live: the tab title shows it, and Chrome/Edge float the preview by
+  // themselves when the creator switches to another tab.
+  useEffect(() => {
+    if (phase !== "live") return;
+
+    const original = document.title;
+
+    document.title = `🔴 LIVE · ${viewers} watching`;
+
+    let handlerSet = false;
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (navigator.mediaSession as any).setActionHandler("enterpictureinpicture", () => {
+        previewRef.current?.requestPictureInPicture?.().catch(() => {});
+      });
+
+      handlerSet = true;
+    } catch {
+      // Not supported in this browser: the Pop out button still works.
+    }
+
+    return () => {
+      document.title = original;
+
+      if (handlerSet) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (navigator.mediaSession as any).setActionHandler("enterpictureinpicture", null);
+        } catch {
+          // ignore
+        }
+      }
+    };
+  }, [phase, viewers]);
+
   // Lets the creator float the preview over other tabs and apps (where the browser supports it).
   const canPopOut = typeof document !== "undefined" && document.pictureInPictureEnabled === true;
 
