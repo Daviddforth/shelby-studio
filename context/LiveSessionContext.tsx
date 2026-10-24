@@ -16,7 +16,7 @@ import { usePathname } from "next/navigation";
 
 import { Room, RoomEvent, Track } from "livekit-client";
 
-import { Radio, Users } from "lucide-react";
+import { PictureInPicture2, Users } from "lucide-react";
 
 import { useWallet } from "@/context/WalletContext";
 
@@ -291,6 +291,15 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Lets the creator float the preview over other tabs and apps (where the browser supports it).
+  const canPopOut = typeof document !== "undefined" && document.pictureInPictureEnabled === true;
+
+  const popOut = useCallback(() => {
+    previewRef.current?.requestPictureInPicture?.().catch(() => {
+      setNotice("Your browser could not pop out the preview.");
+    });
+  }, []);
+
   const value = useMemo<LiveSession>(
     () => ({
       phase,
@@ -316,33 +325,61 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
       {children}
 
       {phase === "live" && pathname !== "/live" && (
-        <div className="fixed bottom-4 left-1/2 z-50 flex max-w-[calc(100vw-1.5rem)] -translate-x-1/2 items-center gap-3 rounded-full border border-red-500/40 bg-slate-950/95 py-2 pl-3 pr-2 text-sm text-white shadow-xl backdrop-blur">
-          <span className="flex shrink-0 items-center gap-1.5 rounded-md bg-red-600 px-2 py-0.5 text-xs font-bold uppercase">
-            <Radio size={12} />
-            Live
-          </span>
+        <div className="fixed bottom-3 right-3 z-50 w-56 max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-xl border border-red-500/50 bg-slate-950 shadow-2xl sm:w-64">
+          <div className="relative aspect-video bg-black">
+            <video
+              ref={attachPreview}
+              autoPlay
+              muted
+              playsInline
+              className="h-full w-full object-contain"
+            />
 
-          <span className="hidden max-w-[10rem] truncate text-slate-300 sm:block">{title}</span>
+            {!camOn && !screenOn && (
+              <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-500">
+                Nothing is being shown
+              </div>
+            )}
 
-          <span className="flex shrink-0 items-center gap-1 text-xs text-slate-400">
-            <Users size={12} />
-            {viewers}
-          </span>
+            <span className="absolute left-2 top-2 flex items-center gap-1 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+              Live
+            </span>
 
-          <Link
-            href="/live"
-            className="shrink-0 rounded-full border border-slate-700 px-3 py-1.5 text-xs transition hover:bg-slate-800"
-          >
-            Open studio
-          </Link>
+            <span className="absolute right-2 top-2 flex items-center gap-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+              <Users size={10} />
+              {viewers}
+            </span>
+          </div>
 
-          <button
-            type="button"
-            onClick={() => void endLive()}
-            className="shrink-0 rounded-full bg-red-600 px-3 py-1.5 text-xs font-semibold transition hover:bg-red-500"
-          >
-            End live
-          </button>
+          <div className="flex items-center gap-1.5 p-2">
+            <Link
+              href="/live"
+              className="flex-1 rounded-md border border-slate-700 px-2 py-1.5 text-center text-xs text-white transition hover:bg-slate-800"
+            >
+              Studio
+            </Link>
+
+            {canPopOut && (
+              <button
+                type="button"
+                onClick={popOut}
+                title="Float this preview over other tabs and apps"
+                className="flex items-center gap-1 rounded-md border border-slate-700 px-2 py-1.5 text-xs text-white transition hover:bg-slate-800"
+              >
+                <PictureInPicture2 size={12} />
+                Pop out
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => void endLive()}
+              className="rounded-md bg-red-600 px-2 py-1.5 text-xs font-semibold text-white transition hover:bg-red-500"
+            >
+              End
+            </button>
+          </div>
         </div>
       )}
     </Ctx.Provider>
