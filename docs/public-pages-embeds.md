@@ -45,3 +45,11 @@ Titles, descriptions and covers come from the database. If a file has no saved d
 ## Social previews
 
 Media and creator pages set page titles and descriptions, and the site has a Shelby Studio preview image, so shared links show a card on most social sites.
+
+## Creator profile
+
+Open **Profile** in the app to set a display name, bio, website, X handle, GitHub username and a profile picture. Saving asks your wallet to sign a free message (nothing goes on-chain), so only you can change your profile. Your public page `/c/<wallet>` then shows the name, picture, bio and links, and a red ring with a LIVE badge while you stream.
+
+- The picture must be an image already in your Library, so it is stored on Shelby.
+- The X handle is shown as typed. It is not verified.
+- Profiles are stored in the same database as media details (table `creator_profiles`, created automatically).

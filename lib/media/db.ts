@@ -54,7 +54,7 @@ const CREATE_TABLE = `
  */
 const LOCK_TABLE = `ALTER TABLE media_details ENABLE ROW LEVEL SECURITY`;
 
-function sslSettings(connectionString: string) {
+export function sslSettings(connectionString: string) {
   // Local Postgres does not use TLS.
   if (/localhost|127\.0\.0\.1/.test(connectionString)) return undefined;
 

@@ -43,7 +43,7 @@ This page lists what works today, what does not, and what is planned. Nothing he
 
 ### Profiles
 
-- Profile names and pictures are saved in the browser only. They are not shown on public pages yet.
+- Profiles (name, bio, links, picture) are saved in the database and shown on your public page. The X handle is shown as you typed it; it is not verified yet.
 - There is no verified link to social accounts yet.
 
 ### General
@@ -62,7 +62,7 @@ This page lists what works today, what does not, and what is planned. Nothing he
 
 Ideas, roughly in the order they are being considered:
 
-1. Creator profile pages stored in the database (name, picture, bio), with an optional verified social link.
+1. A verified X link on profiles (profiles themselves are done).
 2. Live replays: record a stream and save it to the Library on Shelby.
 3. A Discover page showing who is live and new uploads.
 4. Chat moderation for hosts.
