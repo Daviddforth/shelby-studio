@@ -22,6 +22,7 @@ A creator workspace built on the Shelby decentralized storage protocol. Upload v
 | **Library** | Your videos, audio and images. Add a title, description and cover picture. Copy a share link or an embed code. |
 | **Go Live** | Stream from your camera or screen and send one link. Viewers watch and chat in the browser, with no account. |
 | **My Page** | Your public creator page at `/c/<wallet>`. It lists your media and shows a LIVE NOW banner while you stream. |
+| **Discover** | `/discover` lists who is live and the newest media creators chose to share. `/stats` shows real counts. |
 | **Explorer** | Look up the files stored by any wallet address. |
 | **Developer** | An API playground, SDK examples and a code generator. |
 | **Docs** | Guides and reference at `/docs`. |
@@ -75,17 +76,19 @@ Never commit `.env.local` and never paste its values into chat, screenshots or i
 | `SHELBY_SIGNER_PRIVATE_KEY` | Server-side Shelby lookups (server only, secret) |
 | `NEXT_PUBLIC_APTOS_API_KEY` | Browser Aptos requests (public, use a restricted key) |
 | `NEXT_PUBLIC_SHELBY_BROWSER_API_KEY` | Browser uploads (public, use a restricted key) |
-| `DATABASE_URL` | Titles, descriptions and covers. Any Postgres. Required in production |
+| `DATABASE_URL` | Titles, descriptions, covers, profiles and reports. Any Postgres. Required in production |
 | `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET` | Go Live |
 | `NEXT_PUBLIC_SITE_URL` | Optional: public URL used in share links |
 | `LIVE_MAX_PARTICIPANTS` | Optional: people per live room (default 100) |
+| `ADMIN_WALLET_ADDRESS` | Optional: the wallet allowed to read reports at `/admin/reports` |
 
 Full setup for the database, LiveKit and deployment is in [Self-Hosting Setup](docs/self-hosting.md).
 
 ### Checks
 
 ```bash
-npx tsc --noEmit
+npm run typecheck
+npm test
 npm run lint
 npm run build
 ```

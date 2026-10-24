@@ -14,6 +14,7 @@ Shelby Studio is an independent project built around the Shelby ecosystem. It is
 | **Library** | Your videos, audio and images. Add a title, description and cover picture. Copy a share link or an embed code. |
 | **Go Live** | Start a live stream from your camera or screen. Send the link to anyone. They watch and chat in the browser, no account needed. |
 | **My Page** | Your public creator page. It lists your hosted media and shows a LIVE NOW banner while you stream. |
+| **Discover** | Who is live right now and the newest media creators chose to share, plus a public Stats page with real counts. |
 | **Explorer** | Look up the files stored by any wallet address. |
 | **Developer** | An API playground, SDK examples and a code generator for the Shelby Studio API. |
 

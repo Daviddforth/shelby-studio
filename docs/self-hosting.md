@@ -38,6 +38,7 @@ Never commit `.env.local`, and never paste its values into chat, screenshots or 
 | `LIVEKIT_API_KEY` | Go Live | From your LiveKit project's Keys page. |
 | `LIVEKIT_API_SECRET` | Go Live | Secret. Server only. |
 | `LIVE_MAX_PARTICIPANTS` | Optional | Maximum people in one live room. Default 100. |
+| `ADMIN_WALLET_ADDRESS` | Reports | The one wallet allowed to read reports at `/admin/reports`. Without it the page cannot be used. |
 
 Variables beginning with `NEXT_PUBLIC_` are sent to every visitor's browser. Everything else stays on the server.
 

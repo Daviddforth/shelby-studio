@@ -10,7 +10,8 @@ This page lists what works today, what does not, and what is planned. Nothing he
 | Titles, descriptions and cover pictures (wallet-signed, saved in Postgres) | Available |
 | Public media page, embed code and creator page | Available |
 | Streaming with seek support (HTTP range) | Available |
-| Go Live with chat (needs LiveKit) | Available |
+| Go Live with chat, moderation and replays saved to Shelby (needs LiveKit) | Available |
+| Discover page, public Stats page and report buttons | Available |
 | LIVE NOW banner on the creator page | Available |
 | Upload page for any file type | Available |
 | Explorer: look up files by wallet address | Available |
@@ -33,9 +34,9 @@ This page lists what works today, what does not, and what is planned. Nothing he
 
 ### Go Live
 
-- Streams are not recorded and not saved to Shelby.
-- Chat has no moderation tools and is not stored.
-- There is no page that lists who is live.
+- Replays are recorded in the host's browser, so they are lost if the tab closes before you save them, and they need a browser that records WebM (not Safari).
+- Chat is not stored.
+- Blocking a viewer works by network address, so shared networks and VPNs can differ.
 - Rate limits are kept in memory per server instance.
 - LiveKit's own plan limits apply, such as monthly participant-minutes.
 
@@ -47,7 +48,6 @@ This page lists what works today, what does not, and what is planned. Nothing he
 ### General
 
 - Shelby Studio depends on the Shelby network and on the services it is configured with.
-- The AI Tools page is hidden from the menu until it is connected to a real model.
 - Some wallets may not support message signing, which Library edits and Go Live need.
 
 ## What Shelby Studio does not claim
@@ -61,11 +61,10 @@ This page lists what works today, what does not, and what is planned. Nothing he
 Ideas, roughly in the order they are being considered:
 
 1. A verified X link on profiles (profiles themselves are done).
-2. Live replays: record a stream and save it to the Library on Shelby.
-3. A Discover page showing who is live and new uploads.
-4. Chat moderation for hosts.
-5. Tips or paid access using Aptos.
-6. A list of past collections, and a Library that accepts every file type.
+2. Tips or paid access using Aptos.
+3. Follow a creator and get told when they go live.
+4. Creator analytics (views, watch time).
+5. A Library that accepts every file type.
 
 ## Next
 
