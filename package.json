@@ -20,6 +20,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "file-saver": "^2.0.5",
+    "fix-webm-duration": "^1.0.6",
     "jszip": "^3.10.1",
     "livekit-client": "^2.23.0",
     "livekit-server-sdk": "^2.19.1",

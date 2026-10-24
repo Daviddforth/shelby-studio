@@ -35,9 +35,21 @@ import {
   cleanText,
   isViewerIdentity,
 } from "@/lib/live/types";
+import { ReplayRecorder, supportedRecordingType, type RecordedPart } from "@/lib/live/recorder";
 import { signLiveRequest } from "@/lib/media/clientSign";
 
 export type HostPhase = "idle" | "starting" | "live" | "ended";
+
+/** One finished piece of the recording, waiting to be saved to Shelby. */
+export interface ReplayPart {
+  id: string;
+  blob: Blob;
+  durationMs: number;
+  startedAt: number;
+  /** Suggested file name, built from the live's title. */
+  fileName: string;
+  savedAs?: string;
+}
 
 interface LiveSession {
   phase: HostPhase;
@@ -59,6 +71,12 @@ interface LiveSession {
   muteViewer: (identity: string) => void;
   unmuteViewer: (identity: string) => void;
   removeViewer: (identity: string, block: boolean) => Promise<boolean>;
+  /** Pieces of the last live, recorded in this browser. Save them to Shelby from the studio page. */
+  replays: ReplayPart[];
+  replayBusy: boolean;
+  replaySupported: boolean;
+  markReplaySaved: (id: string, name: string) => void;
+  discardReplays: () => void;
   goLive: (title: string) => Promise<void>;
   toggle: (kind: "camera" | "mic" | "screen") => Promise<void>;
   endLive: () => Promise<void>;
@@ -113,6 +131,13 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
   const lastFrom = useRef(new Map<string, number>());
   const lineCounter = useRef(0);
 
+  const [replays, setReplays] = useState<ReplayPart[]>([]);
+  const [replayBusy, setReplayBusy] = useState(false);
+
+  const recorderRef = useRef<ReplayRecorder | null>(null);
+  const titleRef = useRef("");
+  const partCounter = useRef(0);
+
   const roomRef = useRef<Room | null>(null);
   const tokenRef = useRef("");
   const previewRef = useRef<HTMLVideoElement | null>(null);
@@ -144,6 +169,22 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     setCamOn(Boolean(camera && !camera.isMuted));
     setMicOn(local.isMicrophoneEnabled);
     setScreenOn(Boolean(screen));
+
+    // Keep the replay recording in step with what viewers are being sent.
+    const recorder = recorderRef.current;
+
+    if (recorder) {
+      const picture = screen ?? (camera && !camera.isMuted ? camera : undefined);
+
+      const sound = [
+        local.getTrackPublication(Track.Source.Microphone)?.track,
+        local.getTrackPublication(Track.Source.ScreenShareAudio)?.track,
+      ]
+        .filter((track): track is NonNullable<typeof track> => Boolean(track))
+        .map((track) => track.mediaStreamTrack);
+
+      recorder.update(picture?.mediaStreamTrack ?? null, sound);
+    }
   }, []);
 
   const attachPreview = useCallback(
@@ -154,6 +195,49 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     },
     [refreshPreview]
   );
+
+  const addReplayPart = useCallback((part: RecordedPart) => {
+    partCounter.current += 1;
+
+    const stamp = new Date(part.startedAt).toISOString().slice(0, 16).replace("T", " ").replace(":", "-");
+
+    const safeTitle =
+      titleRef.current.replace(/[^\p{L}\p{N} _-]+/gu, "").trim().slice(0, 50) || "Live";
+
+    setReplays((current) => [
+      ...current,
+      {
+        id: crypto.randomUUID(),
+        blob: part.blob,
+        durationMs: part.durationMs,
+        startedAt: part.startedAt,
+        fileName: `Replay - ${safeTitle} - ${stamp} - part ${partCounter.current}.webm`,
+      },
+    ]);
+  }, []);
+
+  /** Stops recording and waits until every part is ready. */
+  const finishRecording = useCallback(async () => {
+    const recorder = recorderRef.current;
+
+    recorderRef.current = null;
+
+    if (!recorder) return;
+
+    setReplayBusy(true);
+
+    try {
+      await recorder.stop();
+    } finally {
+      setReplayBusy(false);
+    }
+  }, []);
+
+  const markReplaySaved = useCallback((id: string, name: string) => {
+    setReplays((current) => current.map((r) => (r.id === id ? { ...r, savedAs: name } : r)));
+  }, []);
+
+  const discardReplays = useCallback(() => setReplays([]), []);
 
   const addLine = useCallback((line: Omit<ChatLine, "id">) => {
     lineCounter.current += 1;
@@ -303,6 +387,11 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      if (replays.some((item) => !item.savedAs)) {
+        setError("Save or discard the replay from your last live first.");
+        return;
+      }
+
       setPhase("starting");
 
       let next: Room | null = null;
@@ -329,6 +418,14 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
 
         tokenRef.current = data.token;
 
+        setReplays([]);
+        partCounter.current = 0;
+        titleRef.current = cleanTitle;
+
+        const mime = supportedRecordingType();
+
+        recorderRef.current = mime ? new ReplayRecorder(mime, addReplayPart) : null;
+
         setChatLines([]);
         mutedRef.current = new Set();
         setMutedIdentities([]);
@@ -353,6 +450,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
             roomRef.current = null;
             setRoom(null);
             setPhase("ended");
+            void finishRecording();
           }
         });
 
@@ -395,7 +493,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
         setError(e instanceof Error ? e.message : "Could not start the live.");
       }
     },
-    [walletAddress, account, signMessage, refreshPreview, handleViewerMessage]
+    [walletAddress, account, signMessage, refreshPreview, handleViewerMessage, addReplayPart, finishRecording, replays]
   );
 
   const toggle = useCallback(
@@ -426,6 +524,9 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
   const endLive = useCallback(async () => {
     const token = tokenRef.current;
 
+    // Close the recording while the camera and screen are still running.
+    await finishRecording();
+
     try {
       await fetch("/api/live/end", {
         method: "POST",
@@ -441,7 +542,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     setRoom(null);
     setViewers(0);
     setPhase("ended");
-  }, []);
+  }, [finishRecording]);
 
   // A different wallet must never inherit someone else's broadcast.
   useEffect(() => {
@@ -514,6 +615,9 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Safari cannot record to WebM; the live itself still works there.
+  const replaySupportedValue = typeof window !== "undefined" && supportedRecordingType() !== null;
+
   const value = useMemo<LiveSession>(
     () => ({
       phase,
@@ -534,17 +638,41 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
       muteViewer,
       unmuteViewer,
       removeViewer,
+      replays,
+      replayBusy,
+      replaySupported: replaySupportedValue,
+      markReplaySaved,
+      discardReplays,
       goLive,
       toggle,
       endLive,
       attachPreview,
     }),
-    [phase, room, code, title, error, notice, viewers, camOn, micOn, screenOn, chatLines, blockedWordsText, mutedIdentities, setBlockedWordsText, sendHostChat, muteViewer, unmuteViewer, removeViewer, goLive, toggle, endLive, attachPreview]
+    [phase, room, code, title, error, notice, viewers, camOn, micOn, screenOn, chatLines, blockedWordsText, mutedIdentities, setBlockedWordsText, sendHostChat, muteViewer, unmuteViewer, removeViewer, replays, replayBusy, replaySupportedValue, markReplaySaved, discardReplays, goLive, toggle, endLive, attachPreview]
   );
 
   return (
     <Ctx.Provider value={value}>
       {children}
+
+      {phase !== "live" && pathname !== "/live" && (replayBusy || replays.some((r) => !r.savedAs)) && (
+        <div className="fixed bottom-3 right-3 z-50 w-64 max-w-[calc(100vw-1.5rem)] rounded-xl border border-blue-500/40 bg-slate-950 p-3 text-xs text-white shadow-2xl">
+          <p className="font-semibold">
+            {replayBusy ? "Preparing your replay…" : "Your live was recorded"}
+          </p>
+
+          <p className="mt-1 text-slate-400">
+            It is only in this browser tab until you save it to Shelby.
+          </p>
+
+          <Link
+            href="/live"
+            className="mt-2 block rounded-md bg-blue-600 py-1.5 text-center font-semibold hover:bg-blue-500"
+          >
+            Save replay to Shelby
+          </Link>
+        </div>
+      )}
 
       {phase === "live" && pathname !== "/live" && (
         <div className="fixed bottom-3 right-3 z-50 w-56 max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-xl border border-red-500/50 bg-slate-950 shadow-2xl sm:w-64">
