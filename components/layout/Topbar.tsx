@@ -42,6 +42,13 @@ const searchablePages = [
     icon: Radio,
   },
   {
+    title: "Discover",
+    description: "Who is live now and the newest uploads",
+    href: "/discover",
+    keywords: ["discover", "explore", "browse", "live now", "new"],
+    icon: Search,
+  },
+  {
     title: "Library",
     description: "Share links and embed codes for your videos, audio and images",
     href: "/library",

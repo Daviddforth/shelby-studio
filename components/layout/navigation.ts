@@ -3,6 +3,7 @@ import {
   Bot,
   Clapperboard,
   Code2,
+  Compass,
   LayoutDashboard,
   Radio,
   Search,
@@ -39,6 +40,7 @@ export const navSections: NavSection[] = [
   {
     title: "More",
     items: [
+      { name: "Discover", href: "/discover", icon: Compass },
       { name: "Explorer", href: "/explorer", icon: Search },
       { name: "Developer", href: "/developer", icon: Code2 },
       { name: "Documentation", href: "/docs", icon: BookOpen },

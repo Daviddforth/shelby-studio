@@ -402,3 +402,37 @@ export function clientIp(request: Request): string {
 
   return forwarded?.split(",")[0]?.trim() || "unknown";
 }
+
+/** Everyone who is live right now (host connected). Used by the Discover page. */
+export async function listLiveStreams(limit = 24): Promise<LiveStatus[]> {
+  const client = rooms();
+
+  const all = await client.listRooms();
+
+  const found = all.map(readRoom).filter((room): room is FoundRoom => Boolean(room && room.owner));
+
+  const results: Array<LiveStatus | null> = await Promise.all(
+    found.slice(0, 60).map(async (room): Promise<LiveStatus | null> => {
+      try {
+        const participants = await client.listParticipants(liveRoomName(room.code));
+
+        if (!participants.some((p) => isHostIdentity(p.identity))) return null;
+
+        return {
+          live: true,
+          title: room.title,
+          owner: room.owner,
+          code: room.code,
+          viewers: participants.filter((p) => isViewerIdentity(p.identity)).length,
+        };
+      } catch {
+        return null;
+      }
+    })
+  );
+
+  return results
+    .filter((item): item is LiveStatus => item !== null)
+    .sort((a, b) => b.viewers - a.viewers)
+    .slice(0, limit);
+}
