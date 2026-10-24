@@ -63,9 +63,6 @@ export default function LandingFooter() {
               <Link className="block hover:text-white" href="/live">
                 Go Live
               </Link>
-              <Link className="block hover:text-white" href="/collections">
-                Collections
-              </Link>
               <Link className="block hover:text-white" href="/explorer">
                 Explorer
               </Link>

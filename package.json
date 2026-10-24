@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --conditions=react-server --import tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@aptos-labs/ts-sdk": "^5.2.1",
@@ -20,6 +22,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "file-saver": "^2.0.5",
+    "fix-webm-duration": "^1.0.6",
     "jszip": "^3.10.1",
     "livekit-client": "^2.23.0",
     "livekit-server-sdk": "^2.19.1",
@@ -48,7 +51,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
+    "server-only": "^0.0.1",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

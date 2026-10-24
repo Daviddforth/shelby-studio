@@ -6,8 +6,6 @@ import AptosWalletProvider from "../components/wallet/AptosWalletProvider";
 
 import { WalletProvider } from "../context/WalletContext";
 import { StorageProvider } from "../context/StorageContext";
-import { MetadataProvider } from "../context/MetadataContext";
-import { CollectionProvider } from "../context/CollectionContext";
 import { ActivityProvider } from "../context/ActivityContext";
 import ShelbyProvider from "../context/ShelbyProvider";
 import { LiveSessionProvider } from "../context/LiveSessionContext";
@@ -56,20 +54,16 @@ export default function RootLayout({
         <AptosWalletProvider>
           <WalletProvider>
             <StorageProvider>
-              <MetadataProvider>
-                <CollectionProvider>
-                  <ActivityProvider>
-                    <ShelbyProvider>
-                      <InteractiveWatermark />
-                      <LiveSessionProvider>
-                        <div className="relative z-10">
-                          {children}
-                        </div>
-                      </LiveSessionProvider>
-                    </ShelbyProvider>
-                  </ActivityProvider>
-                </CollectionProvider>
-              </MetadataProvider>
+              <ActivityProvider>
+                <ShelbyProvider>
+                  <InteractiveWatermark />
+                  <LiveSessionProvider>
+                    <div className="relative z-10">
+                      {children}
+                    </div>
+                  </LiveSessionProvider>
+                </ShelbyProvider>
+              </ActivityProvider>
             </StorageProvider>
           </WalletProvider>
         </AptosWalletProvider>

@@ -5,7 +5,7 @@ import path from "path";
 
 import { Pool } from "pg";
 
-import type { MediaDetails, MediaDetailsMap } from "./types";
+import { getMediaType, type MediaDetails, type MediaDetailsMap } from "./types";
 
 /**
  * Storage for media details (title, description, cover).
@@ -25,7 +25,23 @@ export class DatabaseNotConfiguredError extends Error {
   }
 }
 
+/** One titled file, as shown on the Discover page. */
+export interface RecentItem {
+  owner: string;
+  blobName: string;
+  title: string;
+  coverBlob: string | null;
+  updatedAt: string;
+}
+
+export interface DetailsCounts {
+  files: number;
+  creators: number;
+}
+
 interface DetailsStore {
+  recent(limit: number): Promise<RecentItem[]>;
+  counts(): Promise<DetailsCounts>;
   getForOwner(owner: string): Promise<MediaDetailsMap>;
   upsert(owner: string, blobName: string, details: MediaDetails): Promise<void>;
   remove(owner: string, blobName: string): Promise<void>;
@@ -98,6 +114,36 @@ function createPostgresStore(connectionString: string): DetailsStore {
   }
 
   return {
+    async recent(limit) {
+      await ensureTable();
+
+      const result = await pool.query(
+        `SELECT owner, blob_name, title, cover_blob, updated_at
+           FROM media_details WHERE title <> '' AND blob_name ~* '\\.(mp4|m4v|webm|mov|ogv|mp3|wav|m4a|aac|ogg|oga|opus|flac|jpe?g|png|gif|webp|avif)$'
+          ORDER BY updated_at DESC LIMIT $1`,
+        [limit]
+      );
+
+      return result.rows.map((row) => ({
+        owner: row.owner,
+        blobName: row.blob_name,
+        title: row.title,
+        coverBlob: row.cover_blob,
+        updatedAt: new Date(row.updated_at).toISOString(),
+      }));
+    },
+
+    async counts() {
+      await ensureTable();
+
+      const result = await pool.query(
+        `SELECT count(*)::int AS files, count(DISTINCT owner)::int AS creators
+           FROM media_details WHERE title <> '' AND blob_name ~* '\\.(mp4|m4v|webm|mov|ogv|mp3|wav|m4a|aac|ogg|oga|opus|flac|jpe?g|png|gif|webp|avif)$'`
+      );
+
+      return { files: result.rows[0].files, creators: result.rows[0].creators };
+    },
+
     async getForOwner(owner) {
       await ensureTable();
 
@@ -167,6 +213,28 @@ function createFileStore(): DetailsStore {
   }
 
   return {
+    async recent(limit) {
+      const data = await read();
+
+      const items: RecentItem[] = [];
+
+      for (const [owner, map] of Object.entries(data)) {
+        for (const [blobName, details] of Object.entries(map)) {
+          if (details.title && getMediaType(blobName)) {
+            items.push({ owner, blobName, title: details.title, coverBlob: details.coverBlob, updatedAt: "" });
+          }
+        }
+      }
+
+      return items.slice(0, limit);
+    },
+
+    async counts() {
+      const items = await this.recent(100000);
+
+      return { files: items.length, creators: new Set(items.map((i) => i.owner)).size };
+    },
+
     async getForOwner(owner) {
       return (await read())[owner] ?? {};
     },
@@ -248,4 +316,26 @@ export async function removeDetails(
   blobName: string
 ): Promise<void> {
   await getStore().remove(owner, blobName);
+}
+
+/** Newest titled files from every creator. Never throws. */
+export async function getRecentItems(limit = 24): Promise<RecentItem[]> {
+  try {
+    return await getStore().recent(limit);
+  } catch (error) {
+    if (!(error instanceof DatabaseNotConfiguredError)) {
+      console.error("[media-details] Could not load recent items:", error);
+    }
+
+    return [];
+  }
+}
+
+/** How many titled files and creators exist. Never throws. */
+export async function getDetailsCounts(): Promise<DetailsCounts | null> {
+  try {
+    return await getStore().counts();
+  } catch {
+    return null;
+  }
 }

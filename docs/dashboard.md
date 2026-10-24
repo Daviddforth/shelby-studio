@@ -9,8 +9,8 @@ Without a wallet it shows clearly labeled demo data. With a wallet connected it 
 | Section | What it shows |
 |---|---|
 | **Hero** | A welcome, your profile name if you saved one, and your network. |
-| **Statistics** | Assets and storage used for your wallet, and whether you have a collection draft and a metadata draft in this browser (shown as 1 or 0). |
-| **Quick Actions** | Upload, Go Live, Library, Share Your Page and Create Collection. |
+| **Statistics** | Files, videos, images and storage used for your wallet. |
+| **Quick Actions** | Upload, Go Live, Library, Library and Share Your Page. |
 | **Storage overview** | Files and total size for your wallet. |
 | **Network status** | Wallet and network connection. |
 | **Storage analytics** | A breakdown of what you store. |
@@ -23,7 +23,6 @@ The side menu is shared by the whole app, and the phone menu uses the same list.
 
 ```text
 Create        Home, Upload, Library, Go Live, My Page
-NFT Tools     Collections, Metadata, Assets
 More          Explorer, Developer, Documentation
 ```
 
@@ -31,7 +30,7 @@ The top bar has a red **Go live** button, search, the wallet button and your pro
 
 ## Where the numbers come from
 
-Asset counts and storage used are counted from the files returned for your wallet. Nothing is estimated, and storage used is the total size of your files, not an account quota. The collection and metadata figures only say whether a draft exists in this browser.
+Asset counts and storage used are counted from the files returned for your wallet. Nothing is estimated, and storage used is the total size of your files, not an account quota.
 
 ## Components
 
@@ -49,4 +48,3 @@ components/dashboard/
 ## Current limitations
 
 - Your profile name and picture are saved in your browser only, so they do not appear on public pages yet.
-- The collection and metadata figures come from drafts in the current browser, not from a server, and are not real totals.

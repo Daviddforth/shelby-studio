@@ -6,6 +6,7 @@ import { connection } from "next/server";
 
 import MediaPlayer from "@/components/media/MediaPlayer";
 import ShareLinks from "@/components/media/ShareLinks";
+import ShelbyProof from "@/components/media/ShelbyProof";
 
 import { getDetailsForOwner } from "@/lib/media/db";
 
@@ -114,6 +115,16 @@ export async function generateMetadata({
     metadataBase: new URL(getSiteOrigin()),
     title: `${title} | Shelby Studio`,
     description,
+    twitter: {
+      card: media.media.kind === "image" || coverUrl ? "summary_large_image" : "summary",
+      title,
+      description,
+      ...(media.media.kind === "image"
+        ? { images: [streamUrl] }
+        : coverUrl
+          ? { images: [coverUrl] }
+          : {}),
+    },
     openGraph: {
       title,
       description,
@@ -211,6 +222,14 @@ export default async function PublicMediaPage({ params }: PageProps) {
             kind={media.media.kind}
           />
         </section>
+
+        <ShelbyProof
+          owner={media.owner}
+          blobName={media.blobName}
+          size={media.size}
+          etag={media.etag}
+          committedAtMicros={media.committedAtMicros}
+        />
       </div>
     </main>
   );

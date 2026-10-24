@@ -29,14 +29,6 @@ The docs match the current code. Things that are not built yet are listed as lim
 | Storage Engine | [storage-engine.md](storage-engine.md) |
 | Upload Pipeline | [upload-pipeline.md](upload-pipeline.md) |
 | Explorer | [explorer.md](explorer.md) |
-| Assets | [assets.md](assets.md) |
-
-## NFT tools
-
-| Page | File |
-|---|---|
-| Metadata | [metadata.md](metadata.md) |
-| Collections | [collections.md](collections.md) |
 
 ## Developer
 

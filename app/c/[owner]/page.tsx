@@ -8,6 +8,7 @@ import { getLiveStatus } from "@/lib/live/server";
 import { liveWatchPath, OFFLINE } from "@/lib/live/types";
 
 import MediaThumb from "@/components/media/MediaThumb";
+import ReportButton from "@/components/report/ReportButton";
 
 import { getDetailsForOwner } from "@/lib/media/db";
 import { getProfile } from "@/lib/profile/db";
@@ -19,7 +20,7 @@ import {
   type OwnerMediaItem,
 } from "@/lib/media/server";
 
-import { displayTitle, mediaPagePath, mediaStreamPath } from "@/lib/media/types";
+import { displayTitle, getSiteOrigin, mediaPagePath, mediaStreamPath } from "@/lib/media/types";
 
 type PageProps = {
   params: Promise<{
@@ -70,10 +71,28 @@ export async function generateMetadata({
 
   const label = profileLabel(profile, decoded);
 
+  const description =
+    profile?.bio?.slice(0, 160) || `Videos, audio and images hosted on Shelby by ${label}.`;
+
+  const avatar = profile?.avatarBlob
+    ? `${getSiteOrigin()}${mediaStreamPath(decoded.toLowerCase(), profile.avatarBlob)}`
+    : null;
+
   return {
     title: `${label} | Shelby Studio`,
-    description:
-      profile?.bio?.slice(0, 160) || `Videos, audio and images hosted on Shelby by ${label}.`,
+    description,
+    openGraph: {
+      title: label,
+      description,
+      siteName: "Shelby Studio",
+      ...(avatar ? { images: [{ url: avatar }] } : {}),
+    },
+    twitter: {
+      card: avatar ? "summary_large_image" : "summary",
+      title: label,
+      description,
+      ...(avatar ? { images: [avatar] } : {}),
+    },
   };
 }
 
@@ -297,6 +316,10 @@ export default async function CreatorPage({ params }: PageProps) {
             })}
           </div>
         )}
+
+        <div className="mt-12 border-t border-slate-800 pt-4">
+          <ReportButton kind="creator" target={`/c/${creator.owner}`} label="Report this page" />
+        </div>
       </div>
     </main>
   );

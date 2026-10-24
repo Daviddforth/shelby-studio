@@ -46,6 +46,14 @@ Titles, descriptions and covers come from the database. If a file has no saved d
 
 Media and creator pages set page titles and descriptions, and the site has a Shelby Studio preview image, so shared links show a card on most social sites.
 
+## Stored on Shelby panel, badge and reports
+
+- Every media page ends with a **Stored on Shelby** panel: owner wallet, file name, size, the time it was committed on Shelby, the content ID (etag) and a link to check the wallet on the Shelby Explorer.
+- Embedded players show a small **Hosted on Shelby** badge that links back to the media page.
+- Media pages, creator pages and live pages have a **Report** button. Reports are stored in the database and are only visible to the wallet set as `ADMIN_WALLET_ADDRESS`, at `/admin/reports`.
+- Shared links carry preview cards (Open Graph and Twitter) with the cover, image or profile picture.
+- `/discover` lists live streams and the newest media. A file appears there only after its creator gives it a title in the Library, so featuring is opt-in. `/stats` shows counts taken from the database.
+
 ## Creator profile
 
 Open **Profile** in the app to set a display name, bio, website, X handle, GitHub username and a profile picture. Saving asks your wallet to sign a free message (nothing goes on-chain), so only you can change your profile. Your public page `/c/<wallet>` then shows the name, picture, bio and links, and a red ring with a LIVE badge while you stream.

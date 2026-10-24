@@ -35,7 +35,7 @@ Shelby Studio is one Next.js application. The browser holds the user interface a
 
 ```text
 app/
-├── dashboard, library, live, collections, metadata, assets,
+├── dashboard, library, live,
 │   storage, explorer, developer, docs, profile ...   (workspace pages)
 ├── c/[owner]            public creator page
 ├── m/[owner]/[...name]  public media page
@@ -48,7 +48,7 @@ app/
     ├── storage/...      prepare-upload, stream-upload, finalize-upload, upload
     └── shelby/...       assets, asset, object, download, locations, delete
 components/   UI by area (media, live, layout, storage, ...)
-context/      Wallet, Storage, Collection, Metadata, Activity providers
+context/      Wallet, Storage, Activity, Live session providers
 hooks/        useStorage, useAssets, useWalletData ...
 lib/
 ├── media/    types, server helpers, database, wallet-signature checks
@@ -146,7 +146,6 @@ See [Go Live](/docs/live-streaming).
 |---|---|
 | Connected wallet | Wallet provider in the browser |
 | File list and uploads | Storage context, backed by Shelby |
-| Collection and metadata drafts | Browser local storage |
 | Profile name and picture | Browser local storage |
 | Titles, descriptions, covers | Postgres |
 | Live status and chat | LiveKit, in memory only |
@@ -167,7 +166,7 @@ Other protections: no HTML or SVG is served as media, wallet-signed saves are bo
 
 ## Current limitations
 
-- The collection, metadata and profile data are saved in the browser only.
+- Activity history is saved in the browser only.
 - Rate limits are per server instance and kept in memory.
 - Live streams are not recorded.
 - The real LiveKit and Shelby paths depend on external services being configured.

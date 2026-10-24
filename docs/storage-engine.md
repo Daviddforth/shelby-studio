@@ -2,7 +2,7 @@
 
 Shelby Studio uses Shelby as its decentralized storage infrastructure.
 
-The storage engine connects the application (Upload, Library, Assets, Explorer, and the NFT metadata tools) to Shelby storage operations. File bytes live on Shelby. Small pieces of application data, such as titles, descriptions, and covers for Library files, live in Postgres.
+The storage engine connects the application (Upload, Library and Explorer) to Shelby storage operations. File bytes live on Shelby. Small pieces of application data, such as titles, descriptions, and covers for Library files, live in Postgres.
 
 The storage layer supports both browser-direct workflows and a small number of server-side operations.
 
@@ -108,7 +108,7 @@ app/api/media-details/
 
 The API routes are the server-side boundary for operations that need protected configuration such as `SHELBY_API_KEY` or `SHELBY_SIGNER_PRIVATE_KEY`.
 
-`/api/storage/upload` and `/api/storage/stream-upload` are disabled and return `410 Gone`, because they signed with the server signer for anyone who called them. The NFT metadata tools now store generated `metadata.json` files with the same wallet-signed browser upload as the Library, so the connected wallet approves and pays.
+`/api/storage/upload` and `/api/storage/stream-upload` are disabled and return `410 Gone`, because they signed with the server signer for anyone who called them.
 
 ---
 

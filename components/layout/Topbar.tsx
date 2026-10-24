@@ -42,6 +42,13 @@ const searchablePages = [
     icon: Radio,
   },
   {
+    title: "Discover",
+    description: "Who is live now and the newest uploads",
+    href: "/discover",
+    keywords: ["discover", "explore", "browse", "live now", "new"],
+    icon: Search,
+  },
+  {
     title: "Library",
     description: "Share links and embed codes for your videos, audio and images",
     href: "/library",
@@ -54,13 +61,6 @@ const searchablePages = [
     href: "/dashboard",
     keywords: ["home", "overview", "workspace"],
     icon: LayoutDashboard,
-  },
-  {
-    title: "Portfolio",
-    description: "View your digital asset portfolio",
-    href: "/portfolio",
-    keywords: ["nft", "assets", "wallet"],
-    icon: Images,
   },
   {
     title: "Upload",
@@ -77,20 +77,6 @@ const searchablePages = [
     icon: Search,
   },
   {
-    title: "Metadata",
-    description: "Create and manage NFT metadata",
-    href: "/metadata",
-    keywords: ["json", "nft", "attributes", "metadata generator"],
-    icon: FileJson,
-  },
-  {
-    title: "Collections",
-    description: "Create and manage collections",
-    href: "/collections",
-    keywords: ["collection", "nft collection", "creator"],
-    icon: FolderKanban,
-  },
-  {
     title: "Developer",
     description: "Shelby developer tools",
     href: "/developer",
@@ -103,13 +89,6 @@ const searchablePages = [
     href: "/docs",
     keywords: ["docs", "guide", "help"],
     icon: Boxes,
-  },
-  {
-    title: "AI",
-    description: "Shelby Studio AI tools",
-    href: "/ai",
-    keywords: ["assistant", "ai", "chat"],
-    icon: Bot,
   },
   {
     title: "Playground",
@@ -404,8 +383,8 @@ export default function Topbar() {
                   </p>
 
                   <p className="mt-1 text-sm text-slate-500">
-                    Try searching for storage,
-                    metadata or collections.
+                    Try searching for upload,
+                    library or live.
                   </p>
                 </div>
               )}

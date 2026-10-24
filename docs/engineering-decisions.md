@@ -1,6 +1,6 @@
 # Engineering Decisions
 
-Shelby Studio is a Next.js creator workspace built on the Shelby decentralized storage protocol. Creators upload video, audio, and images to Shelby, share them through public pages, go live, and use tools for raw storage, assets, NFT collections, and metadata. This document records the major engineering decisions behind the current implementation.
+Shelby Studio is a Next.js creator workspace built on the Shelby decentralized storage protocol. Creators upload video, audio, and images to Shelby, share them through public pages, go live, and use tools for raw storage and developer access. This document records the major engineering decisions behind the current implementation.
 
 The goal is to make important architectural choices understandable and maintainable as the application grows.
 
@@ -23,10 +23,9 @@ The application is organized around these areas:
 
 - **Library** (`/library`) — upload video, audio, and images; edit titles, descriptions, and covers; share links
 - **Public pages** — `/m/<owner>/<file>` (media page), `/embed/<owner>/<file>` (embeddable player), `/c/<owner>` (creator page)
-- **Go Live** (`/live`, `/live/<owner>`) — live streaming and viewing through LiveKit
+- **Go Live** (`/live`, `/live/<code>`) — live streaming and viewing through LiveKit
 - **Upload** (`/storage`) — upload any file to Shelby, with progress and storage statistics
-- **Assets** (`/assets`) and **Explorer** (`/explorer`) — browse and inspect the connected wallet's stored assets
-- **Collections** and **Metadata** — NFT collection and metadata tools
+- **Explorer** (`/explorer`) — browse and inspect the files stored by a wallet
 - **Developer** and **Docs** — developer tools and documentation pages
 
 ## 3. Hybrid Browser and Server Architecture
@@ -122,10 +121,8 @@ Major application areas have separate responsibilities:
 
 - **Library / media** — hosting, details, and sharing of media files
 - **Storage** — manage decentralized storage
-- **Explorer / Assets** — browse and inspect stored assets
+- **Explorer** — browse and inspect stored assets
 - **Live** — LiveKit rooms, tokens, and status
-- **Metadata** — create and validate NFT metadata
-- **Collections** — generate NFT collections
 - **Developer** — developer-oriented tools
 
 This prevents one module from becoming responsible for unrelated concerns.
@@ -141,8 +138,6 @@ components/
 ├── explorer/
 ├── media/
 ├── live/
-├── metadata/
-├── collections/
 ├── developer/
 ├── docs/
 ├── layout/
@@ -178,9 +173,7 @@ Shelby-specific integration is separated into dedicated modules:
 ```
 lib/shelby/
 ├── client.ts
-├── collections.ts
 ├── config.ts
-├── metadata.ts
 ├── storage.ts
 └── wallet.ts
 ```
@@ -226,7 +219,7 @@ Two server-side upload routes used to exist:
 - `/api/storage/upload`: a server-assisted upload signed by the server signer.
 - `/api/storage/stream-upload`: a server-side large-file upload.
 
-Both signed with `SHELBY_SIGNER_PRIVATE_KEY` and had no login, size limit or rate limit, so a stranger could have stored files at the server owner's expense. The delete route had the same problem. All three now return `410 Gone`, and the NFT metadata tools use the wallet-signed browser upload instead.
+Both signed with `SHELBY_SIGNER_PRIVATE_KEY` and had no login, size limit or rate limit, so a stranger could have stored files at the server owner's expense. The delete route had the same problem. All three now return `410 Gone`. Uploads now always use the wallet-signed browser upload, so the connected wallet approves and pays.
 
 The rule is simple: anything that spends or changes storage is signed by the user's wallet, never by the server on a stranger's behalf.
 
@@ -308,10 +301,6 @@ Asset
 ```
 
 This lets metadata change without changing the stored file, and lets storage remain useful for content that has no NFT metadata.
-
-## 21. Collections and Metadata Tools
-
-Collections and Metadata are NFT tooling: generating collection metadata, validating it, and previewing NFTs. They rely on the Storage and Metadata modules for their respective responsibilities rather than owning storage themselves.
 
 ## 22. Browser State as a Convenience Only
 

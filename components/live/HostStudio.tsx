@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import LiveChat from "@/components/live/LiveChat";
+import ReplaySaver from "@/components/live/ReplaySaver";
 import { useOrigin } from "@/components/media/useOrigin";
 
 import { useLiveSession } from "@/context/LiveSessionContext";
@@ -47,44 +48,58 @@ export default function HostStudio() {
 
   if (phase !== "live") {
     return (
-      <div className="max-w-xl rounded-2xl border border-slate-800 bg-slate-900 p-6">
-        {phase === "ended" && (
-          <p className="mb-4 rounded-lg border border-slate-700 bg-slate-950 p-3 text-sm text-slate-300">
-            Your live has ended. Each new live gets a new link.
+      <div className="space-y-5">
+        <ReplaySaver />
+
+        <div className="max-w-xl rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          {phase === "ended" && (
+            <p className="mb-4 rounded-lg border border-slate-700 bg-slate-950 p-3 text-sm text-slate-300">
+              Your live has ended. Each new live gets a new link.
+            </p>
+          )}
+
+          <label className="text-sm font-medium text-white" htmlFor="live-title">
+            What are you streaming?
+          </label>
+
+          <input
+            id="live-title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            maxLength={LIVE_TITLE_MAX}
+            placeholder="Building on Shelby, come hang out"
+            className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none focus:border-blue-500"
+          />
+
+          {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+
+          <button
+            type="button"
+            onClick={() => void session.goLive(title)}
+            disabled={phase === "starting"}
+            className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-red-600 text-sm font-semibold text-white transition hover:bg-red-500 disabled:opacity-60"
+          >
+            <Radio size={16} />
+            {phase === "starting" ? "Starting…" : "Go live"}
+          </button>
+
+          <p className="mt-3 text-xs leading-5 text-slate-500">
+            Your wallet will ask you to sign a message. It is free and does not
+            send a transaction. You get a private random link to share, and your
+            wallet address is not in it. Once you are live you can move around
+            the studio; the stream keeps running until you press End live.
           </p>
-        )}
 
-        <label className="text-sm font-medium text-white" htmlFor="live-title">
-          What are you streaming?
-        </label>
-
-        <input
-          id="live-title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          maxLength={LIVE_TITLE_MAX}
-          placeholder="Building on Shelby, come hang out"
-          className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none focus:border-blue-500"
-        />
-
-        {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
-
-        <button
-          type="button"
-          onClick={() => void session.goLive(title)}
-          disabled={phase === "starting"}
-          className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-red-600 text-sm font-semibold text-white transition hover:bg-red-500 disabled:opacity-60"
-        >
-          <Radio size={16} />
-          {phase === "starting" ? "Starting…" : "Go live"}
-        </button>
-
-        <p className="mt-3 text-xs leading-5 text-slate-500">
-          Your wallet will ask you to sign a message. It is free and does not
-          send a transaction. You get a private random link to share, and your
-          wallet address is not in it. Once you are live you can move around
-          the studio; the stream keeps running until you press End live.
-        </p>
+          {session.replaySupported ? (
+            <p className="mt-2 text-xs leading-5 text-slate-500">
+              Your live is recorded in this browser. When it ends you can save the replay to Shelby.
+            </p>
+          ) : (
+            <p className="mt-2 text-xs leading-5 text-amber-500">
+              Replays need Chrome, Edge or Firefox. Your live will still work in this browser.
+            </p>
+          )}
+        </div>
       </div>
     );
   }

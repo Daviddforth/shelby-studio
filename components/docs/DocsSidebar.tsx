@@ -65,23 +65,6 @@ const sections = [
         title: "Explorer",
         slug: "explorer",
       },
-      {
-        title: "Assets",
-        slug: "assets",
-      },
-    ],
-  },
-  {
-    title: "NFT Tools",
-    items: [
-      {
-        title: "Metadata",
-        slug: "metadata",
-      },
-      {
-        title: "Collections",
-        slug: "collections",
-      },
     ],
   },
   {

@@ -35,6 +35,13 @@ export default function LandingNavbar() {
             How it works
           </a>
           <Link
+            href="/discover"
+            className="transition hover:text-white"
+          >
+            Discover
+          </Link>
+
+          <Link
             href="/docs"
             className="transition hover:text-white"
           >

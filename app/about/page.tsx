@@ -7,7 +7,7 @@ export default function AboutPage() {
 
       <p className="mt-4 text-gray-600">
         Shelby Studio is an all-in-one workspace for managing
-        Shelby assets, NFTs, storage, and metadata.
+        hosting video, audio and images on Shelby, and going live.
       </p>
     </main>
   );

@@ -16,6 +16,7 @@ import type { ProfileData } from "./types";
  */
 
 interface ProfileStore {
+  count(): Promise<number>;
   get(owner: string): Promise<ProfileData | null>;
   upsert(owner: string, profile: ProfileData): Promise<void>;
 }
@@ -63,6 +64,14 @@ function createPostgresStore(connectionString: string): ProfileStore {
   }
 
   return {
+    async count() {
+      await ensureTable();
+
+      const result = await pool.query(`SELECT count(*)::int AS n FROM creator_profiles`);
+
+      return result.rows[0].n;
+    },
+
     async get(owner) {
       await ensureTable();
 
@@ -127,6 +136,10 @@ function createFileStore(): ProfileStore {
   }
 
   return {
+    async count() {
+      return Object.keys(await read()).length;
+    },
+
     async get(owner) {
       return (await read())[owner] ?? null;
     },
@@ -174,4 +187,13 @@ export async function getProfile(owner: string): Promise<ProfileData | null> {
 /** Throws when the database is unavailable. */
 export async function saveProfile(owner: string, profile: ProfileData): Promise<void> {
   await getStore().upsert(owner, profile);
+}
+
+/** Number of saved creator profiles, or null when the database is unavailable. */
+export async function countProfiles(): Promise<number | null> {
+  try {
+    return await getStore().count();
+  } catch {
+    return null;
+  }
 }
