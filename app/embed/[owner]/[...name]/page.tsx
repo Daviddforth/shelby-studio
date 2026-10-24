@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
 import MediaPlayer from "@/components/media/MediaPlayer";
+import { ShelbyBadgeLink } from "@/components/media/ShelbyProof";
 
 import { getDetailsForOwner } from "@/lib/media/db";
 
@@ -14,7 +15,7 @@ import {
   type ResolvedMedia,
 } from "@/lib/media/server";
 
-import { displayTitle, mediaStreamPath } from "@/lib/media/types";
+import { displayTitle, mediaPagePath, mediaStreamPath } from "@/lib/media/types";
 
 type PageProps = {
   params: Promise<{
@@ -67,7 +68,9 @@ export default async function EmbedMediaPage({ params }: PageProps) {
   // Covers the app shell so the player fills the whole iframe.
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
-      <div className="h-full w-full">
+      <div className="relative h-full w-full">
+        <ShelbyBadgeLink href={mediaPagePath(media.owner, media.blobName)} />
+
         {media.media.kind === "audio" ? (
           <div className="flex h-full w-full flex-col justify-center gap-2 bg-slate-950 px-4">
             <p className="truncate text-sm font-medium text-white">{title}</p>

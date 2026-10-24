@@ -20,7 +20,21 @@ import { PictureInPicture2, Users } from "lucide-react";
 
 import { useWallet } from "@/context/WalletContext";
 
-import { LIVE_TITLE_MAX, cleanText } from "@/lib/live/types";
+import {
+  CHAT_TOPIC,
+  NOTICE_TOPIC,
+  RELAY_TOPIC,
+  containsBlockedWord,
+  parseBlockedWords,
+  type ChatLine,
+} from "@/lib/live/chat";
+
+import {
+  CHAT_MESSAGE_MAX,
+  LIVE_TITLE_MAX,
+  cleanText,
+  isViewerIdentity,
+} from "@/lib/live/types";
 import { signLiveRequest } from "@/lib/media/clientSign";
 
 export type HostPhase = "idle" | "starting" | "live" | "ended";
@@ -36,6 +50,15 @@ interface LiveSession {
   camOn: boolean;
   micOn: boolean;
   screenOn: boolean;
+  /** Chat as the host sees it (everything the host relayed, plus the host's own lines). */
+  chatLines: ChatLine[];
+  blockedWordsText: string;
+  mutedIdentities: string[];
+  setBlockedWordsText: (text: string) => void;
+  sendHostChat: (text: string) => Promise<boolean>;
+  muteViewer: (identity: string) => void;
+  unmuteViewer: (identity: string) => void;
+  removeViewer: (identity: string, block: boolean) => Promise<boolean>;
   goLive: (title: string) => Promise<void>;
   toggle: (kind: "camera" | "mic" | "screen") => Promise<void>;
   endLive: () => Promise<void>;
@@ -73,6 +96,22 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
   const [camOn, setCamOn] = useState(false);
   const [micOn, setMicOn] = useState(false);
   const [screenOn, setScreenOn] = useState(false);
+
+  const [chatLines, setChatLines] = useState<ChatLine[]>([]);
+  // Remembered between lives in this browser.
+  const [blockedWordsText, setBlockedWordsTextState] = useState(() => {
+    try {
+      return typeof window === "undefined" ? "" : localStorage.getItem("shelby-live-blocked-words") ?? "";
+    } catch {
+      return "";
+    }
+  });
+  const [mutedIdentities, setMutedIdentities] = useState<string[]>([]);
+
+  const blockedRef = useRef<string[]>(parseBlockedWords(blockedWordsText));
+  const mutedRef = useRef<Set<string>>(new Set());
+  const lastFrom = useRef(new Map<string, number>());
+  const lineCounter = useRef(0);
 
   const roomRef = useRef<Room | null>(null);
   const tokenRef = useRef("");
@@ -114,6 +153,137 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
       if (video) refreshPreview();
     },
     [refreshPreview]
+  );
+
+  const addLine = useCallback((line: Omit<ChatLine, "id">) => {
+    lineCounter.current += 1;
+
+    const id = lineCounter.current;
+
+    setChatLines((current) => [...current, { ...line, id }].slice(-200));
+  }, []);
+
+  const setBlockedWordsText = useCallback((text: string) => {
+    setBlockedWordsTextState(text);
+
+    blockedRef.current = parseBlockedWords(text);
+
+    try {
+      localStorage.setItem("shelby-live-blocked-words", text);
+    } catch {
+      // Browser storage can be unavailable; the list still works for this live.
+    }
+  }, []);
+
+  const relay = useCallback(
+    async (payload: unknown, topic: string, to?: string[]) => {
+      const current = roomRef.current;
+
+      if (!current) return false;
+
+      try {
+        await current.localParticipant.publishData(
+          new TextEncoder().encode(JSON.stringify(payload)),
+          { reliable: true, topic, destinationIdentities: to }
+        );
+
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    []
+  );
+
+  const sendHostChat = useCallback(
+    async (rawText: string) => {
+      const text = cleanText(rawText, CHAT_MESSAGE_MAX);
+
+      if (!text) return false;
+
+      const sent = await relay({ name: "Host", text }, RELAY_TOPIC);
+
+      if (sent) addLine({ name: "You", text, host: true, identity: "" });
+
+      return sent;
+    },
+    [relay, addLine]
+  );
+
+  const muteViewer = useCallback((identity: string) => {
+    mutedRef.current.add(identity);
+
+    setMutedIdentities(Array.from(mutedRef.current));
+  }, []);
+
+  const unmuteViewer = useCallback((identity: string) => {
+    mutedRef.current.delete(identity);
+
+    setMutedIdentities(Array.from(mutedRef.current));
+  }, []);
+
+  const removeViewer = useCallback(async (identity: string, block: boolean) => {
+    if (!isViewerIdentity(identity)) return false;
+
+    try {
+      const response = await fetch("/api/live/remove", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokenRef.current}`,
+        },
+        body: JSON.stringify({ identity, block }),
+      });
+
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  /** Host-side gatekeeper: only messages that pass are shown to everyone. */
+  const handleViewerMessage = useCallback(
+    (payload: Uint8Array, participant?: { identity: string; name?: string }, topic?: string) => {
+      if (topic !== CHAT_TOPIC || !participant || !isViewerIdentity(participant.identity)) return;
+
+      let text = "";
+
+      try {
+        text = cleanText(JSON.parse(new TextDecoder().decode(payload))?.text, CHAT_MESSAGE_MAX);
+      } catch {
+        return;
+      }
+
+      if (!text) return;
+
+      const identity = participant.identity;
+
+      const now = Date.now();
+
+      if (now - (lastFrom.current.get(identity) ?? 0) < 700) return;
+
+      lastFrom.current.set(identity, now);
+
+      const notice = (message: string) =>
+        void relay({ text: message }, NOTICE_TOPIC, [identity]);
+
+      if (mutedRef.current.has(identity)) {
+        notice("The host has muted you.");
+        return;
+      }
+
+      if (containsBlockedWord(text, blockedRef.current)) {
+        notice("Your message was not sent because it has a word the host blocked.");
+        return;
+      }
+
+      const name = cleanText(participant.name, 30) || "Guest";
+
+      addLine({ name, text, host: false, identity });
+
+      void relay({ name, text, from: identity }, RELAY_TOPIC);
+    },
+    [relay, addLine]
   );
 
   const goLive = useCallback(
@@ -159,6 +329,11 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
 
         tokenRef.current = data.token;
 
+        setChatLines([]);
+        mutedRef.current = new Set();
+        setMutedIdentities([]);
+        lastFrom.current.clear();
+
         next = new Room({ adaptiveStream: true, dynacast: true });
 
         const updateViewers = () => setViewers(next?.remoteParticipants.size ?? 0);
@@ -167,6 +342,9 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
         next.on(RoomEvent.ParticipantDisconnected, updateViewers);
         next.on(RoomEvent.LocalTrackPublished, refreshPreview);
         next.on(RoomEvent.LocalTrackUnpublished, refreshPreview);
+        next.on(RoomEvent.DataReceived, (payload, participant, _kind, topic) => {
+          handleViewerMessage(payload, participant, topic);
+        });
         next.on(RoomEvent.TrackMuted, refreshPreview);
         next.on(RoomEvent.TrackUnmuted, refreshPreview);
 
@@ -217,7 +395,7 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
         setError(e instanceof Error ? e.message : "Could not start the live.");
       }
     },
-    [walletAddress, account, signMessage, refreshPreview]
+    [walletAddress, account, signMessage, refreshPreview, handleViewerMessage]
   );
 
   const toggle = useCallback(
@@ -348,12 +526,20 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
       camOn,
       micOn,
       screenOn,
+      chatLines,
+      blockedWordsText,
+      mutedIdentities,
+      setBlockedWordsText,
+      sendHostChat,
+      muteViewer,
+      unmuteViewer,
+      removeViewer,
       goLive,
       toggle,
       endLive,
       attachPreview,
     }),
-    [phase, room, code, title, error, notice, viewers, camOn, micOn, screenOn, goLive, toggle, endLive, attachPreview]
+    [phase, room, code, title, error, notice, viewers, camOn, micOn, screenOn, chatLines, blockedWordsText, mutedIdentities, setBlockedWordsText, sendHostChat, muteViewer, unmuteViewer, removeViewer, goLive, toggle, endLive, attachPreview]
   );
 
   return (

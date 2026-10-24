@@ -106,7 +106,8 @@ export async function createHostToken(owner: string, code: string): Promise<stri
 /** Viewers can watch, listen and chat, but never publish video or audio. */
 export async function createViewerToken(
   code: string,
-  name: string
+  name: string,
+  viewerKey = ""
 ): Promise<string> {
   const config = getLiveConfig();
 
@@ -115,6 +116,8 @@ export async function createViewerToken(
   const token = new AccessToken(config.key, config.secret, {
     identity: `viewer-${id}`,
     name,
+    // Kept so the host can block this viewer from coming back with a new identity.
+    metadata: JSON.stringify({ key: viewerKey }),
     ttl: VIEWER_TOKEN_TTL_SECONDS,
   });
 
@@ -165,6 +168,83 @@ interface FoundRoom {
   title: string;
 }
 
+function roomMeta(metadata: string | undefined): Record<string, unknown> {
+  try {
+    const parsed = JSON.parse(metadata || "{}");
+
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+/** A short, non-reversible fingerprint of a viewer's network address. */
+export async function viewerKeyFor(request: Request): Promise<string> {
+  const config = getLiveConfig();
+
+  const data = new TextEncoder().encode(`${config.secret}|${clientIp(request)}`);
+
+  const digest = await crypto.subtle.digest("SHA-256", data);
+
+  return Array.from(new Uint8Array(digest).slice(0, 8), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/** True when the host has blocked this viewer from the stream. */
+export async function isViewerBlocked(code: string, viewerKey: string): Promise<boolean> {
+  if (!viewerKey) return false;
+
+  try {
+    const [room] = await rooms().listRooms([liveRoomName(code)]);
+
+    const blocked = roomMeta(room?.metadata).blocked;
+
+    return Array.isArray(blocked) && blocked.includes(viewerKey);
+  } catch {
+    return false;
+  }
+}
+
+/** Host action: remove one viewer, and optionally keep them out for the rest of this stream. */
+export async function removeViewer(
+  code: string,
+  identity: string,
+  block: boolean
+): Promise<void> {
+  if (!isViewerIdentity(identity)) throw new Error("Not a viewer.");
+
+  const client = rooms();
+
+  const name = liveRoomName(code);
+
+  if (block) {
+    try {
+      const participant = await client.getParticipant(name, identity);
+
+      const key = String(roomMeta(participant.metadata).key ?? "");
+
+      if (key) {
+        const [room] = await client.listRooms([name]);
+
+        const meta = roomMeta(room?.metadata);
+
+        const blocked = Array.isArray(meta.blocked) ? (meta.blocked as string[]) : [];
+
+        if (!blocked.includes(key)) blocked.push(key);
+
+        await client.updateRoomMetadata(name, JSON.stringify({ ...meta, blocked: blocked.slice(-500) }));
+      }
+    } catch {
+      // The viewer already left; there is nothing more to block.
+    }
+  }
+
+  try {
+    await client.removeParticipant(name, identity);
+  } catch {
+    // Already gone.
+  }
+}
+
 function readRoom(room: { name: string; metadata?: string }): FoundRoom | null {
   if (!room.name.startsWith("live-")) return null;
 
@@ -198,15 +278,22 @@ async function findOwnerRoom(owner: string): Promise<FoundRoom | null> {
 export async function startRoom(owner: string, title: string): Promise<string> {
   const client = rooms();
 
-  const metadata = JSON.stringify({ title, owner });
-
   const existing = await findOwnerRoom(owner);
 
   if (existing) {
-    await client.updateRoomMetadata(liveRoomName(existing.code), metadata);
+    const name = liveRoomName(existing.code);
+
+    const [room] = await client.listRooms([name]);
+
+    await client.updateRoomMetadata(
+      name,
+      JSON.stringify({ ...roomMeta(room?.metadata), title, owner })
+    );
 
     return existing.code;
   }
+
+  const metadata = JSON.stringify({ title, owner, blocked: [] });
 
   const code = newStreamCode();
 

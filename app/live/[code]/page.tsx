@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
 
 import LiveViewer from "@/components/live/LiveViewer";
+import ReportButton from "@/components/report/ReportButton";
 
 import { getLiveStatus, getStreamOwner, normalizeOwner } from "@/lib/live/server";
 import { isStreamCode, liveWatchPath } from "@/lib/live/types";
@@ -19,6 +20,12 @@ export const metadata: Metadata = {
   title: "Live | Shelby Studio",
   description: "Watch a live stream on Shelby Studio.",
   robots: { index: false },
+  openGraph: {
+    title: "Live on Shelby Studio",
+    description: "Watch this live stream and chat, right in your browser.",
+    siteName: "Shelby Studio",
+  },
+  twitter: { card: "summary", title: "Live on Shelby Studio" },
 };
 
 export default async function WatchLivePage({ params }: PageProps) {
@@ -64,6 +71,10 @@ export default async function WatchLivePage({ params }: PageProps) {
         </header>
 
         <LiveViewer code={ref} />
+
+        <div className="mt-10">
+          <ReportButton kind="live" target={liveWatchPath(ref)} label="Report this live" />
+        </div>
       </div>
     </main>
   );

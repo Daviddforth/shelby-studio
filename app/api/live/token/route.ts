@@ -4,7 +4,9 @@ import {
   createViewerToken,
   getLiveConfig,
   getLiveStatus,
+  isViewerBlocked,
   rateLimited,
+  viewerKeyFor,
 } from "@/lib/live/server";
 
 import { VIEWER_NAME_MAX, cleanText, isStreamCode } from "@/lib/live/types";
@@ -40,7 +42,13 @@ export async function POST(request: Request) {
 
     if (!status.live) return fail("This creator is not live right now.", 409);
 
-    const token = await createViewerToken(code, name);
+    const viewerKey = await viewerKeyFor(request);
+
+    if (await isViewerBlocked(code, viewerKey)) {
+      return fail("The host has removed you from this live.", 403);
+    }
+
+    const token = await createViewerToken(code, name, viewerKey);
 
     return json({ success: true, url: config.url, token, name });
   } catch (error) {
