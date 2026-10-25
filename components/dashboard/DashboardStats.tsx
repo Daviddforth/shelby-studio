@@ -1,9 +1,12 @@
 "use client";
 
-import { Clapperboard, Database, HardDrive, Images } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { Clapperboard, Coins, Database, Eye, HardDrive, Images, Users } from "lucide-react";
 
 import { useStorageContext } from "@/context/StorageContext";
 import { useWallet } from "@/context/WalletContext";
+import { formatApt } from "@/lib/social/types";
 import { demoAssets } from "@/components/demo/demoData";
 import { getMediaType } from "@/lib/media/types";
 
@@ -45,7 +48,26 @@ function formatBytes(bytes: number) {
 
 export default function DashboardStats() {
   const { assets } = useStorageContext();
-  const { walletConnected } = useWallet();
+  const { walletConnected, walletAddress } = useWallet();
+
+  const [audience, setAudience] = useState<{ views: number; followers: number; tipCount: number; tipTotal: string } | null>(null);
+
+  useEffect(() => {
+    if (!walletAddress) return;
+
+    let cancelled = false;
+
+    fetch(`/api/audience?owner=${encodeURIComponent(walletAddress)}`, { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!cancelled && data?.success) setAudience(data);
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [walletAddress]);
 
   const real = summarize(assets as Countable[]);
   const demo = summarize(demoAssets as Countable[]);
@@ -59,33 +81,42 @@ export default function DashboardStats() {
     { title: "Storage used", value: formatBytes(shown.bytes), icon: HardDrive },
   ];
 
-  return (
+  const audienceStats = [
+    { title: "Page & file views", value: audience?.views ?? 0, icon: Eye },
+    { title: "Followers", value: audience?.followers ?? 0, icon: Users },
+    { title: "Tips received", value: audience?.tipCount ?? 0, icon: Coins },
+    { title: "Tipped (APT)", value: formatApt(audience?.tipTotal ?? "0"), icon: Coins },
+  ];
+
+  const renderRow = (rows: typeof stats, note: string | null) => (
     <div className="grid grid-cols-2 border-y border-slate-800 md:grid-cols-4">
-      {stats.map((stat, index) => {
+      {rows.map((stat, index) => {
         const Icon = stat.icon;
 
         return (
           <div
             key={stat.title}
-            className={`px-3 py-4 sm:px-4 sm:py-5 ${
-              index > 0 ? "border-l border-slate-800" : ""
-            }`}
+            className={`px-3 py-4 sm:px-4 sm:py-5 ${index > 0 ? "border-l border-slate-800" : ""}`}
           >
             <div className="flex items-center gap-2 text-slate-500">
               <Icon size={16} />
-              <span className="text-xs font-medium uppercase tracking-wide">
-                {stat.title}
-              </span>
+              <span className="text-xs font-medium uppercase tracking-wide">{stat.title}</span>
             </div>
 
             <p className="mt-2 text-xl font-semibold text-white">{stat.value}</p>
 
-            {!walletConnected && (
-              <p className="mt-1 text-[11px] text-slate-600">Demo data</p>
-            )}
+            {note && <p className="mt-1 text-[11px] text-slate-600">{note}</p>}
           </div>
         );
       })}
     </div>
+  );
+
+  return (
+    <>
+      {renderRow(stats, walletConnected ? null : "Demo data")}
+
+      {walletConnected && renderRow(audienceStats, null)}
+    </>
   );
 }

@@ -12,6 +12,7 @@ This page lists what works today, what does not, and what is planned. Nothing he
 | Streaming with seek support (HTTP range) | Available |
 | Go Live with chat, moderation and replays saved to Shelby (needs LiveKit) | Available |
 | Discover page, public Stats page and report buttons | Available |
+| Tips in APT, Follow and view counts | Available |
 | LIVE NOW banner on the creator page | Available |
 | Upload page for any file type | Available |
 | Explorer: look up files by wallet address | Available |
@@ -61,9 +62,9 @@ This page lists what works today, what does not, and what is planned. Nothing he
 Ideas, roughly in the order they are being considered:
 
 1. A verified X link on profiles (profiles themselves are done).
-2. Tips or paid access using Aptos.
-3. Follow a creator and get told when they go live.
-4. Creator analytics (views, watch time).
+2. Tips in ShelbyUSD and paid access.
+3. Tell followers when you go live.
+4. Watch time analytics (views are done).
 5. A Library that accepts every file type.
 
 ## Next
