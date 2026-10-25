@@ -37,6 +37,9 @@ Never commit `.env.local`, and never paste its values into chat, screenshots or 
 | `LIVEKIT_URL` | Go Live | Starts with `wss://`. |
 | `LIVEKIT_API_KEY` | Go Live | From your LiveKit project's Keys page. |
 | `LIVEKIT_API_SECRET` | Go Live | Secret. Server only. |
+| `VAPID_PUBLIC_KEY` | Live alerts | From `npm run vapid`. Not secret. |
+| `VAPID_PRIVATE_KEY` | Live alerts | From `npm run vapid`. Secret. Server only. |
+| `VAPID_SUBJECT` | Live alerts | `mailto:` your email address. |
 | `LIVE_MAX_PARTICIPANTS` | Optional | Maximum people in one live room. Default 100. |
 | `ADMIN_WALLET_ADDRESS` | Reports | The one wallet allowed to read reports at `/admin/reports`. Without it the page cannot be used. |
 

@@ -1,3 +1,8 @@
+import { after } from "next/server";
+
+import { notifyFollowersLive } from "@/lib/push/server";
+import { getProfile } from "@/lib/profile/db";
+import { profileLabel } from "@/lib/profile/types";
 import { SignatureError, verifyWalletMessage } from "@/lib/media/auth";
 
 import {
@@ -15,6 +20,7 @@ import {
   LIVE_SIGNATURE_MAX_AGE_MS,
   LIVE_TITLE_MAX,
   buildLiveMessage,
+  liveWatchPath,
   cleanText,
   type StartLiveRequest,
 } from "@/lib/live/types";
@@ -67,7 +73,20 @@ export async function POST(request: Request) {
   try {
     const config = getLiveConfig();
 
+    const wasLive = (await getLiveStatus(owner).catch(() => null))?.live ?? false;
+
     const code = await startRoom(owner, title);
+
+    // Only a brand-new stream tells followers; reopening the studio does not.
+    if (!wasLive) {
+      after(async () => {
+        const profile = await getProfile(owner).catch(() => null);
+
+        await notifyFollowersLive(owner, profileLabel(profile, owner), title, liveWatchPath(code)).catch((error) =>
+          console.error("[push] notify failed", error)
+        );
+      });
+    }
 
     const token = await createHostToken(owner, code);
 

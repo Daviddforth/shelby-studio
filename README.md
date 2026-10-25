@@ -22,7 +22,7 @@ A creator workspace built on the Shelby decentralized storage protocol. Upload v
 | **Library** | Your videos, audio and images. Add a title, description and cover picture. Copy a share link or an embed code. |
 | **Go Live** | Stream from your camera or screen and send one link. Viewers watch and chat in the browser, with no account. |
 | **My Page** | Your public creator page at `/c/<wallet>`. It lists your media and shows a LIVE NOW banner while you stream. |
-| **Tips, Follow, Views** | Fans tip you in APT straight to your wallet (no cut), follow you with a free signature, and you see views, followers and tips on Home. |
+| **Tips, Follow, Alerts, Views** | Fans tip you in APT straight to your wallet (no cut), follow you with a free signature, get a browser alert when you go live, and you see views, followers and tips on Home. |
 | **Discover** | `/discover` lists who is live and the newest media creators chose to share. `/stats` shows real counts. |
 | **Explorer** | Look up the files stored by any wallet address. |
 | **Developer** | An API playground, SDK examples and a code generator. |
@@ -79,6 +79,7 @@ Never commit `.env.local` and never paste its values into chat, screenshots or i
 | `NEXT_PUBLIC_SHELBY_BROWSER_API_KEY` | Browser uploads (public, use a restricted key) |
 | `DATABASE_URL` | Titles, descriptions, covers, profiles and reports. Any Postgres. Required in production |
 | `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET` | Go Live |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Live alerts (make keys with `npm run vapid`) |
 | `NEXT_PUBLIC_SITE_URL` | Optional: public URL used in share links |
 | `LIVE_MAX_PARTICIPANTS` | Optional: people per live room (default 100) |
 | `ADMIN_WALLET_ADDRESS` | Optional: the wallet allowed to read reports at `/admin/reports` |
@@ -128,7 +129,7 @@ Docs are in [`docs/`](docs/README.md) and are shown on the site at `/docs`.
 
 - Upload time depends on your internet speed. Shelby closes a request after 60 seconds, so very slow connections can fail even with retries.
 - Live replays are recorded in the host's browser, so closing the tab before saving loses them. Replays are WebM only (no Safari).
-- Tips on Shelbynet use test tokens. Followers are not notified when you go live yet.
+- Tips on Shelbynet use test tokens. Live alerts are browser notifications only.
 - The X handle on a profile is not verified yet.
 - Titles and covers need a configured database.
 

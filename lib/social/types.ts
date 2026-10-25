@@ -51,3 +51,14 @@ export interface AudienceStats {
   tipCount: number;
   tipTotal: string;
 }
+
+/** One line a wallet signs to turn "tell me when creators I follow go live" on or off in one browser. */
+export function buildNotifyMessage(wallet: string, action: "on" | "off", issuedAt: string): string {
+  return `Shelby Studio: notify ${action} ${wallet.toLowerCase()} | ${issuedAt}`;
+}
+
+export interface PushSub {
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+}

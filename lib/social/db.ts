@@ -7,7 +7,7 @@ import { Pool } from "pg";
 
 import { DatabaseNotConfiguredError, sslSettings } from "@/lib/media/db";
 
-import type { AudienceStats, TipRecord, TipSummary } from "./types";
+import type { AudienceStats, PushSub, TipRecord, TipSummary } from "./types";
 
 /**
  * Tips, follows and views. Same approach as the other tables: Postgres in
@@ -23,6 +23,12 @@ interface SocialStore {
   following(follower: string): Promise<string[]>;
   addView(owner: string, target: string, viewer: string, day: string): Promise<void>;
   viewCounts(owner: string): Promise<Record<string, number>>;
+  addPush(wallet: string, sub: PushSub): Promise<void>;
+  removePush(wallet: string, endpoint: string): Promise<void>;
+  /** Browsers of everyone who follows `creator` and turned notifications on. */
+  pushTargets(creator: string): Promise<PushSub[]>;
+  dropPush(endpoint: string): Promise<void>;
+  hasPush(wallet: string, endpoint: string): Promise<boolean>;
 }
 
 const CREATE_TABLES = [
@@ -48,10 +54,18 @@ const CREATE_TABLES = [
      day date NOT NULL,
      PRIMARY KEY (owner, target, viewer, day)
    )`,
+  `CREATE TABLE IF NOT EXISTS push_subscriptions (
+     wallet text NOT NULL,
+     endpoint text NOT NULL,
+     p256dh text NOT NULL,
+     auth text NOT NULL,
+     created_at timestamptz NOT NULL DEFAULT now(),
+     PRIMARY KEY (wallet, endpoint)
+   )`,
 ];
 
 // No policies: only our server (through DATABASE_URL) can read or write.
-const LOCK_TABLES = ["tips", "follows", "page_views"].map(
+const LOCK_TABLES = ["tips", "follows", "page_views", "push_subscriptions"].map(
   (table) => `ALTER TABLE ${table} ENABLE ROW LEVEL SECURITY`
 );
 
@@ -181,6 +195,52 @@ function createPostgresStore(connectionString: string): SocialStore {
 
       return Object.fromEntries(result.rows.map((row) => [row.target, row.n]));
     },
+
+    async addPush(wallet, sub) {
+      await ensureTables();
+
+      await pool.query(
+        `INSERT INTO push_subscriptions (wallet, endpoint, p256dh, auth) VALUES ($1, $2, $3, $4)
+         ON CONFLICT (wallet, endpoint) DO UPDATE SET p256dh = $3, auth = $4`,
+        [wallet, sub.endpoint, sub.p256dh, sub.auth]
+      );
+    },
+
+    async removePush(wallet, endpoint) {
+      await ensureTables();
+
+      await pool.query(`DELETE FROM push_subscriptions WHERE wallet = $1 AND endpoint = $2`, [wallet, endpoint]);
+    },
+
+    async pushTargets(creator) {
+      await ensureTables();
+
+      const result = await pool.query(
+        `SELECT DISTINCT p.endpoint, p.p256dh, p.auth
+           FROM push_subscriptions p JOIN follows f ON f.follower = p.wallet
+          WHERE f.creator = $1 LIMIT 2000`,
+        [creator]
+      );
+
+      return result.rows.map((row) => ({ endpoint: row.endpoint, p256dh: row.p256dh, auth: row.auth }));
+    },
+
+    async dropPush(endpoint) {
+      await ensureTables();
+
+      await pool.query(`DELETE FROM push_subscriptions WHERE endpoint = $1`, [endpoint]);
+    },
+
+    async hasPush(wallet, endpoint) {
+      await ensureTables();
+
+      const result = await pool.query(`SELECT 1 FROM push_subscriptions WHERE wallet = $1 AND endpoint = $2`, [
+        wallet,
+        endpoint,
+      ]);
+
+      return (result.rowCount ?? 0) > 0;
+    },
   };
 }
 
@@ -188,6 +248,7 @@ interface FileShape {
   tips: TipRecord[];
   follows: Array<{ follower: string; creator: string }>;
   views: Array<{ owner: string; target: string; viewer: string; day: string }>;
+  push: Array<PushSub & { wallet: string }>;
 }
 
 function createFileStore(): SocialStore {
@@ -195,9 +256,9 @@ function createFileStore(): SocialStore {
 
   async function read(): Promise<FileShape> {
     try {
-      return { tips: [], follows: [], views: [], ...JSON.parse(await fs.readFile(file, "utf8")) };
+      return { tips: [], follows: [], views: [], push: [], ...JSON.parse(await fs.readFile(file, "utf8")) };
     } catch {
-      return { tips: [], follows: [], views: [] };
+      return { tips: [], follows: [], views: [], push: [] };
     }
   }
 
@@ -272,6 +333,46 @@ function createFileStore(): SocialStore {
 
       return counts;
     },
+
+    async addPush(wallet, sub) {
+      const data = await read();
+
+      data.push = data.push.filter((row) => !(row.wallet === wallet && row.endpoint === sub.endpoint));
+
+      data.push.push({ wallet, ...sub });
+
+      await write(data);
+    },
+
+    async removePush(wallet, endpoint) {
+      const data = await read();
+
+      data.push = data.push.filter((row) => !(row.wallet === wallet && row.endpoint === endpoint));
+
+      await write(data);
+    },
+
+    async pushTargets(creator) {
+      const data = await read();
+
+      const followers = new Set(data.follows.filter((row) => row.creator === creator).map((row) => row.follower));
+
+      return data.push
+        .filter((row) => followers.has(row.wallet))
+        .map(({ endpoint, p256dh, auth }) => ({ endpoint, p256dh, auth }));
+    },
+
+    async dropPush(endpoint) {
+      const data = await read();
+
+      data.push = data.push.filter((row) => row.endpoint !== endpoint);
+
+      await write(data);
+    },
+
+    async hasPush(wallet, endpoint) {
+      return (await read()).push.some((row) => row.wallet === wallet && row.endpoint === endpoint);
+    },
   };
 }
 
@@ -342,4 +443,9 @@ export const social = {
   following: (follower: string) => getStore().following(follower),
   addView: (owner: string, target: string, viewer: string, day: string) =>
     getStore().addView(owner, target, viewer, day),
+  addPush: (wallet: string, sub: PushSub) => getStore().addPush(wallet, sub),
+  removePush: (wallet: string, endpoint: string) => getStore().removePush(wallet, endpoint),
+  pushTargets: (creator: string) => getStore().pushTargets(creator),
+  dropPush: (endpoint: string) => getStore().dropPush(endpoint),
+  hasPush: (wallet: string, endpoint: string) => getStore().hasPush(wallet, endpoint),
 };
