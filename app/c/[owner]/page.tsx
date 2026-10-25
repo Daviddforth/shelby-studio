@@ -9,6 +9,12 @@ import { liveWatchPath, OFFLINE } from "@/lib/live/types";
 
 import MediaThumb from "@/components/media/MediaThumb";
 import ReportButton from "@/components/report/ReportButton";
+import FollowButton from "@/components/social/FollowButton";
+import Supporters from "@/components/social/Supporters";
+import TipButton from "@/components/social/TipButton";
+import ViewBeacon from "@/components/social/ViewBeacon";
+
+import { getFollowerCount, getTipSummary, getViewCounts } from "@/lib/social/db";
 
 import { getDetailsForOwner } from "@/lib/media/db";
 import { getProfile } from "@/lib/profile/db";
@@ -111,6 +117,18 @@ export default async function CreatorPage({ params }: PageProps) {
 
   const name = profileLabel(profile, creator.owner);
 
+  const [followers, tips, viewCounts] = await Promise.all([
+    getFollowerCount(creator.owner.toLowerCase()),
+    getTipSummary(creator.owner.toLowerCase()),
+    getViewCounts(creator.owner.toLowerCase()),
+  ]);
+
+  const supporterProfiles = await Promise.all(
+    tips.recent.map(async (tip) => [tip.from, (await getProfile(tip.from).catch(() => null))?.displayName ?? ""] as const)
+  );
+
+  const supporterNames = Object.fromEntries(supporterProfiles.filter(([, label]) => label));
+
   // A missing or unreachable live service must never break the creator page.
   const live = await getLiveStatus(creator.owner).catch(() => OFFLINE);
 
@@ -142,6 +160,8 @@ export default async function CreatorPage({ params }: PageProps) {
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">
+      <ViewBeacon owner={creator.owner.toLowerCase()} target="__page__" />
+
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
         <header className="mb-10 flex items-center justify-between">
           <Link
@@ -263,6 +283,12 @@ export default async function CreatorPage({ params }: PageProps) {
               </div>
             )}
 
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <FollowButton creator={creator.owner.toLowerCase()} initialCount={followers} />
+
+              <TipButton creator={creator.owner.toLowerCase()} name={name} />
+            </div>
+
             <p className="mt-3 text-sm text-slate-400">
               {items.length === 0
                 ? "No public media yet."
@@ -309,6 +335,7 @@ export default async function CreatorPage({ params }: PageProps) {
 
                     <p className="mt-1 text-xs capitalize text-slate-500">
                       {item.media.kind} · {formatBytes(item.size)}
+                      {viewCounts[item.blobName] ? ` · ${viewCounts[item.blobName]} views` : ""}
                     </p>
                   </div>
                 </Link>
@@ -316,6 +343,8 @@ export default async function CreatorPage({ params }: PageProps) {
             })}
           </div>
         )}
+
+        <Supporters summary={tips} names={supporterNames} />
 
         <div className="mt-12 border-t border-slate-800 pt-4">
           <ReportButton kind="creator" target={`/c/${creator.owner}`} label="Report this page" />

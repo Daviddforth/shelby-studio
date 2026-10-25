@@ -7,6 +7,12 @@ import { connection } from "next/server";
 import MediaPlayer from "@/components/media/MediaPlayer";
 import ShareLinks from "@/components/media/ShareLinks";
 import ShelbyProof from "@/components/media/ShelbyProof";
+import TipButton from "@/components/social/TipButton";
+import ViewBeacon from "@/components/social/ViewBeacon";
+
+import { getViewCounts } from "@/lib/social/db";
+import { getProfile } from "@/lib/profile/db";
+import { profileLabel } from "@/lib/profile/types";
 
 import { getDetailsForOwner } from "@/lib/media/db";
 
@@ -163,8 +169,16 @@ export default async function PublicMediaPage({ params }: PageProps) {
 
   const poster = cover ? mediaStreamPath(media.owner, cover) : undefined;
 
+  const views = (await getViewCounts(media.owner.toLowerCase()))[media.blobName] ?? 0;
+
+  const creatorProfile = await getProfile(media.owner.toLowerCase()).catch(() => null);
+
+  const creatorName = profileLabel(creatorProfile, media.owner);
+
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">
+      <ViewBeacon owner={media.owner.toLowerCase()} target={media.blobName} />
+
       <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
         <header className="mb-6 flex items-center justify-between">
           <Link
@@ -195,7 +209,7 @@ export default async function PublicMediaPage({ params }: PageProps) {
           </h1>
 
           <p className="mt-2 text-sm text-slate-400">
-            {formatBytes(media.size)} · Stored on Shelby · Shared by{" "}
+            {views > 0 ? `${views} views · ` : ""}{formatBytes(media.size)} · Stored on Shelby · Shared by{" "}
             <Link
               href={`/c/${media.owner}`}
               className="font-mono underline-offset-2 hover:text-white hover:underline"
@@ -203,6 +217,10 @@ export default async function PublicMediaPage({ params }: PageProps) {
               {shortAddress(media.owner)}
             </Link>
           </p>
+
+          <div className="mt-4">
+            <TipButton creator={media.owner.toLowerCase()} name={creatorName} />
+          </div>
 
           {details?.description && (
             <p className="mt-5 max-w-3xl whitespace-pre-wrap break-words text-sm leading-6 text-slate-300">

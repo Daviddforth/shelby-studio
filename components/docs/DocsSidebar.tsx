@@ -45,6 +45,10 @@ const sections = [
         slug: "public-pages-embeds",
       },
       {
+        title: "Tips, Follows and Views",
+        slug: "tips-follows-views",
+      },
+      {
         title: "Dashboard",
         slug: "dashboard",
       },

@@ -20,6 +20,7 @@ The docs match the current code. Things that are not built yet are listed as lim
 | Library: upload video, audio and images | [library.md](library.md) |
 | Go Live: stream and chat | [live-streaming.md](live-streaming.md) |
 | Public Pages & Embeds | [public-pages-embeds.md](public-pages-embeds.md) |
+| Tips, Follows and Views | [tips-follows-views.md](tips-follows-views.md) |
 | Dashboard and menu | [dashboard.md](dashboard.md) |
 
 ## Storage

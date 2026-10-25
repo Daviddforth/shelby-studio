@@ -22,6 +22,7 @@ A creator workspace built on the Shelby decentralized storage protocol. Upload v
 | **Library** | Your videos, audio and images. Add a title, description and cover picture. Copy a share link or an embed code. |
 | **Go Live** | Stream from your camera or screen and send one link. Viewers watch and chat in the browser, with no account. |
 | **My Page** | Your public creator page at `/c/<wallet>`. It lists your media and shows a LIVE NOW banner while you stream. |
+| **Tips, Follow, Views** | Fans tip you in APT straight to your wallet (no cut), follow you with a free signature, and you see views, followers and tips on Home. |
 | **Discover** | `/discover` lists who is live and the newest media creators chose to share. `/stats` shows real counts. |
 | **Explorer** | Look up the files stored by any wallet address. |
 | **Developer** | An API playground, SDK examples and a code generator. |
@@ -118,6 +119,7 @@ Docs are in [`docs/`](docs/README.md) and are shown on the site at `/docs`.
 - [Library](docs/library.md)
 - [Go Live](docs/live-streaming.md)
 - [Public Pages & Embeds](docs/public-pages-embeds.md)
+- [Tips, Follows and Views](docs/tips-follows-views.md)
 - [Self-Hosting Setup](docs/self-hosting.md)
 - [Upload Pipeline](docs/upload-pipeline.md)
 - [Limitations & Roadmap](docs/limitations-roadmap.md)
@@ -125,7 +127,8 @@ Docs are in [`docs/`](docs/README.md) and are shown on the site at `/docs`.
 ## Limitations
 
 - Upload time depends on your internet speed. Shelby closes a request after 60 seconds, so very slow connections can fail even with retries.
-- Streams are not recorded or saved to Shelby, and chat has no moderation.
+- Live replays are recorded in the host's browser, so closing the tab before saving loses them. Replays are WebM only (no Safari).
+- Tips on Shelbynet use test tokens. Followers are not notified when you go live yet.
 - The X handle on a profile is not verified yet.
 - Titles and covers need a configured database.
 

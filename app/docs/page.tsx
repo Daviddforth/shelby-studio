@@ -67,6 +67,13 @@ const cards = [
     icon: Globe,
   },
   {
+    title: "Tips, Follows and Views",
+    description:
+      "Get tipped in APT, build followers and see your audience, with no platform fee.",
+    href: "/docs/tips-follows-views",
+    icon: Globe,
+  },
+  {
     title: "Storage Engine",
     description:
       "Shelby storage integration, asset lifecycle and wallet-signed transactions.",
