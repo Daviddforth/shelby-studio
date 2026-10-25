@@ -5,6 +5,7 @@ import { connection } from "next/server";
 
 import { Radio, Users } from "lucide-react";
 
+import FollowingStrip from "@/components/discover/FollowingStrip";
 import DiscoverFeed, { type FeedCreator, type FeedItem } from "@/components/discover/DiscoverFeed";
 
 import { listLiveStreams } from "@/lib/live/server";
@@ -106,6 +107,8 @@ export default async function DiscoverPage() {
           Find creators, catch a live stream, or let us surprise you. Everything here is stored on Shelby
           and shared by the people who made it.
         </p>
+
+        <FollowingStrip />
 
         <section className="mt-10">
           <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-red-400">

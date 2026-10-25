@@ -102,6 +102,8 @@ export default function MediaLibrary() {
 
   const [copied, setCopied] = useState<string | null>(null);
 
+  const [views, setViews] = useState<Record<string, number>>({});
+
   const [refreshing, setRefreshing] = useState(false);
 
   const items = useMemo<LibraryItem[]>(() => {
@@ -140,6 +142,23 @@ export default function MediaLibrary() {
       .catch(() => {
         // Details are optional; the library still works without them.
       });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [walletAddress]);
+
+  useEffect(() => {
+    if (!walletAddress) return;
+
+    let cancelled = false;
+
+    fetch(`/api/view?owner=${encodeURIComponent(walletAddress)}`, { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!cancelled && data?.success) setViews(data.views ?? {});
+      })
+      .catch(() => {});
 
     return () => {
       cancelled = true;
@@ -479,7 +498,7 @@ export default function MediaLibrary() {
                   kind={item.kind}
                   title={title}
                   fileName={itemDetails?.title ? getFileName(item.blobName) : null}
-                  sizeLabel={formatBytes(item.asset.size || 0)}
+                  sizeLabel={`${formatBytes(item.asset.size || 0)}${views[item.blobName] ? ` · ${views[item.blobName]} views` : ""}`}
                   isCover={isCover}
                   coverBlob={cover}
                   pagePath={pagePath}
