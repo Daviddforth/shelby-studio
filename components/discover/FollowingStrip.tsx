@@ -6,6 +6,7 @@ import Link from "next/link";
 
 import { Heart } from "lucide-react";
 
+import NotifyToggle from "@/components/social/NotifyToggle";
 import { useWallet } from "@/context/WalletContext";
 
 import { liveWatchPath } from "@/lib/live/types";
@@ -57,6 +58,10 @@ export default function FollowingStrip() {
         <Heart size={14} />
         Creators you follow
       </h2>
+
+      <div className="mt-3">
+        <NotifyToggle />
+      </div>
 
       <div className="mt-4 flex gap-4 overflow-x-auto pb-2">
         {creators.map((creator) => (
