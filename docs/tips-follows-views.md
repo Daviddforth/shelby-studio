@@ -17,11 +17,11 @@ If the transfer succeeded but the server could not find it yet, the fan sees a m
 
 ## Follow
 
-The **Follow** button needs one free wallet signature. Nothing goes on-chain and it costs no gas. The signed message names the creator, the action (follow or unfollow) and the time, and the server checks the signature before saving. You cannot follow yourself. The follower count is shown next to the button.
+The **Follow** button needs one free wallet signature. Nothing goes on-chain and it costs no gas. The signed message names the creator, the action (follow or unfollow) and the time, and the server checks the signature before saving. You cannot follow yourself. The follower count is shown next to the button. On **Discover**, a "Creators you follow" row shows the people you follow, with anyone who is live first. Click a live one to watch.
 
 ## Views
 
-Each creator page and media page counts one view per visitor per day. Visitors are told apart by a hash of their network address, so the raw address is not stored. Obvious bots are ignored. Media pages show a view count, and the creator page shows the count on each file.
+Each creator page and media page counts one view per visitor per day. Visitors are told apart by a hash of their network address, so the raw address is not stored. Obvious bots are ignored. Media pages show a view count, the creator page shows the count on each file, and your Library cards show them too.
 
 ## Your audience
 
