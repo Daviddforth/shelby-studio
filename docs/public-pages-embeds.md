@@ -52,7 +52,7 @@ Media and creator pages set page titles and descriptions, and the site has a She
 - Embedded players show a small **Hosted on Shelby** badge that links back to the media page.
 - Media pages, creator pages and live pages have a **Report** button. Reports are stored in the database and are only visible to the wallet set as `ADMIN_WALLET_ADDRESS`, at `/admin/reports`.
 - Shared links carry preview cards (Open Graph and Twitter) with the cover, image or profile picture.
-- `/discover` lists live streams and the newest media. A file appears there only after its creator gives it a title in the Library, so featuring is opt-in. `/stats` shows counts taken from the database.
+- `/discover` has a Live now row, a Creator spotlight that changes on each visit, a creators grid, new uploads with Video / Audio / Images filters and a Shuffle button, a search box (type a name, or paste a wallet address to open that creator) and a **Surprise me** button that opens a random shared file. Creators appear once they save a display name on the Profile page. A file appears there only after its creator gives it a title in the Library, so featuring is opt-in. `/stats` shows counts taken from the database.
 
 ## Creator profile
 
