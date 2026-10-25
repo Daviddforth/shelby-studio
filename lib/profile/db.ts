@@ -15,7 +15,12 @@ import type { ProfileData } from "./types";
  * not set. Never used as a fallback in production.
  */
 
+export interface ListedProfile extends ProfileData {
+  owner: string;
+}
+
 interface ProfileStore {
+  list(limit: number): Promise<ListedProfile[]>;
   count(): Promise<number>;
   get(owner: string): Promise<ProfileData | null>;
   upsert(owner: string, profile: ProfileData): Promise<void>;
@@ -64,6 +69,27 @@ function createPostgresStore(connectionString: string): ProfileStore {
   }
 
   return {
+    async list(limit) {
+      await ensureTable();
+
+      const result = await pool.query(
+        `SELECT owner, display_name, bio, website, twitter, github, avatar_blob
+           FROM creator_profiles WHERE display_name <> ''
+          ORDER BY updated_at DESC LIMIT $1`,
+        [limit]
+      );
+
+      return result.rows.map((row) => ({
+        owner: row.owner,
+        displayName: row.display_name,
+        bio: row.bio,
+        website: row.website,
+        twitter: row.twitter,
+        github: row.github,
+        avatarBlob: row.avatar_blob,
+      }));
+    },
+
     async count() {
       await ensureTable();
 
@@ -136,6 +162,13 @@ function createFileStore(): ProfileStore {
   }
 
   return {
+    async list(limit) {
+      return Object.entries(await read())
+        .filter(([, profile]) => profile.displayName)
+        .map(([owner, profile]) => ({ owner, ...profile }))
+        .slice(0, limit);
+    },
+
     async count() {
       return Object.keys(await read()).length;
     },
@@ -195,5 +228,14 @@ export async function countProfiles(): Promise<number | null> {
     return await getStore().count();
   } catch {
     return null;
+  }
+}
+
+/** Newest creators with a display name. Never throws. */
+export async function listProfiles(limit = 24): Promise<ListedProfile[]> {
+  try {
+    return await getStore().list(limit);
+  } catch {
+    return [];
   }
 }

@@ -103,8 +103,8 @@ export default function DashboardHero() {
 
           <p className="mt-2 max-w-2xl text-xs leading-5 text-slate-400 sm:text-sm sm:leading-6">
             {walletConnected
-              ? "Manage your assets, storage, metadata, and development workflow from one workspace."
-              : "Explore the Shelby Studio workspace and discover how assets, storage, collections, and metadata work together."}
+              ? "Upload, share and go live from one workspace. Everything is stored on Shelby and belongs to your wallet."
+              : "Explore the Shelby Studio workspace: upload to Shelby, share one link and go live. Connect your wallet to use your own."}
           </p>
 
           {walletConnected && walletAddress && (
