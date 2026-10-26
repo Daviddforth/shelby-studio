@@ -7,7 +7,11 @@ import { connection } from "next/server";
 import MediaPlayer from "@/components/media/MediaPlayer";
 import ShareLinks from "@/components/media/ShareLinks";
 import ShelbyProof from "@/components/media/ShelbyProof";
+import PremiumPlayer from "@/components/premium/PremiumPlayer";
+import { getPremium } from "@/lib/premium/server";
+import Comments from "@/components/comments/Comments";
 import TipButton from "@/components/social/TipButton";
+import WatchBeacon from "@/components/social/WatchBeacon";
 import ViewBeacon from "@/components/social/ViewBeacon";
 
 import { getViewCounts } from "@/lib/social/db";
@@ -113,6 +117,9 @@ export async function generateMetadata({
 
   const cover = await existingCover(media.owner, details?.coverBlob);
 
+  // A paid file never exposes its (locked) bytes in link previews.
+  const locked = Boolean(await getPremium(media.owner.toLowerCase(), media.blobName));
+
   const coverUrl = cover
     ? `${getSiteOrigin()}${mediaStreamPath(media.owner, cover)}`
     : null;
@@ -125,7 +132,7 @@ export async function generateMetadata({
       card: media.media.kind === "image" || coverUrl ? "summary_large_image" : "summary",
       title,
       description,
-      ...(media.media.kind === "image"
+      ...(media.media.kind === "image" && !locked
         ? { images: [streamUrl] }
         : coverUrl
           ? { images: [coverUrl] }
@@ -135,15 +142,15 @@ export async function generateMetadata({
       title,
       description,
       siteName: "Shelby Studio",
-      ...(media.media.kind === "image"
+      ...(media.media.kind === "image" && !locked
         ? { images: [{ url: streamUrl }] }
         : coverUrl
           ? { images: [{ url: coverUrl }] }
           : {}),
-      ...(media.media.kind === "video"
+      ...(media.media.kind === "video" && !locked
         ? { videos: [{ url: streamUrl, type: media.media.mime }] }
         : {}),
-      ...(media.media.kind === "audio"
+      ...(media.media.kind === "audio" && !locked
         ? { audio: [{ url: streamUrl, type: media.media.mime }] }
         : {}),
     },
@@ -169,6 +176,8 @@ export default async function PublicMediaPage({ params }: PageProps) {
 
   const poster = cover ? mediaStreamPath(media.owner, cover) : undefined;
 
+  const premium = await getPremium(media.owner.toLowerCase(), media.blobName);
+
   const views = (await getViewCounts(media.owner.toLowerCase()))[media.blobName] ?? 0;
 
   const creatorProfile = await getProfile(media.owner.toLowerCase()).catch(() => null);
@@ -178,6 +187,10 @@ export default async function PublicMediaPage({ params }: PageProps) {
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">
       <ViewBeacon owner={media.owner.toLowerCase()} target={media.blobName} />
+
+      {!premium && (media.media.kind === "video" || media.media.kind === "audio") && (
+        <WatchBeacon owner={media.owner.toLowerCase()} target={media.blobName} />
+      )}
 
       <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
         <header className="mb-6 flex items-center justify-between">
@@ -196,12 +209,23 @@ export default async function PublicMediaPage({ params }: PageProps) {
           </Link>
         </header>
 
-        <MediaPlayer
-          kind={media.media.kind}
-          src={src}
-          title={title}
-          poster={poster}
-        />
+        {premium ? (
+          <PremiumPlayer
+            owner={media.owner.toLowerCase()}
+            blobName={media.blobName}
+            kind={media.media.kind}
+            title={title}
+            priceOctas={premium.priceOctas}
+            poster={poster}
+          />
+        ) : (
+          <MediaPlayer
+            kind={media.media.kind}
+            src={src}
+            title={title}
+            poster={poster}
+          />
+        )}
 
         <section className="mt-6">
           <h1 className="break-all text-xl font-semibold text-white">
@@ -240,6 +264,8 @@ export default async function PublicMediaPage({ params }: PageProps) {
             kind={media.media.kind}
           />
         </section>
+
+        <Comments owner={media.owner.toLowerCase()} target={media.blobName} />
 
         <ShelbyProof
           owner={media.owner}

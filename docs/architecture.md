@@ -172,3 +172,9 @@ Other protections: no HTML or SVG is served as media, wallet-signed saves are bo
 - The real LiveKit and Shelby paths depend on external services being configured.
 
 See [Limitations & Roadmap](/docs/limitations-roadmap).
+
+## Community data
+
+Collections, comments, scheduled lives, watch time, paid-file keys, purchases and Telegram links share one small Postgres table, `studio_docs`, keyed by kind, scope and id. Tips, follows, views and browser alert subscriptions have their own tables. Both are locked with row level security so only the server can reach them. Public pages read through helpers that never throw, so a missing database shows empty lists instead of an error page. In development without `DATABASE_URL`, a JSON file in `.data/` stands in.
+
+Anything that changes data is wallet-signed. The wallet signs the action name, a fingerprint of the exact content and the time, and the server rebuilds the same text from the cleaned content before accepting it.

@@ -74,6 +74,20 @@ const cards = [
     icon: Globe,
   },
   {
+    title: "Collections, Comments and Scheduled Lives",
+    description:
+      "Playlists, wallet-signed comments, scheduled streams and watch time.",
+    href: "/docs/collections-comments",
+    icon: Globe,
+  },
+  {
+    title: "Paid Files",
+    description:
+      "Sell locked files for APT, paid straight to your wallet. How it works and who you must trust.",
+    href: "/docs/paid-files",
+    icon: Globe,
+  },
+  {
     title: "Storage Engine",
     description:
       "Shelby storage integration, asset lifecycle and wallet-signed transactions.",

@@ -5,6 +5,9 @@ import { connection } from "next/server";
 
 import { Radio, Users } from "lucide-react";
 
+import { allPremiumKeys } from "@/lib/premium/server";
+import UpcomingLives from "@/components/schedule/UpcomingLives";
+import { upcomingEverywhere } from "@/lib/schedule/db";
 import FollowingStrip from "@/components/discover/FollowingStrip";
 import DiscoverFeed, { type FeedCreator, type FeedItem } from "@/components/discover/DiscoverFeed";
 
@@ -43,7 +46,13 @@ async function loadLive(): Promise<LiveStatus[]> {
 export default async function DiscoverPage() {
   await connection();
 
-  const [live, recent, profiles] = await Promise.all([loadLive(), getRecentItems(60), listProfiles(48)]);
+  const [live, recent, profiles, upcoming, paid] = await Promise.all([
+    loadLive(),
+    getRecentItems(60),
+    listProfiles(48),
+    upcomingEverywhere(9),
+    allPremiumKeys(),
+  ]);
 
   const profileByOwner = new Map(profiles.map((profile) => [profile.owner.toLowerCase(), profile]));
 
@@ -52,6 +61,9 @@ export default async function DiscoverPage() {
   const nameOf = (owner: string) => profileLabel(profileByOwner.get(owner.toLowerCase()) ?? null, owner);
 
   const items: FeedItem[] = recent.flatMap((item) => {
+    // A paid file is locked, so there is nothing to preview.
+    if (paid.has(`${item.owner.toLowerCase()}|${item.blobName}`)) return [];
+
     const media = getMediaType(item.blobName);
 
     return media
@@ -152,6 +164,11 @@ export default async function DiscoverPage() {
             </div>
           )}
         </section>
+
+        <UpcomingLives
+          lives={upcoming}
+          names={Object.fromEntries(upcoming.map((item) => [item.owner, nameOf(item.owner)]))}
+        />
 
         <div className="mt-12">
           <DiscoverFeed items={items} creators={creators} spotlightOwner={spotlightOwner} />

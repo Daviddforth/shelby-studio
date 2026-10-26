@@ -1,8 +1,6 @@
 import { after } from "next/server";
 
-import { notifyFollowersLive } from "@/lib/push/server";
-import { getProfile } from "@/lib/profile/db";
-import { profileLabel } from "@/lib/profile/types";
+import { notifyFollowers } from "@/lib/notify/server";
 import { SignatureError, verifyWalletMessage } from "@/lib/media/auth";
 
 import {
@@ -80,11 +78,12 @@ export async function POST(request: Request) {
     // Only a brand-new stream tells followers; reopening the studio does not.
     if (!wasLive) {
       after(async () => {
-        const profile = await getProfile(owner).catch(() => null);
-
-        await notifyFollowersLive(owner, profileLabel(profile, owner), title, liveWatchPath(code)).catch((error) =>
-          console.error("[push] notify failed", error)
-        );
+        await notifyFollowers(
+          owner,
+          "live",
+          (name) => ({ title: `${name} is live`, body: title || "Tap to watch the stream.", url: liveWatchPath(code) }),
+          10 * 60_000
+        ).catch((error) => console.error("[notify] failed", error));
       });
     }
 

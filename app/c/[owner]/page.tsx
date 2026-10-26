@@ -10,9 +10,18 @@ import { liveWatchPath, OFFLINE } from "@/lib/live/types";
 import MediaThumb from "@/components/media/MediaThumb";
 import ReportButton from "@/components/report/ReportButton";
 import FollowButton from "@/components/social/FollowButton";
+import SupportCardSnippet from "@/components/social/SupportCardSnippet";
 import Supporters from "@/components/social/Supporters";
 import TipButton from "@/components/social/TipButton";
 import ViewBeacon from "@/components/social/ViewBeacon";
+
+import { listPremium } from "@/lib/premium/server";
+import { formatApt } from "@/lib/social/types";
+import UpcomingLives from "@/components/schedule/UpcomingLives";
+import { upcomingFor } from "@/lib/schedule/db";
+import { listCollections } from "@/lib/collections/db";
+import { collectionPath } from "@/lib/collections/types";
+import { ListVideo, Lock } from "lucide-react";
 
 import { getFollowerCount, getTipSummary, getViewCounts } from "@/lib/social/db";
 
@@ -122,6 +131,14 @@ export default async function CreatorPage({ params }: PageProps) {
     getTipSummary(creator.owner.toLowerCase()),
     getViewCounts(creator.owner.toLowerCase()),
   ]);
+
+  const collections = (await listCollections(creator.owner.toLowerCase())).filter((collection) =>
+    collection.items.some((blob) => creator.items.some((item) => item.blobName === blob))
+  );
+
+  const premium = await listPremium(creator.owner.toLowerCase());
+
+  const upcoming = await upcomingFor(creator.owner.toLowerCase());
 
   const supporterProfiles = await Promise.all(
     tips.recent.map(async (tip) => [tip.from, (await getProfile(tip.from).catch(() => null))?.displayName ?? ""] as const)
@@ -297,6 +314,39 @@ export default async function CreatorPage({ params }: PageProps) {
           </div>
         </section>
 
+        <div className="-mt-10 mb-8">
+          <UpcomingLives lives={upcoming} heading="Upcoming lives" />
+        </div>
+
+        {collections.length > 0 && (
+          <section className="mb-8">
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+              <ListVideo size={15} className="text-blue-400" />
+              Collections
+            </h2>
+
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {collections.map((collection) => (
+                <Link
+                  key={collection.id}
+                  href={collectionPath(creator.owner.toLowerCase(), collection.id)}
+                  className="rounded-2xl border border-slate-800 bg-slate-900 p-4 transition hover:border-slate-600"
+                >
+                  <p className="truncate text-sm font-semibold text-white">{collection.title}</p>
+
+                  <p className="mt-1 text-xs text-slate-500">
+                    {collection.items.length} {collection.items.length === 1 ? "file" : "files"}
+                  </p>
+
+                  {collection.description && (
+                    <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-400">{collection.description}</p>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
         {items.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900/40 p-10 text-center text-sm text-slate-500">
             This creator has not uploaded any video, audio or images yet.
@@ -314,7 +364,19 @@ export default async function CreatorPage({ params }: PageProps) {
                   href={mediaPagePath(creator.owner, item.blobName)}
                   className="group min-w-0 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 transition hover:border-slate-600"
                 >
-                  <div className="aspect-video overflow-hidden bg-slate-950">
+                  <div className="relative aspect-video overflow-hidden bg-slate-950">
+                    {premium[item.blobName] && (
+                      <span className="absolute left-2 top-2 z-10 flex items-center gap-1 rounded-md bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                        <Lock size={10} />
+                        {formatApt(premium[item.blobName].priceOctas)} APT
+                      </span>
+                    )}
+
+                    {premium[item.blobName] && !(itemDetails?.coverBlob && imageNames.has(itemDetails.coverBlob)) ? (
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-amber-500/10 to-slate-900">
+                        <Lock size={28} className="text-amber-400" />
+                      </div>
+                    ) : (
                     <MediaThumb
                       owner={creator.owner}
                       blobName={item.blobName}
@@ -326,6 +388,7 @@ export default async function CreatorPage({ params }: PageProps) {
                           : null
                       }
                     />
+                    )}
                   </div>
 
                   <div className="p-4">
@@ -345,6 +408,8 @@ export default async function CreatorPage({ params }: PageProps) {
         )}
 
         <Supporters summary={tips} names={supporterNames} />
+
+        <SupportCardSnippet owner={creator.owner.toLowerCase()} />
 
         <div className="mt-12 border-t border-slate-800 pt-4">
           <ReportButton kind="creator" target={`/c/${creator.owner}`} label="Report this page" />

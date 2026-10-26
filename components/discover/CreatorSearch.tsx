@@ -42,7 +42,7 @@ export default function CreatorSearch({
             setError("");
             onChange(event.target.value);
           }}
-          placeholder="Find a creator by name, or paste a wallet address"
+          placeholder="Find a creator by name or wallet"
           className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
         />
       </div>

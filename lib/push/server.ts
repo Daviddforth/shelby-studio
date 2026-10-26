@@ -27,26 +27,30 @@ function configure(): boolean {
 const lastSent = new Map<string, number>();
 
 /** Same creator at most once every 10 minutes, so restarting a stream does not spam followers. */
-export function shouldNotify(creator: string, now = Date.now()): boolean {
+export function shouldNotify(creator: string, now = Date.now(), minGapMs = 10 * 60_000): boolean {
   const last = lastSent.get(creator) ?? 0;
 
-  if (now - last < 10 * 60_000) return false;
+  if (now - last < minGapMs) return false;
 
   lastSent.set(creator, now);
 
   return true;
 }
 
-export async function notifyFollowersLive(creator: string, name: string, title: string, url: string): Promise<number> {
-  if (!configure() || !shouldNotify(creator)) return 0;
+export interface Alert {
+  title: string;
+  body: string;
+  /** A path on this site, opened when the notification is tapped. */
+  url: string;
+}
+
+/** Sends one alert to every browser that follows `creator` and turned alerts on. Returns how many were sent. */
+export async function pushToFollowers(creator: string, alert: Alert): Promise<number> {
+  if (!configure()) return 0;
 
   const targets = await social.pushTargets(creator).catch(() => []);
 
-  const payload = JSON.stringify({
-    title: `${name} is live`,
-    body: title || "Tap to watch the stream.",
-    url,
-  });
+  const payload = JSON.stringify(alert);
 
   let sent = 0;
 

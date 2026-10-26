@@ -1,6 +1,7 @@
 "use client";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import ScheduleManager from "@/components/schedule/ScheduleManager";
 import HostStudio from "@/components/live/HostStudio";
 
 import { useWallet } from "@/context/WalletContext";
@@ -38,7 +39,11 @@ export default function GoLivePage() {
             </p>
           </div>
         ) : (
-          <HostStudio />
+          <>
+            <HostStudio />
+
+            <ScheduleManager />
+          </>
         )}
       </div>
     </DashboardLayout>
