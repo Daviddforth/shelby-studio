@@ -5,6 +5,8 @@ import path from "path";
 
 import { Pool } from "pg";
 
+import { salesFor } from "@/lib/premium/server";
+import { getWatchTotals } from "@/lib/watch/db";
 import { DatabaseNotConfiguredError, sslSettings } from "@/lib/media/db";
 
 import type { AudienceStats, PushSub, TipRecord, TipSummary } from "./types";
@@ -20,6 +22,7 @@ interface SocialStore {
   setFollow(follower: string, creator: string, following: boolean): Promise<void>;
   isFollowing(follower: string, creator: string): Promise<boolean>;
   followerCount(creator: string): Promise<number>;
+  followersOf(creator: string, limit: number): Promise<string[]>;
   following(follower: string): Promise<string[]>;
   addView(owner: string, target: string, viewer: string, day: string): Promise<void>;
   viewCounts(owner: string): Promise<Record<string, number>>;
@@ -165,6 +168,14 @@ function createPostgresStore(connectionString: string): SocialStore {
       return result.rows[0].n;
     },
 
+    async followersOf(creator, limit) {
+      await ensureTables();
+
+      const result = await pool.query(`SELECT follower FROM follows WHERE creator = $1 LIMIT $2`, [creator, limit]);
+
+      return result.rows.map((row) => row.follower);
+    },
+
     async following(follower) {
       await ensureTables();
 
@@ -308,6 +319,10 @@ function createFileStore(): SocialStore {
       return (await read()).follows.filter((row) => row.creator === creator).length;
     },
 
+    async followersOf(creator, limit) {
+      return (await read()).follows.filter((row) => row.creator === creator).map((row) => row.follower).slice(0, limit);
+    },
+
     async following(follower) {
       return (await read()).follows.filter((row) => row.follower === follower).map((row) => row.creator);
     },
@@ -420,10 +435,12 @@ export async function getViewCounts(owner: string): Promise<Record<string, numbe
 }
 
 export async function getAudienceStats(owner: string): Promise<AudienceStats> {
-  const [tips, followers, views] = await Promise.all([
+  const [tips, followers, views, watch, sales] = await Promise.all([
     getTipSummary(owner, 0),
     getFollowerCount(owner),
     getViewCounts(owner),
+    getWatchTotals(owner),
+    salesFor(owner).catch(() => ({ count: 0, total: BigInt(0) })),
   ]);
 
   return {
@@ -431,21 +448,26 @@ export async function getAudienceStats(owner: string): Promise<AudienceStats> {
     followers,
     tipCount: tips.count,
     tipTotal: tips.total,
+    watchSeconds: watch.seconds,
+    plays: watch.plays,
+    sales: sales.count,
+    salesTotal: sales.total.toString(),
   };
 }
 
 /** Writers throw when the database is unavailable. */
 export const social = {
-  addTip: (tip: TipRecord) => getStore().addTip(tip),
-  setFollow: (follower: string, creator: string, following: boolean) =>
+  addTip: async (tip: TipRecord) => getStore().addTip(tip),
+  setFollow: async (follower: string, creator: string, following: boolean) =>
     getStore().setFollow(follower, creator, following),
-  isFollowing: (follower: string, creator: string) => getStore().isFollowing(follower, creator),
-  following: (follower: string) => getStore().following(follower),
-  addView: (owner: string, target: string, viewer: string, day: string) =>
+  isFollowing: async (follower: string, creator: string) => getStore().isFollowing(follower, creator),
+  following: async (follower: string) => getStore().following(follower),
+  followersOf: async (creator: string, limit = 500) => getStore().followersOf(creator, limit),
+  addView: async (owner: string, target: string, viewer: string, day: string) =>
     getStore().addView(owner, target, viewer, day),
-  addPush: (wallet: string, sub: PushSub) => getStore().addPush(wallet, sub),
-  removePush: (wallet: string, endpoint: string) => getStore().removePush(wallet, endpoint),
-  pushTargets: (creator: string) => getStore().pushTargets(creator),
-  dropPush: (endpoint: string) => getStore().dropPush(endpoint),
-  hasPush: (wallet: string, endpoint: string) => getStore().hasPush(wallet, endpoint),
+  addPush: async (wallet: string, sub: PushSub) => getStore().addPush(wallet, sub),
+  removePush: async (wallet: string, endpoint: string) => getStore().removePush(wallet, endpoint),
+  pushTargets: async (creator: string) => getStore().pushTargets(creator),
+  dropPush: async (endpoint: string) => getStore().dropPush(endpoint),
+  hasPush: async (wallet: string, endpoint: string) => getStore().hasPush(wallet, endpoint),
 };

@@ -50,6 +50,10 @@ export interface AudienceStats {
   followers: number;
   tipCount: number;
   tipTotal: string;
+  watchSeconds: number;
+  plays: number;
+  sales: number;
+  salesTotal: string;
 }
 
 /** One line a wallet signs to turn "tell me when creators I follow go live" on or off in one browser. */

@@ -37,7 +37,7 @@ export function isReportablePath(kind: ReportKind, target: string): boolean {
 
   if (kind === "media") return /^\/m\/0x[0-9a-fA-F]{1,64}\/[^\s?#]+$/.test(target);
 
-  if (kind === "creator") return /^\/c\/0x[0-9a-fA-F]{1,64}$/.test(target);
+  if (kind === "creator") return /^\/c\/0x[0-9a-fA-F]{1,64}(\/collection\/[0-9a-f]{8})?$/.test(target);
 
   return /^\/live\/[a-f0-9]{20}$/.test(target);
 }

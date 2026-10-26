@@ -40,6 +40,10 @@ Never commit `.env.local`, and never paste its values into chat, screenshots or 
 | `VAPID_PUBLIC_KEY` | Live alerts | From `npm run vapid`. Not secret. |
 | `VAPID_PRIVATE_KEY` | Live alerts | From `npm run vapid`. Secret. Server only. |
 | `VAPID_SUBJECT` | Live alerts | `mailto:` your email address. |
+| `PREMIUM_KEY_SECRET` | Paid files | At least 16 random characters. Secret. Never change it after selling files, or their keys cannot be opened. |
+| `TELEGRAM_BOT_TOKEN` | Telegram alerts | From @BotFather. Secret. |
+| `TELEGRAM_BOT_USERNAME` | Telegram alerts | The bot's name, for example `ShelbyStudioBot`. |
+| `TELEGRAM_WEBHOOK_SECRET` | Telegram alerts | Any random text. Secret. |
 | `LIVE_MAX_PARTICIPANTS` | Optional | Maximum people in one live room. Default 100. |
 | `ADMIN_WALLET_ADDRESS` | Reports | The one wallet allowed to read reports at `/admin/reports`. Without it the page cannot be used. |
 

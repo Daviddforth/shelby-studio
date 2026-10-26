@@ -22,7 +22,11 @@ A creator workspace built on the Shelby decentralized storage protocol. Upload v
 | **Library** | Your videos, audio and images. Add a title, description and cover picture. Copy a share link or an embed code. |
 | **Go Live** | Stream from your camera or screen and send one link. Viewers watch and chat in the browser, with no account. |
 | **My Page** | Your public creator page at `/c/<wallet>`. It lists your media and shows a LIVE NOW banner while you stream. |
-| **Tips, Follow, Alerts, Views** | Fans tip you in APT straight to your wallet (no cut), follow you with a free signature, get a browser alert when you go live, and you see views, followers and tips on Home. |
+| **Collections** | Group files into playlists with their own page and an auto-advancing player. |
+| **Comments** | Wallet-signed comments on every media page, with delete for the author and the page owner. |
+| **Paid files** | Lock a file in your browser, sell it for APT paid straight to you, and the buyer unlocks it with the key. |
+| **Scheduled lives** | Announce a stream with a countdown on your page and Discover; followers are alerted. |
+| **Tips, Follow, Alerts, Views** | Fans tip you in APT straight to your wallet (no cut), follow you with a free signature, get a browser or Telegram alert when you go live, and you see views, followers and tips on Home. |
 | **Discover** | `/discover` lists who is live and the newest media creators chose to share. `/stats` shows real counts. |
 | **Explorer** | Look up the files stored by any wallet address. |
 | **Developer** | An API playground, SDK examples and a code generator. |
@@ -80,6 +84,8 @@ Never commit `.env.local` and never paste its values into chat, screenshots or i
 | `DATABASE_URL` | Titles, descriptions, covers, profiles and reports. Any Postgres. Required in production |
 | `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET` | Go Live |
 | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Live alerts (make keys with `npm run vapid`) |
+| `PREMIUM_KEY_SECRET` | Paid files |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_USERNAME`, `TELEGRAM_WEBHOOK_SECRET` | Telegram alerts (then run `npm run telegram:webhook`) |
 | `NEXT_PUBLIC_SITE_URL` | Optional: public URL used in share links |
 | `LIVE_MAX_PARTICIPANTS` | Optional: people per live room (default 100) |
 | `ADMIN_WALLET_ADDRESS` | Optional: the wallet allowed to read reports at `/admin/reports` |
@@ -121,6 +127,8 @@ Docs are in [`docs/`](docs/README.md) and are shown on the site at `/docs`.
 - [Go Live](docs/live-streaming.md)
 - [Public Pages & Embeds](docs/public-pages-embeds.md)
 - [Tips, Follows and Views](docs/tips-follows-views.md)
+- [Collections, Comments and Scheduled Lives](docs/collections-comments.md)
+- [Paid Files](docs/paid-files.md)
 - [Self-Hosting Setup](docs/self-hosting.md)
 - [Upload Pipeline](docs/upload-pipeline.md)
 - [Limitations & Roadmap](docs/limitations-roadmap.md)

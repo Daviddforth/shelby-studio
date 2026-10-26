@@ -23,6 +23,10 @@ The **Follow** button needs one free wallet signature. Nothing goes on-chain and
 
 When you follow creators and press **Alert me when they go live** on Discover, your browser asks for permission and you sign one free message. From then on, when a creator you follow starts a new stream, your browser shows a notification, even if Shelby Studio is closed. Tap it to watch.
 
+### Telegram alerts
+
+If the server has a Telegram bot, a **Get alerts on Telegram** button also appears. It opens a one-time link to the bot (valid 15 minutes). Press Start in Telegram and your wallet is connected. The bot then messages you when a creator you follow goes live or schedules a stream. Send `/stop` to the bot, or press the button again, to turn it off. Alerts only go to private chats.
+
 - Alerts are per browser. Turn them on in each browser you use.
 - A creator notifies followers at most once every 10 minutes, so restarting a stream does not spam anyone.
 - Reopening your studio while already live does not send alerts again.
@@ -33,9 +37,13 @@ When you follow creators and press **Alert me when they go live** on Discover, y
 
 Each creator page and media page counts one view per visitor per day. Visitors are told apart by a hash of their network address, so the raw address is not stored. Obvious bots are ignored. Media pages show a view count, the creator page shows the count on each file, and your Library cards show them too.
 
+## Support card for your own website
+
+On your own creator page, owners see a snippet to paste on any website. It shows your picture, followers and a LIVE badge. Its buttons open your Shelby Studio page, because wallets cannot work inside another site's page.
+
 ## Your audience
 
-When your wallet is connected, the Home page shows a second row with your page and file views, followers, tips received and the total tipped in APT. These are the same numbers visitors see.
+When your wallet is connected, the Home page shows a second row with views and plays, watch time, followers, tips and sales (with the APT for each). These are the same numbers visitors see.
 
 ## Where the data lives
 
@@ -44,6 +52,6 @@ Tips, follows and views are stored in your Postgres database (tables `tips`, `fo
 ## Limits
 
 - Tips use APT on the network the app is configured for. Tips in ShelbyUSD are not built.
-- Alerts are browser notifications only. There is no email or Telegram.
+- Alerts are browser and Telegram notifications. There is no email.
 - Views are counted per visitor per day, so they are an estimate, not an exact audience.
 - Tips are public by design. There is no anonymous tipping.

@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 
-import { Clapperboard, Coins, Database, Eye, HardDrive, Images, Users } from "lucide-react";
+import { Clapperboard, Clock, Coins, Database, Eye, HardDrive, Images, Lock, Users } from "lucide-react";
 
 import { useStorageContext } from "@/context/StorageContext";
 import { useWallet } from "@/context/WalletContext";
 import { formatApt } from "@/lib/social/types";
+import { formatWatch } from "@/lib/watch/types";
 import { demoAssets } from "@/components/demo/demoData";
 import { getMediaType } from "@/lib/media/types";
 
@@ -50,7 +51,7 @@ export default function DashboardStats() {
   const { assets } = useStorageContext();
   const { walletConnected, walletAddress } = useWallet();
 
-  const [audience, setAudience] = useState<{ views: number; followers: number; tipCount: number; tipTotal: string } | null>(null);
+  const [audience, setAudience] = useState<{ views: number; followers: number; tipCount: number; tipTotal: string; watchSeconds: number; plays: number; sales: number; salesTotal: string } | null>(null);
 
   useEffect(() => {
     if (!walletAddress) return;
@@ -82,14 +83,15 @@ export default function DashboardStats() {
   ];
 
   const audienceStats = [
-    { title: "Page & file views", value: audience?.views ?? 0, icon: Eye },
-    { title: "Followers", value: audience?.followers ?? 0, icon: Users },
-    { title: "Tips received", value: audience?.tipCount ?? 0, icon: Coins },
-    { title: "Tipped (APT)", value: formatApt(audience?.tipTotal ?? "0"), icon: Coins },
+    { title: "Views", value: audience?.views ?? 0, icon: Eye, note: `${audience?.plays ?? 0} plays` },
+    { title: "Watch time", value: formatWatch(audience?.watchSeconds ?? 0), icon: Clock, note: "estimate" },
+    { title: "Followers", value: audience?.followers ?? 0, icon: Users, note: null },
+    { title: "Tips", value: audience?.tipCount ?? 0, icon: Coins, note: `${formatApt(audience?.tipTotal ?? "0")} APT` },
+    { title: "Sales", value: audience?.sales ?? 0, icon: Lock, note: `${formatApt(audience?.salesTotal ?? "0")} APT` },
   ];
 
-  const renderRow = (rows: typeof stats, note: string | null) => (
-    <div className="grid grid-cols-2 border-y border-slate-800 md:grid-cols-4">
+  const renderRow = (rows: Array<{ title: string; value: string | number; icon: typeof Eye; note?: string | null }>, note: string | null) => (
+    <div className={`grid grid-cols-2 border-y border-slate-800 ${rows.length > 4 ? "md:grid-cols-5" : "md:grid-cols-4"}`}>
       {rows.map((stat, index) => {
         const Icon = stat.icon;
 
@@ -105,7 +107,7 @@ export default function DashboardStats() {
 
             <p className="mt-2 text-xl font-semibold text-white">{stat.value}</p>
 
-            {note && <p className="mt-1 text-[11px] text-slate-600">{note}</p>}
+            {(stat.note ?? note) && <p className="mt-1 text-[11px] text-slate-600">{stat.note ?? note}</p>}
           </div>
         );
       })}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   Check,
@@ -13,6 +13,8 @@ import {
   UploadCloud,
 } from "lucide-react";
 
+import PremiumUploader from "@/components/premium/PremiumUploader";
+import CollectionsManager from "@/components/collections/CollectionsManager";
 import EditMediaDialog from "@/components/media/EditMediaDialog";
 import MediaCard from "@/components/media/MediaCard";
 import { useOrigin } from "@/components/media/useOrigin";
@@ -20,6 +22,8 @@ import { useOrigin } from "@/components/media/useOrigin";
 import { useWallet } from "@/context/WalletContext";
 import { useStorage } from "@/hooks/useStorage";
 
+import { formatApt } from "@/lib/social/types";
+import { formatWatch } from "@/lib/watch/types";
 import { signSaveRequest } from "@/lib/media/clientSign";
 
 import {
@@ -102,7 +106,9 @@ export default function MediaLibrary() {
 
   const [copied, setCopied] = useState<string | null>(null);
 
+  const [premium, setPremium] = useState<Record<string, { priceOctas: number }>>({});
   const [views, setViews] = useState<Record<string, number>>({});
+  const [watch, setWatch] = useState<Record<string, { seconds: number; plays: number }>>({});
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -142,6 +148,39 @@ export default function MediaLibrary() {
       .catch(() => {
         // Details are optional; the library still works without them.
       });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [walletAddress]);
+
+  const loadPremium = useCallback(() => {
+    if (!walletAddress) return;
+
+    fetch(`/api/premium?owner=${encodeURIComponent(walletAddress)}`, { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data?.success && data.premium) setPremium(data.premium);
+      })
+      .catch(() => {});
+  }, [walletAddress]);
+
+  useEffect(() => {
+    // Loads from the network, then sets state once the answer arrives.
+    loadPremium();
+  }, [loadPremium]);
+
+  useEffect(() => {
+    if (!walletAddress) return;
+
+    let cancelled = false;
+
+    fetch(`/api/watch?owner=${encodeURIComponent(walletAddress)}`, { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!cancelled && data?.success) setWatch(data.stats ?? {});
+      })
+      .catch(() => {});
 
     return () => {
       cancelled = true;
@@ -498,7 +537,7 @@ export default function MediaLibrary() {
                   kind={item.kind}
                   title={title}
                   fileName={itemDetails?.title ? getFileName(item.blobName) : null}
-                  sizeLabel={`${formatBytes(item.asset.size || 0)}${views[item.blobName] ? ` · ${views[item.blobName]} views` : ""}`}
+                  sizeLabel={`${formatBytes(item.asset.size || 0)}${premium[item.blobName] ? ` · Paid ${formatApt(premium[item.blobName].priceOctas)} APT` : ""}${views[item.blobName] ? ` · ${views[item.blobName]} views` : ""}${watch[item.blobName]?.seconds ? ` · ${formatWatch(watch[item.blobName].seconds)} watched` : ""}`}
                   isCover={isCover}
                   coverBlob={cover}
                   pagePath={pagePath}
@@ -519,6 +558,18 @@ export default function MediaLibrary() {
           </div>
         )}
       </div>
+
+      <PremiumUploader onDone={loadPremium} />
+
+      <CollectionsManager
+        files={items
+          .filter((item) => !coverNames.has(item.blobName))
+          .map((item) => ({
+            blobName: item.blobName,
+            title: displayTitle(item.blobName, details[item.blobName]),
+            kind: item.kind,
+          }))}
+      />
 
       {editing && (
         <EditMediaDialog

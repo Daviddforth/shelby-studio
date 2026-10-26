@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
+import WatchBeacon from "@/components/social/WatchBeacon";
+import { getPremium } from "@/lib/premium/server";
+import { formatApt } from "@/lib/social/types";
 import MediaPlayer from "@/components/media/MediaPlayer";
 import { ShelbyBadgeLink } from "@/components/media/ShelbyProof";
 
@@ -65,10 +68,34 @@ export default async function EmbedMediaPage({ params }: PageProps) {
 
   const poster = cover ? mediaStreamPath(media.owner, cover) : undefined;
 
+  const premium = await getPremium(media.owner.toLowerCase(), media.blobName);
+
+  if (premium) {
+    // The locked bytes are useless to play, so a paid file links to its page to unlock.
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 p-4 text-center">
+        <a
+          href={mediaPagePath(media.owner, media.blobName)}
+          target="_blank"
+          rel="noopener"
+          className="rounded-2xl border border-amber-500/40 bg-slate-900 px-6 py-5 text-white transition hover:border-amber-400"
+        >
+          <span className="block text-sm font-semibold">{title}</span>
+
+          <span className="mt-1 block text-xs text-amber-300">Paid file · {formatApt(premium.priceOctas)} APT</span>
+
+          <span className="mt-3 block text-xs text-slate-400">Unlock on Shelby Studio</span>
+        </a>
+      </div>
+    );
+  }
+
   // Covers the app shell so the player fills the whole iframe.
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
       <div className="relative h-full w-full">
+        {media.media.kind !== "image" && <WatchBeacon owner={media.owner.toLowerCase()} target={media.blobName} />}
+
         <ShelbyBadgeLink href={mediaPagePath(media.owner, media.blobName)} />
 
         {media.media.kind === "audio" ? (

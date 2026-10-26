@@ -49,6 +49,14 @@ const sections = [
         slug: "tips-follows-views",
       },
       {
+        title: "Collections & Comments",
+        slug: "collections-comments",
+      },
+      {
+        title: "Paid Files",
+        slug: "paid-files",
+      },
+      {
         title: "Dashboard",
         slug: "dashboard",
       },
